@@ -6,14 +6,14 @@ CAVAC(중앙백신연구소) 전시 부스용 오프라인 키오스크 게임�
 
 | 영역 | 도구 |
 | --- | --- |
-| 런타임, 패키지 | Bun 1.4.2 |
+| 개발 도구, 패키지 | Bun 1.4.2 |
 | 언어, 빌드 | TypeScript, Vite |
 | UI | React, Tailwind, cva, clsx, tailwind-merge |
 | 상태, 검증 | Zustand, Zod |
 | 애니메이션 | GSAP, Motion |
 | 포맷, 린트 | Biome |
 | 테스트 | bun test, React Testing Library |
-| 배포 | Electron, electron-builder |
+| 앱 런타임, 배포 | Electron, electron-builder |
 
 ## 시작하기
 
