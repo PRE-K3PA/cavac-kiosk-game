@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+	--breakpoint-*: initial;
+	--breakpoint-FHD: 1920px;
+	--breakpoint-QHD: 2560px;
+	--breakpoint-4K: 3840px;
+}
+
+html,
+body,
+#root {
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+}
+
+body {
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: manipulation;
+	-webkit-touch-callout: none;
+}

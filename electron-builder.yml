@@ -1,0 +1,17 @@
+appId: com.cavac.kiosk
+productName: CAVAC Kiosk
+directories:
+  output: release
+  buildResources: resources
+files:
+  - dist/**
+  - dist-electron/**
+  - package.json
+win:
+  target:
+    - nsis
+  icon: resources/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true

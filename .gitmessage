@@ -1,0 +1,9 @@
+# <타입>(<범위>): <제목>
+#
+# <본문> (선택. 무엇을, 왜 바꿨는지)
+#
+# Resolves: #<이슈번호> (선택)
+
+# 타입: feat fix docs style refactor test chore
+# 범위: vaccine card admin common data electron build docs
+# 예시: feat(vaccine): 항원 낙하 루프 추가

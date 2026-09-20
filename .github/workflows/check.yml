@@ -1,0 +1,27 @@
+name: check
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: 의존성 설치
+        run: bun install
+
+      - name: Biome 검사
+        run: bun run check
+
+      - name: 타입 검사
+        run: bunx tsc --noEmit

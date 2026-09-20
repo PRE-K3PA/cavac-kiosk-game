@@ -141,3 +141,24 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# --- CAVAC kiosk ---
+dist-electron
+release
+.DS_Store
+
+# 패키지 매니저는 bun 하나만 사용합니다
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Claude Code 개인 설정
+.claude/settings.local.json
+
+# Agent 개인 설정
+.agents/
