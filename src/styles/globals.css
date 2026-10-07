@@ -1,10 +1,329 @@
 @import "tailwindcss";
+@import "./fonts.css";
+
+:root {
+	--white: #ffffff;
+	--black: #000000;
+
+	--gray-50: #edeff2;
+	--gray-100: #eceef0;
+	--gray-400: #9ca3af;
+
+	--slate-100: #e0e7ed;
+	--slate-300: #9ebddb;
+	--slate-400: #8ca6bf;
+	--slate-600: #6b7c93;
+	--slate-900: #2b3a54;
+
+	--stone-100: #f1ebe5;
+	--stone-200: #d3d0d3;
+	--stone-300: #b3afb2;
+	--stone-950: #2a211e;
+
+	--navy-700: #2d4f85;
+	--navy-800: #213c68;
+
+	--sky-50: #eff8fe;
+	--sky-100: #e8f4fc;
+	--sky-150: #c6e9fb;
+	--sky-200: #bce2fc;
+	--sky-250: #aaddf8;
+	--sky-300: #a8d8f0;
+	--sky-350: #8cc8ee;
+	--sky-400: #6fbdec;
+	--sky-450: #73bde5;
+	--sky-500: #57b7fc;
+	--sky-600: #4ba3e3;
+	--sky-700: #2d82c7;
+
+	--cyan-400: #7ec0cd;
+	--teal-300: #8ad9d2;
+
+	--indigo-300: #9db4f0;
+	--violet-100: #e3d7f7;
+	--purple-300: #d0a4e5;
+	--fuchsia-300: #f2a5d2;
+
+	--pink-100: #fdd8df;
+	--pink-200: #fcb7c4;
+
+	--red-200: #ffbaba;
+	--red-300: #f08a8a;
+	--red-500: #e74c3c;
+	--red-600: #c93b37;
+
+	--coral-300: #f3a69c;
+
+	--orange-200: #f8c489;
+	--orange-400: #f5933c;
+	--orange-500: #f5811f;
+	--orange-600: #e07e28;
+	--orange-700: #d26b11;
+
+	--amber-50: #fdf3e0;
+	--amber-100: #ffe2af;
+	--amber-400: #f0a92e;
+	--amber-500: #e0a223;
+	--amber-600: #d4881a;
+
+	--yellow-50: #fcf5da;
+	--yellow-300: #f3de7b;
+	--yellow-350: #fec843;
+	--yellow-400: #ffc53d;
+
+	--lime-50: #e9fcda;
+	--lime-100: #d8f4cd;
+	--lime-300: #b6dd96;
+	--lime-500: #6cc24a;
+
+	--green-50: #e4f6e9;
+	--green-300: #8dd9a6;
+	--green-500: #49b067;
+	--green-600: #3d9960;
+}
 
 @theme {
 	--breakpoint-*: initial;
 	--breakpoint-FHD: 1920px;
 	--breakpoint-QHD: 2560px;
 	--breakpoint-4K: 3840px;
+
+	--font-sans: "Pretendard", sans-serif;
+	--font-display: "Jalnan 2", "Pretendard", sans-serif;
+
+	--color-brand-primary: var(--orange-400);
+	--color-brand-primary-pressed: var(--orange-600);
+	--color-brand-primary-strong: var(--orange-700);
+	--color-brand-accent: var(--orange-500);
+	--color-brand-secondary: var(--sky-600);
+	--color-brand-secondary-strong: var(--sky-700);
+
+	--color-text-primary: var(--slate-900);
+	--color-text-secondary: var(--slate-600);
+	--color-text-placeholder: var(--slate-400);
+	--color-text-disabled: var(--gray-400);
+	--color-text-inverse: var(--white);
+	--color-text-on-brand: var(--white);
+
+	--color-background-canvas: var(--sky-100);
+	--color-background-surface: var(--white);
+	--color-background-surface-subtle: var(--sky-50);
+	--color-background-muted: var(--gray-50);
+	--color-background-overlay: color-mix(in srgb, var(--black) 60%, transparent);
+
+	--color-border-default: var(--sky-300);
+	--color-border-strong: var(--sky-450);
+	--color-border-muted: var(--slate-100);
+	--color-border-placeholder: var(--slate-300);
+	--color-border-inverse: var(--white);
+	--color-border-error: var(--red-300);
+
+	--color-state-error: var(--red-500);
+	--color-state-error-strong: var(--red-600);
+	--color-state-error-subtle: var(--red-200);
+	--color-state-success: var(--lime-500);
+	--color-state-success-strong: var(--green-500);
+
+	--color-accent-yellow: var(--yellow-400);
+	--color-accent-yellow-subtle: var(--yellow-50);
+	--color-accent-yellow-text: var(--amber-500);
+	--color-accent-amber: var(--amber-400);
+	--color-accent-sky-blue: var(--sky-500);
+	--color-accent-blue: var(--sky-600);
+	--color-accent-green-subtle: var(--lime-50);
+
+	--color-tone-common: var(--sky-700);
+	--color-tone-common-subtle: var(--sky-100);
+	--color-tone-vaccine: var(--green-600);
+	--color-tone-vaccine-subtle: var(--green-50);
+	--color-tone-card: var(--amber-600);
+	--color-tone-card-subtle: var(--amber-50);
+
+	--color-antigen-01: var(--coral-300);
+	--color-antigen-02: var(--pink-200);
+	--color-antigen-03: var(--fuchsia-300);
+	--color-antigen-04: var(--orange-200);
+	--color-antigen-05: var(--yellow-300);
+	--color-antigen-06: var(--lime-300);
+	--color-antigen-07: var(--green-300);
+	--color-antigen-08: var(--teal-300);
+	--color-antigen-09: var(--cyan-400);
+	--color-antigen-10: var(--sky-350);
+	--color-antigen-11: var(--indigo-300);
+	--color-antigen-12: var(--purple-300);
+	--color-antigen-outline: var(--navy-700);
+	--color-antigen-text: var(--navy-800);
+
+	--color-recipe-01: var(--sky-200);
+	--color-recipe-02: var(--amber-100);
+	--color-recipe-03: var(--lime-100);
+	--color-recipe-04: var(--violet-100);
+	--color-recipe-05: var(--pink-100);
+
+	--color-bottle-outline: var(--stone-950);
+	--color-bottle-cap: var(--stone-300);
+	--color-bottle-cap-top: var(--stone-200);
+	--color-bottle-neck: var(--gray-100);
+	--color-bottle-glass: var(--stone-100);
+	--color-bottle-liquid: var(--sky-250);
+	--color-bottle-liquid-top: var(--sky-150);
+	--color-bottle-liquid-edge: var(--sky-400);
+
+	--shadow-sm: 0 2px 6px 0 color-mix(in srgb, var(--slate-900) 16%, transparent);
+	--shadow-md: 0 4px 16px 0 color-mix(in srgb, var(--slate-900) 14%, transparent);
+	--shadow-lg: 0 6px 20px 0 color-mix(in srgb, var(--slate-900) 16%, transparent);
+	--shadow-modal: 0 12px 32px 0 color-mix(in srgb, var(--black) 18%, transparent);
+	--shadow-antigen: 0 3px 8px 0 color-mix(in srgb, var(--navy-700) 20%, transparent);
+	--shadow-glow-hint: 0 0 16px 2px color-mix(in srgb, var(--yellow-350) 55%, transparent);
+	--shadow-glow-correct: 0 0 14px 1px color-mix(in srgb, var(--green-500) 45%, transparent);
+
+	--text-shadow-hard-sm: 0 4px 0 var(--slate-900);
+	--text-shadow-hard-md: 0 6px 0 var(--slate-900);
+	--text-shadow-hard-lg: 0 8px 0 var(--slate-900);
+}
+
+@utility text-display-xl {
+	font-size: 120px;
+	line-height: 1.3;
+}
+
+@utility text-display-l {
+	font-size: 96px;
+	line-height: 1.3;
+}
+
+@utility text-display-m {
+	font-size: 48px;
+	line-height: 1.3;
+}
+
+@utility text-display-s {
+	font-size: 40px;
+	line-height: 1.3;
+}
+
+@utility text-display-xs {
+	font-size: 36px;
+	line-height: 1.3;
+}
+
+@utility text-title-l {
+	font-size: 80px;
+	line-height: 1.3;
+}
+
+@utility text-title-m {
+	font-size: 35px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-number-xl {
+	font-size: 140px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-number-l {
+	font-size: 80px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-label-cta {
+	font-size: 50px;
+	line-height: 1.3;
+	font-weight: 600;
+}
+
+@utility text-label-antigen {
+	font-size: 46px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-label-antigen-compact {
+	font-size: 38px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-label-button {
+	font-size: 36px;
+	line-height: 1.3;
+	font-weight: 600;
+}
+
+@utility text-label-l {
+	font-size: 28px;
+	line-height: 1.3;
+	font-weight: 600;
+}
+
+@utility text-label-m {
+	font-size: 24px;
+	line-height: 1.3;
+	font-weight: 600;
+}
+
+@utility text-label-s {
+	font-size: 20px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-body-l {
+	font-size: 30px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-body-m {
+	font-size: 24px;
+	line-height: 1.3;
+	font-weight: 500;
+}
+
+@utility text-caption {
+	font-size: 20px;
+	line-height: 1.3;
+	font-weight: 400;
+}
+
+@utility text-admin-pin {
+	font-size: 44px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-admin-title {
+	font-size: 32px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-admin-section {
+	font-size: 28px;
+	line-height: 1.3;
+	font-weight: 700;
+}
+
+@utility text-admin-label {
+	font-size: 24px;
+	line-height: 1.3;
+	font-weight: 600;
+}
+
+@utility text-admin-body {
+	font-size: 22px;
+	line-height: 1.3;
+	font-weight: 500;
+}
+
+@utility text-admin-caption {
+	font-size: 20px;
+	line-height: 1.3;
+	font-weight: 400;
 }
 
 html,
