@@ -182,145 +182,145 @@
 	--text-shadow-hard-lg: 0 8px 0 var(--slate-900);
 }
 
-@utility text-display-xl {
+@utility typo-display-xl {
 	font-size: 120px;
 	line-height: 1.3;
 }
 
-@utility text-display-l {
+@utility typo-display-l {
 	font-size: 96px;
 	line-height: 1.3;
 }
 
-@utility text-display-m {
+@utility typo-display-m {
 	font-size: 48px;
 	line-height: 1.3;
 }
 
-@utility text-display-s {
+@utility typo-display-s {
 	font-size: 40px;
 	line-height: 1.3;
 }
 
-@utility text-display-xs {
+@utility typo-display-xs {
 	font-size: 36px;
 	line-height: 1.3;
 }
 
-@utility text-title-l {
+@utility typo-title-l {
 	font-size: 80px;
 	line-height: 1.3;
 }
 
-@utility text-title-m {
+@utility typo-title-m {
 	font-size: 35px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-number-xl {
+@utility typo-number-xl {
 	font-size: 140px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-number-l {
+@utility typo-number-l {
 	font-size: 80px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-label-cta {
+@utility typo-label-cta {
 	font-size: 50px;
 	line-height: 1.3;
 	font-weight: 600;
 }
 
-@utility text-label-antigen {
+@utility typo-label-antigen {
 	font-size: 46px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-label-antigen-compact {
+@utility typo-label-antigen-compact {
 	font-size: 38px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-label-button {
+@utility typo-label-button {
 	font-size: 36px;
 	line-height: 1.3;
 	font-weight: 600;
 }
 
-@utility text-label-l {
+@utility typo-label-l {
 	font-size: 28px;
 	line-height: 1.3;
 	font-weight: 600;
 }
 
-@utility text-label-m {
+@utility typo-label-m {
 	font-size: 24px;
 	line-height: 1.3;
 	font-weight: 600;
 }
 
-@utility text-label-s {
+@utility typo-label-s {
 	font-size: 20px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-body-l {
+@utility typo-body-l {
 	font-size: 30px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-body-m {
+@utility typo-body-m {
 	font-size: 24px;
 	line-height: 1.3;
 	font-weight: 500;
 }
 
-@utility text-caption {
+@utility typo-caption {
 	font-size: 20px;
 	line-height: 1.3;
 	font-weight: 400;
 }
 
-@utility text-admin-pin {
+@utility typo-admin-pin {
 	font-size: 44px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-admin-title {
+@utility typo-admin-title {
 	font-size: 32px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-admin-section {
+@utility typo-admin-section {
 	font-size: 28px;
 	line-height: 1.3;
 	font-weight: 700;
 }
 
-@utility text-admin-label {
+@utility typo-admin-label {
 	font-size: 24px;
 	line-height: 1.3;
 	font-weight: 600;
 }
 
-@utility text-admin-body {
+@utility typo-admin-body {
 	font-size: 22px;
 	line-height: 1.3;
 	font-weight: 500;
 }
 
-@utility text-admin-caption {
+@utility typo-admin-caption {
 	font-size: 20px;
 	line-height: 1.3;
 	font-weight: 400;
