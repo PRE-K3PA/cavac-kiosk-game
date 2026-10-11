@@ -19,7 +19,7 @@ export function TipBubble({
 		<div className={cn("relative h-[87px] w-max min-w-[451px]", className)} {...props}>
 			<div
 				className={cn(
-					"absolute inset-x-0 flex h-[72px] items-center gap-[8px] rounded-[24px] border-3 border-accent-yellow bg-accent-yellow-subtle px-[24px] shadow-lg",
+					"absolute inset-x-0 flex h-[72px] items-center justify-center gap-[8px] rounded-[24px] border-3 border-accent-yellow bg-accent-yellow-subtle px-[24px] shadow-lg",
 					isUp ? "top-[15px]" : "top-0",
 				)}>
 				<span className="typo-label-s flex h-[36px] w-[64px] shrink-0 items-center justify-center rounded-[18px] bg-accent-amber text-text-inverse">
