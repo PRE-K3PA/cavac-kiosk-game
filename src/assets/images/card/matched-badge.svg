@@ -1,4 +1,5 @@
 <svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<title>맞춘 카드 표시</title>
 <g id="MatchedBadge" filter="url(#filter0_d_0_4)">
 <rect x="6" y="4" width="36" height="36" rx="18" fill="white"/>
 <rect x="7.5" y="5.5" width="33" height="33" rx="16.5" stroke="#6CC24A" stroke-width="3"/>
