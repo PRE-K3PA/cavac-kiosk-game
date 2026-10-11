@@ -13,7 +13,7 @@ type SelectProps<T extends SelectValue> = {
 	options: readonly SelectOption<T>[];
 	value: T;
 	label?: string;
-	isDisabled?: boolean;
+	disabled?: boolean;
 	onChange?: (value: T) => void;
 	className?: string;
 };
@@ -53,7 +53,7 @@ export default function Select<T extends SelectValue>({
 	options,
 	value,
 	label,
-	isDisabled = false,
+	disabled = false,
 	onChange,
 	className,
 }: SelectProps<T>) {
@@ -108,7 +108,7 @@ export default function Select<T extends SelectValue>({
 				type="button"
 				aria-label={label}
 				aria-expanded={isOpen}
-				disabled={isDisabled}
+				disabled={disabled}
 				onClick={handleFieldClick}
 				className={cn(
 					"flex h-16 w-full items-center gap-3 rounded-xl bg-background-surface px-5 text-left",
