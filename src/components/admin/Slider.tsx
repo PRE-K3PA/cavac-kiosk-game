@@ -1,7 +1,20 @@
+import { cva, type VariantProps } from "class-variance-authority";
 import { type KeyboardEvent, type PointerEvent, useRef } from "react";
 import { cn } from "@/utils/cn";
 
-type SliderProps = {
+const fillVariants = cva("absolute top-3.5 left-0 h-3 rounded-lg", {
+	variants: {
+		tone: {
+			neutral: "bg-text-secondary",
+			accent: "bg-brand-secondary",
+		},
+	},
+	defaultVariants: {
+		tone: "neutral",
+	},
+});
+
+type SliderProps = VariantProps<typeof fillVariants> & {
 	min: number;
 	max: number;
 	value: number;
@@ -23,6 +36,7 @@ export default function Slider({
 	value,
 	step = 1,
 	unit = "",
+	tone,
 	label,
 	isDisabled = false,
 	onChange,
@@ -93,10 +107,7 @@ export default function Slider({
 						"border-2 border-border-default bg-background-canvas",
 					)}
 				/>
-				<div
-					className="absolute top-3.5 left-0 h-3 rounded-lg bg-text-secondary"
-					style={{ width: `${ratio * 100}%` }}
-				/>
+				<div className={fillVariants({ tone })} style={{ width: `${ratio * 100}%` }} />
 				<div
 					className={cn(
 						"absolute top-0 size-10 rounded-full",

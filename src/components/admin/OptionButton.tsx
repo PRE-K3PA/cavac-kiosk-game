@@ -46,43 +46,19 @@ const optionButtonVariants = cva(
 );
 
 const radioVariants = cva(
-	"flex size-7 shrink-0 items-center justify-center rounded-full border-2 bg-background-surface",
+	"size-7 shrink-0 rounded-full border-3 border-border-default group-disabled:border-border-muted",
 	{
 		variants: {
-			tone: {
-				neutral: "",
-				success: "",
-				danger: "",
-			},
 			isSelected: {
-				true: "",
-				false: "border-border-strong",
+				true: "bg-text-secondary group-disabled:bg-border-muted",
+				false: "bg-background-surface group-disabled:bg-background-muted",
 			},
 		},
-		compoundVariants: [
-			{ tone: "neutral", isSelected: true, className: "border-tone-common" },
-			{ tone: "success", isSelected: true, className: "border-state-success-strong" },
-			{ tone: "danger", isSelected: true, className: "border-state-error" },
-		],
 		defaultVariants: {
-			tone: "neutral",
 			isSelected: false,
 		},
 	},
 );
-
-const radioDotVariants = cva("size-3.5 rounded-full group-disabled:bg-border-muted", {
-	variants: {
-		tone: {
-			neutral: "bg-tone-common",
-			success: "bg-state-success-strong",
-			danger: "bg-state-error",
-		},
-	},
-	defaultVariants: {
-		tone: "neutral",
-	},
-});
 
 type OptionButtonProps = Omit<ComponentProps<"button">, "children"> &
 	VariantProps<typeof optionButtonVariants> & {
@@ -109,16 +85,7 @@ export default function OptionButton({
 			disabled={disabled}
 			className={cn(optionButtonVariants({ tone, isSelected }), "group", className)}
 			{...props}>
-			{isRadioVisible && (
-				<span
-					aria-hidden="true"
-					className={cn(
-						radioVariants({ tone, isSelected }),
-						"group-disabled:border-border-muted group-disabled:bg-background-muted",
-					)}>
-					{isSelected && <span className={radioDotVariants({ tone })} />}
-				</span>
-			)}
+			{isRadioVisible && <span aria-hidden="true" className={radioVariants({ isSelected })} />}
 			<span className="flex flex-col items-center gap-0.5 whitespace-nowrap">
 				<span className="typo-admin-label">{label}</span>
 				{sublabel && (
