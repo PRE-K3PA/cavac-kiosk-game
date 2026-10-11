@@ -21,7 +21,7 @@ type SliderProps = VariantProps<typeof fillVariants> & {
 	step?: number;
 	unit?: string;
 	label?: string;
-	isDisabled?: boolean;
+	disabled?: boolean;
 	onChange?: (value: number) => void;
 	className?: string;
 };
@@ -38,7 +38,7 @@ export default function Slider({
 	unit = "",
 	tone,
 	label,
-	isDisabled = false,
+	disabled = false,
 	onChange,
 	className,
 }: SliderProps) {
@@ -63,18 +63,18 @@ export default function Slider({
 	}
 
 	function handleTrackPointerDown(event: PointerEvent<HTMLDivElement>) {
-		if (isDisabled) return;
+		if (disabled) return;
 		event.currentTarget.setPointerCapture(event.pointerId);
 		changeValueFromPointer(event.clientX);
 	}
 
 	function handleTrackPointerMove(event: PointerEvent<HTMLDivElement>) {
-		if (isDisabled || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
+		if (disabled || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
 		changeValueFromPointer(event.clientX);
 	}
 
 	function handleTrackKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-		if (isDisabled) return;
+		if (disabled) return;
 		if (event.key === "ArrowLeft" || event.key === "ArrowDown") changeValue(value - step);
 		else if (event.key === "ArrowRight" || event.key === "ArrowUp") changeValue(value + step);
 		else return;
@@ -82,7 +82,7 @@ export default function Slider({
 	}
 
 	return (
-		<div className={cn("flex h-14 items-center gap-3", isDisabled && "opacity-50", className)}>
+		<div className={cn("flex h-14 items-center gap-3", disabled && "opacity-50", className)}>
 			<span className="typo-admin-caption whitespace-nowrap text-text-secondary">
 				{min}
 				{unit}
@@ -90,13 +90,13 @@ export default function Slider({
 			<div
 				ref={trackRef}
 				role="slider"
-				tabIndex={isDisabled ? -1 : 0}
+				tabIndex={disabled ? -1 : 0}
 				aria-label={label}
 				aria-valuemin={min}
 				aria-valuemax={max}
 				aria-valuenow={value}
 				aria-valuetext={`${value}${unit}`}
-				aria-disabled={isDisabled}
+				aria-disabled={disabled}
 				className="relative h-10 w-70 shrink-0 touch-none"
 				onPointerDown={handleTrackPointerDown}
 				onPointerMove={handleTrackPointerMove}
