@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
-import soundOffIcon from "@/assets/icons/sound-off.svg";
-import soundOnIcon from "@/assets/icons/sound-on.svg";
+import icSoundOff from "@/assets/icons/icSoundOff.svg";
+import icSoundOn from "@/assets/icons/icSoundOn.svg";
 import { cn } from "@/utils/cn";
 
 type SoundButtonProps = Omit<ComponentProps<"button">, "children" | "aria-label"> & {
@@ -10,21 +10,22 @@ type SoundButtonProps = Omit<ComponentProps<"button">, "children" | "aria-label"
 };
 
 export function SoundButton({ label, muted = false, className, ...props }: SoundButtonProps) {
-	const icon = muted ? soundOffIcon : soundOnIcon;
+	const icon = muted ? icSoundOff : icSoundOn;
 	return (
 		<button
 			type="button"
 			aria-label={label}
 			aria-pressed={muted}
 			className={cn(
-				"flex size-[88px] cursor-pointer items-center justify-center overflow-clip rounded-[44px] border-2 border-border-default bg-background-surface shadow-md",
+				"flex size-[5.5rem] cursor-pointer items-center justify-center overflow-clip",
+				"rounded-[2.75rem] border-2 border-border-default bg-background-surface shadow-md",
 				className,
 			)}
 			{...props}>
 			{/* 아이콘은 모양(알파)만 쓰고 색은 토큰으로 칠한다 */}
 			<span
 				aria-hidden="true"
-				className="h-[36px] w-[40px] shrink-0 bg-text-primary"
+				className="h-[2.25rem] w-[2.5rem] shrink-0 bg-text-primary"
 				style={{
 					maskImage: `url("${icon}")`,
 					maskSize: "contain",

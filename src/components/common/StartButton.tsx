@@ -3,7 +3,10 @@ import type { ComponentProps } from "react";
 import { cn } from "@/utils/cn";
 
 const startButton = cva(
-	"typo-label-cta flex h-[112px] w-[480px] items-center justify-center overflow-clip whitespace-nowrap rounded-[56px] border-3",
+	[
+		"typo-label-cta flex h-[7rem] w-[30rem] items-center justify-center overflow-clip",
+		"whitespace-nowrap rounded-[3.5rem] border-3",
+	],
 	{
 		variants: {
 			state: {

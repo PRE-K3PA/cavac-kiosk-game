@@ -12,19 +12,19 @@ export function PlayTimer({ time, progress, className, ...props }: PlayTimerProp
 	const ratio = Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0;
 	const isWarning = ratio <= WARNING_RATIO;
 	return (
-		<div className={cn("flex w-full flex-col items-end gap-[6px]", className)} {...props}>
+		<div className={cn("flex w-full flex-col items-end gap-[0.375rem]", className)} {...props}>
 			<div
 				role="progressbar"
 				aria-valuemin={0}
 				aria-valuemax={100}
 				aria-valuenow={Math.round(ratio * 100)}
 				className={cn(
-					"relative h-[12px] w-full overflow-clip rounded-[8px]",
+					"relative h-[0.75rem] w-full overflow-clip rounded-[0.5rem]",
 					isWarning ? "bg-state-error-subtle" : "bg-brand-primary",
 				)}>
 				<div
 					className={cn(
-						"absolute inset-y-0 left-0 rounded-[8px]",
+						"absolute inset-y-0 left-0 rounded-[0.5rem]",
 						isWarning ? "bg-state-error" : "bg-brand-secondary-strong",
 					)}
 					style={{ width: `${ratio * 100}%` }}

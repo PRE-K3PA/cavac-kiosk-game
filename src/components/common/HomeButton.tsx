@@ -10,7 +10,9 @@ export function HomeButton({ label, className, ...props }: HomeButtonProps) {
 		<button
 			type="button"
 			className={cn(
-				"typo-label-button flex h-[148px] w-[600px] cursor-pointer items-center justify-center overflow-clip whitespace-nowrap rounded-[74px] border-3 border-border-default bg-background-surface text-text-primary shadow-md",
+				"typo-label-button flex h-[9.25rem] w-[37.5rem] cursor-pointer items-center justify-center",
+				"overflow-clip whitespace-nowrap rounded-[4.625rem] border-3 border-border-default",
+				"bg-background-surface text-text-primary shadow-md",
 				className,
 			)}
 			{...props}>

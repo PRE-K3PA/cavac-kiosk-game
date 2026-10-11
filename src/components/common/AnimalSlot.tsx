@@ -17,14 +17,22 @@ export function AnimalSlot({
 	...props
 }: AnimalSlotProps) {
 	return (
-		<div className={cn("relative size-[200px]", className)} {...props}>
+		<div className={cn("relative size-[12.5rem]", className)} {...props}>
 			{state === "empty" ? (
-				<div className="absolute inset-0 rounded-[24px] border-3 border-border-placeholder border-dashed" />
+				<div
+					className={cn(
+						"absolute inset-0 rounded-[1.5rem] border-3",
+						"border-border-placeholder border-dashed",
+					)}
+				/>
 			) : (
 				<>
 					<div
 						aria-hidden="true"
-						className="absolute inset-[84%_20%_8%_20%] rounded-full bg-(--black)/60 opacity-35 blur-[3px]"
+						className={cn(
+							"absolute inset-[84%_20%_8%_20%] rounded-full bg-(--black)/60",
+							"opacity-35 blur-[0.1875rem]",
+						)}
 					/>
 					{src && (
 						<img

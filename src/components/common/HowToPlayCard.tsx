@@ -31,7 +31,7 @@ export function HowToPlayCard({
 		<div
 			className={cn(
 				"flex shrink-0 items-center justify-center overflow-clip",
-				isRow ? "h-[122px] w-[250px]" : "h-[140px] w-[300px]",
+				isRow ? "h-[7.625rem] w-[15.625rem]" : "h-[8.75rem] w-[18.75rem]",
 			)}>
 			{media}
 		</div>
@@ -40,15 +40,16 @@ export function HowToPlayCard({
 	return (
 		<div
 			className={cn(
-				"relative flex items-center gap-[24px] rounded-[24px] border-2 border-border-default bg-background-surface py-[48px] shadow-md",
-				isRow ? "w-[952px] px-[32px]" : "w-[581.333px] flex-col px-[40px] opacity-90",
+				"relative flex items-center gap-[1.5rem] rounded-[1.5rem] border-2 border-border-default",
+				"bg-background-surface py-[3rem] shadow-md",
+				isRow ? "w-[59.5rem] px-[2rem]" : "w-[36.333312rem] flex-col px-[2.5rem] opacity-90",
 				className,
 			)}
 			{...props}>
 			<span
 				className={cn(
 					"typo-label-m flex shrink-0 items-center justify-center overflow-clip border-3",
-					isRow ? "size-[72px] rounded-[36px]" : "size-[48px] rounded-[24px]",
+					isRow ? "size-[4.5rem] rounded-[2.25rem]" : "size-[3rem] rounded-[1.5rem]",
 					STEP_ACCENT[accent],
 				)}>
 				{step}
@@ -68,7 +69,10 @@ export function HowToPlayCard({
 				<TipBubble
 					message={tip}
 					tail={isRow ? "up" : "down"}
-					className={cn("absolute right-[-2px]", isRow ? "bottom-[-46px]" : "top-[-63.5px]")}
+					className={cn(
+						"absolute right-[-0.125rem]",
+						isRow ? "bottom-[-2.875rem]" : "top-[-3.96875rem]",
+					)}
 				/>
 			)}
 		</div>
