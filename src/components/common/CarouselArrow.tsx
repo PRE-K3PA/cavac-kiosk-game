@@ -1,5 +1,5 @@
 import type { ComponentProps } from "react";
-import chevronIcon from "@/assets/icons/chevron.svg";
+import icChevron from "@/assets/icons/icChevron.svg";
 import { cn } from "@/utils/cn";
 
 type CarouselArrowProps = Omit<ComponentProps<"button">, "children" | "aria-label"> & {
@@ -18,19 +18,21 @@ export function CarouselArrow({
 			type="button"
 			aria-label={label}
 			className={cn(
-				"flex size-[64px] cursor-pointer items-center justify-center rounded-[32px] border-3 border-border-default bg-background-surface shadow-md",
+				"flex size-[4rem] cursor-pointer items-center justify-center rounded-[2rem] border-3",
+				"border-border-default bg-background-surface shadow-md",
 				className,
 			)}
 			{...props}>
-			{/* 아이콘은 모양(알파)만 쓰고 색은 토큰으로 칠한다. 원본은 아래를 향한다 */}
+			{/* 아이콘은 모양(알파)만 쓰고 색은 토큰으로 칠한다.
+			    원본은 아래를 향한다 */}
 			<span
 				aria-hidden="true"
 				className={cn(
-					"size-[36px] shrink-0 bg-border-strong",
+					"size-[2.25rem] shrink-0 bg-border-strong",
 					direction === "next" ? "-rotate-90" : "rotate-90",
 				)}
 				style={{
-					maskImage: `url("${chevronIcon}")`,
+					maskImage: `url("${icChevron}")`,
 					maskSize: "contain",
 					maskRepeat: "no-repeat",
 					maskPosition: "center",

@@ -11,7 +11,7 @@ export function CarouselDot({ active = true, className, ...props }: CarouselDotP
 			aria-current={active || undefined}
 			className={cn(
 				"box-border inline-block shrink-0 rounded-full border-2 border-border-default",
-				active ? "size-[24px] bg-(--slate-600)" : "size-[16px]",
+				active ? "size-[1.5rem] bg-(--slate-600)" : "size-[1rem]",
 				className,
 			)}
 			{...props}

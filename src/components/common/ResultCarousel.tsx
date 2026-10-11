@@ -9,16 +9,16 @@ const SWIPE_THRESHOLD = 80;
 
 const SIZE = {
 	compact: {
-		root: "w-[1856px] gap-[20px]",
-		stage: "h-[420px] w-[1688px]",
-		slot: "-ml-[300px] -mt-[210px] h-[420px] w-[600px]",
+		root: "w-[116rem] gap-[1.25rem]",
+		stage: "h-[26.25rem] w-[105.5rem]",
+		slot: "-ml-[18.75rem] -mt-[13.125rem] h-[26.25rem] w-[37.5rem]",
 		offset: 582,
 		sideScale: 524 / 600,
 	},
 	large: {
-		root: "w-[2364px]",
-		stage: "h-[588px] w-[2364px]",
-		slot: "-ml-[420px] -mt-[294px] h-[588px] w-[840px]",
+		root: "w-[147.75rem]",
+		stage: "h-[36.75rem] w-[147.75rem]",
+		slot: "-ml-[26.25rem] -mt-[18.375rem] h-[36.75rem] w-[52.5rem]",
 		offset: 815,
 		sideScale: 734 / 840,
 	},
@@ -78,9 +78,9 @@ export function ResultCarousel({
 		<section
 			aria-roledescription="carousel"
 			aria-label={label}
-			className={cn("flex flex-col items-center gap-[24px]", root, className)}
+			className={cn("flex flex-col items-center gap-[1.5rem]", root, className)}
 			{...props}>
-			<div className={cn("flex items-center", size === "compact" && "gap-[20px]")}>
+			<div className={cn("flex items-center", size === "compact" && "gap-[1.25rem]")}>
 				{size === "compact" && arrowLabels && (
 					<CarouselArrow
 						label={arrowLabels.prev}
@@ -132,7 +132,7 @@ export function ResultCarousel({
 				)}
 			</div>
 			{canMove && (
-				<div className="flex items-center gap-[16px]">
+				<div className="flex items-center gap-[1rem]">
 					{slides.map((slide, i) => (
 						<CarouselDot key={slide.id} active={i === current} />
 					))}

@@ -58,7 +58,7 @@ export function AdminHotspot({
 	return (
 		<div
 			data-state={state}
-			className={cn("h-[180px] w-[280px] touch-none", className)}
+			className={cn("h-[11.25rem] w-[17.5rem] touch-none", className)}
 			onPointerDown={handlePointerDown}
 			onPointerUp={handlePointerUp}
 			onPointerLeave={reset}
