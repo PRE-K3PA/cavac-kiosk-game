@@ -24,4 +24,4 @@ jobs:
         run: bun run check
 
       - name: 타입 검사
-        run: bunx tsc --noEmit
+        run: bun run typecheck
