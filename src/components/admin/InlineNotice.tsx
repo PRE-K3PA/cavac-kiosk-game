@@ -3,7 +3,10 @@ import AlertIcon from "@/components/admin/AlertIcon";
 import { cn } from "@/utils/cn";
 
 const inlineNoticeVariants = cva(
-	"flex h-11 shrink-0 items-center gap-2 rounded-lg border-2 px-4 typo-admin-body whitespace-nowrap",
+	[
+		"flex h-11 shrink-0 items-center gap-2 rounded-lg border-2 px-4",
+		"typo-admin-body whitespace-nowrap",
+	],
 	{
 		variants: {
 			tone: {
