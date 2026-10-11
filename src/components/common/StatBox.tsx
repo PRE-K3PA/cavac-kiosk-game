@@ -22,7 +22,9 @@ export function StatBox({
 					"flex h-[84px] w-full items-center justify-center overflow-clip rounded-[16px] border-2 border-border-default",
 					tone === "subtle" ? "bg-background-surface-subtle" : "bg-background-surface",
 				)}>
-				<p className="typo-display-m whitespace-nowrap pt-[8px] font-display text-text-primary">{value}</p>
+				<p className="typo-display-m whitespace-nowrap pt-[8px] font-display text-text-primary">
+					{value}
+				</p>
 			</div>
 		</div>
 	);
