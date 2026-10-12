@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import icChevron from "@/assets/images/icChevron.svg";
+import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 
 type SelectValue = string | number;
@@ -112,19 +113,13 @@ export default function Select<T extends SelectValue>({
 				onClick={handleFieldClick}
 				className={cn(
 					"flex h-16 w-full items-center gap-3 rounded-xl bg-background-surface px-5 text-left",
-					"disabled:border-border-muted disabled:bg-background-muted disabled:opacity-60",
+					"disabled:border-border-muted disabled:bg-background-muted disabled:opacity-40",
 					isOpen ? "border-3 border-tone-common" : "border-2 border-border-default",
 				)}>
 				<span className="min-w-0 flex-1 truncate typo-admin-label text-text-primary">
 					{selected?.label ?? ""}
 				</span>
-				<img
-					src={icChevron}
-					alt=""
-					width={20}
-					height={20}
-					className={cn("shrink-0", isOpen && "rotate-180")}
-				/>
+				<Icon src={icChevron} className={cn("size-5 bg-border-strong", isOpen && "rotate-180")} />
 			</button>
 			{isOpen && (
 				<div

@@ -82,7 +82,7 @@ export default function Slider({
 	}
 
 	return (
-		<div className={cn("flex h-14 items-center gap-3", disabled && "opacity-50", className)}>
+		<div className={cn("flex h-14 items-center gap-3", disabled && "opacity-40", className)}>
 			<span className="typo-admin-caption whitespace-nowrap text-text-secondary">
 				{min}
 				{unit}
