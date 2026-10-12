@@ -46,7 +46,7 @@ const shapeInsets = {
 
 const bubbleVariants = cva("relative flex shrink-0 items-center", {
 	variants: {
-		direction: { column: "w-105 flex-col", row: "mr-[-1.25rem] w-167" },
+		direction: { column: "w-105 flex-col", row: "-mr-5 w-167" },
 		type: { countdown: "", matched: "" },
 	},
 	compoundVariants: [
@@ -54,7 +54,7 @@ const bubbleVariants = cva("relative flex shrink-0 items-center", {
 		{
 			direction: "column",
 			type: "matched",
-			class: "mb-[-1.25rem] h-120.25 justify-center pb-5.25",
+			class: "-mb-5 h-120.25 justify-center pb-5.25",
 		},
 		{ direction: "row", type: "countdown", class: "h-100 gap-8 pl-11" },
 		{ direction: "row", type: "matched", class: "h-82.5 justify-center pr-9.5" },
@@ -116,18 +116,10 @@ function CountdownContent({
 				<p className="typo-title-m whitespace-pre-line text-center text-text-primary">{message}</p>
 			</div>
 			{isColumn ? (
-				<img
-					alt=""
-					src={imgDividerColumn}
-					className="relative block h-[0.1875rem] w-80 max-w-none"
-				/>
+				<img alt="" src={imgDividerColumn} className="relative block h-0.75 w-80 max-w-none" />
 			) : (
 				<div className="relative flex h-55 w-0 items-center justify-center">
-					<img
-						alt=""
-						src={imgDividerRow}
-						className="block h-[0.1875rem] w-55 max-w-none -rotate-90"
-					/>
+					<img alt="" src={imgDividerRow} className="block h-0.75 w-55 max-w-none -rotate-90" />
 				</div>
 			)}
 			<p
@@ -157,7 +149,11 @@ function MatchedContent({ count, label }: MatchedProps) {
 	);
 }
 
-export function MascotBubble({ direction = "column", className, ...content }: MascotBubbleProps) {
+export default function MascotBubble({
+	direction = "column",
+	className,
+	...content
+}: MascotBubbleProps) {
 	const type = content.type ?? "countdown";
 	const isRow = direction === "row";
 

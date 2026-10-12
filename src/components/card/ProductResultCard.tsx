@@ -10,7 +10,7 @@ const frameVariants = cva(
 		variants: {
 			size: {
 				default: "h-105 w-150 rounded-3xl border-4 p-6",
-				large: "h-147 w-210 rounded-[2.125rem] border-6 p-8.5",
+				large: "h-147 w-210 rounded-[34px] border-6 p-8.5",
 			},
 		},
 		defaultVariants: { size: "default" },
@@ -21,7 +21,7 @@ const imageVariants = cva("size-full object-contain", {
 	variants: {
 		size: {
 			default: "rounded-2xl",
-			large: "rounded-[1.375rem]",
+			large: "rounded-[22px]",
 		},
 	},
 	defaultVariants: { size: "default" },
@@ -34,7 +34,7 @@ type ProductResultCardProps = {
 	className?: string;
 };
 
-export function ProductResultCard({
+export default function ProductResultCard({
 	size = "default",
 	image,
 	alt = "",
