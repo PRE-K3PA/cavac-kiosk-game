@@ -8,7 +8,7 @@ type CarouselArrowProps = Omit<ComponentProps<"button">, "children" | "aria-labe
 	direction?: "prev" | "next";
 };
 
-export function CarouselArrow({
+export default function CarouselArrow({
 	label,
 	direction = "prev",
 	className,
@@ -19,7 +19,7 @@ export function CarouselArrow({
 			type="button"
 			aria-label={label}
 			className={cn(
-				"flex size-[4rem] cursor-pointer items-center justify-center rounded-[2rem] border-3",
+				"flex size-16 cursor-pointer items-center justify-center rounded-[32px] border-3",
 				"border-border-default bg-background-surface shadow-md",
 				className,
 			)}
@@ -29,7 +29,7 @@ export function CarouselArrow({
 			<span
 				aria-hidden="true"
 				className={cn(
-					"size-[2.25rem] shrink-0 bg-border-strong",
+					"size-9 shrink-0 bg-border-strong",
 					direction === "next" ? "-rotate-90" : "rotate-90",
 				)}
 				// TODO: icChevron.svg 병합 후 아래 mask 스타일을 되살린다

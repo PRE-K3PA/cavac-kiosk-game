@@ -1,5 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
-import { TipBubble } from "@/components/common/TipBubble";
+import TipBubble from "@/components/common/TipBubble";
 import { cn } from "@/utils/cn";
 
 type HowToPlayCardProps = Omit<ComponentProps<"div">, "children"> & {
@@ -16,7 +16,7 @@ const STEP_ACCENT = {
 	yellow: "border-accent-yellow bg-accent-yellow-subtle text-accent-yellow-text",
 } as const;
 
-export function HowToPlayCard({
+export default function HowToPlayCard({
 	step,
 	description,
 	direction = "column",
@@ -31,7 +31,7 @@ export function HowToPlayCard({
 		<div
 			className={cn(
 				"flex shrink-0 items-center justify-center overflow-clip",
-				isRow ? "h-[7.625rem] w-[15.625rem]" : "h-[8.75rem] w-[18.75rem]",
+				isRow ? "h-30.5 w-62.5" : "h-35 w-75",
 			)}>
 			{media}
 		</div>
@@ -40,16 +40,16 @@ export function HowToPlayCard({
 	return (
 		<div
 			className={cn(
-				"relative flex items-center gap-[1.5rem] rounded-[1.5rem] border-2 border-border-default",
-				"bg-background-surface py-[3rem] shadow-md",
-				isRow ? "w-[59.5rem] px-[2rem]" : "w-[36.333312rem] flex-col px-[2.5rem] opacity-90",
+				"relative flex items-center gap-6 rounded-[24px] border-2 border-border-default",
+				"bg-background-surface py-12 shadow-md",
+				isRow ? "w-238 px-8" : "w-[581.333px] flex-col px-10 opacity-90",
 				className,
 			)}
 			{...props}>
 			<span
 				className={cn(
 					"typo-label-m flex shrink-0 items-center justify-center overflow-clip border-3",
-					isRow ? "size-[4.5rem] rounded-[2.25rem]" : "size-[3rem] rounded-[1.5rem]",
+					isRow ? "size-18 rounded-[36px]" : "size-12 rounded-[24px]",
 					STEP_ACCENT[accent],
 				)}>
 				{step}
@@ -69,10 +69,7 @@ export function HowToPlayCard({
 				<TipBubble
 					message={tip}
 					tail={isRow ? "up" : "down"}
-					className={cn(
-						"absolute right-[-0.125rem]",
-						isRow ? "bottom-[-2.875rem]" : "top-[-3.96875rem]",
-					)}
+					className={cn("absolute -right-0.5", isRow ? "-bottom-11.5" : "-top-[63.5px]")}
 				/>
 			)}
 		</div>

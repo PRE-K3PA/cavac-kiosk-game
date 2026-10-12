@@ -6,7 +6,7 @@ type LanguageButtonProps = Omit<ComponentProps<"button">, "children" | "aria-lab
 	language?: "ko" | "en";
 };
 
-export function LanguageButton({
+export default function LanguageButton({
 	label,
 	language = "ko",
 	className,
@@ -17,8 +17,8 @@ export function LanguageButton({
 			type="button"
 			aria-label={label}
 			className={cn(
-				"typo-caption flex size-[5.5rem] cursor-pointer items-center justify-center overflow-clip",
-				"rounded-[2.75rem] border-2 border-border-default bg-background-surface text-text-primary",
+				"typo-caption flex size-22 cursor-pointer items-center justify-center overflow-clip",
+				"rounded-[44px] border-2 border-border-default bg-background-surface text-text-primary",
 				"shadow-md",
 				className,
 			)}
