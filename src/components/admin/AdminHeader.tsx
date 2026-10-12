@@ -1,16 +1,12 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { ADMIN_TONE_LABEL } from "@/components/admin/adminToneLabel";
+import { ADMIN_TONE_LABEL, ADMIN_TONE_TEXT } from "@/components/admin/adminToneLabel";
 import Button from "@/components/admin/Button";
 import InlineNotice from "@/components/admin/InlineNotice";
 import { cn } from "@/utils/cn";
 
 const toneLabelVariants = cva("typo-admin-label whitespace-nowrap", {
 	variants: {
-		tone: {
-			common: "text-tone-common",
-			vaccine: "text-tone-vaccine",
-			card: "text-tone-card",
-		},
+		tone: ADMIN_TONE_TEXT,
 	},
 	defaultVariants: {
 		tone: "common",
