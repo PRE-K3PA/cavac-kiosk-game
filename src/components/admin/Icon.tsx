@@ -1,35 +1,21 @@
-import { cva, type VariantProps } from "class-variance-authority";
-import icAlert from "@/assets/images/icAlert.svg";
 import { cn } from "@/utils/cn";
 
-const alertIconVariants = cva("inline-block size-6 shrink-0", {
-	variants: {
-		tone: {
-			info: "bg-brand-primary-strong",
-			error: "bg-state-error",
-		},
-	},
-	defaultVariants: {
-		tone: "info",
-	},
-});
-
-const MASK_STYLE = {
-	maskImage: `url(${icAlert})`,
-	maskSize: "100% 100%",
-	maskRepeat: "no-repeat",
-};
-
-type AlertIconProps = VariantProps<typeof alertIconVariants> & {
+type IconProps = {
+	src: string;
 	className?: string;
 };
 
-export default function AlertIcon({ tone, className }: AlertIconProps) {
+export default function Icon({ src, className }: IconProps) {
 	return (
 		<span
 			aria-hidden="true"
-			className={cn(alertIconVariants({ tone }), className)}
-			style={MASK_STYLE}
+			className={cn("inline-block size-6 shrink-0 bg-current", className)}
+			style={{
+				// 빌드하면 작은 SVG 는 작은따옴표가 든 data URI 로 들어가서, 따옴표 없이는 값이 버려진다
+				maskImage: `url("${src}")`,
+				maskSize: "100% 100%",
+				maskRepeat: "no-repeat",
+			}}
 		/>
 	);
 }

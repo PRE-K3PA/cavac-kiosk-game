@@ -1,4 +1,5 @@
 import icEmpty from "@/assets/images/icEmpty.svg";
+import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 
 type EmptyStateProps = {
@@ -15,7 +16,7 @@ export default function EmptyState({ title, description, className }: EmptyState
 				"border-2 border-dashed border-border-placeholder bg-background-surface-subtle text-center",
 				className,
 			)}>
-			<img src={icEmpty} alt="" width={48} height={48} />
+			<Icon src={icEmpty} className="size-12 bg-border-strong" />
 			<p className="typo-admin-label whitespace-nowrap text-text-primary">{title}</p>
 			{description && (
 				<p className="typo-admin-caption whitespace-nowrap text-text-secondary">{description}</p>
