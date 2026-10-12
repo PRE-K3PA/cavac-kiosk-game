@@ -1,5 +1,6 @@
-import AlertIcon from "@/components/admin/AlertIcon";
+import icAlert from "@/assets/images/icAlert.svg";
 import Button from "@/components/admin/Button";
+import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 
 type SaveBarProps = {
@@ -30,7 +31,7 @@ export default function SaveBar({
 			)}>
 			{isBlocked && (
 				<div role="alert" className="flex min-w-0 flex-1 items-center gap-2">
-					<AlertIcon tone="error" />
+					<Icon src={icAlert} className="bg-state-error" />
 					<p className="min-w-0 flex-1 typo-admin-body text-state-error">{summary}</p>
 				</div>
 			)}

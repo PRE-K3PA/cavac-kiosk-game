@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import AlertIcon from "@/components/admin/AlertIcon";
+import icAlert from "@/assets/images/icAlert.svg";
+import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 
 const inlineNoticeVariants = cva(
@@ -28,7 +29,7 @@ type InlineNoticeProps = VariantProps<typeof inlineNoticeVariants> & {
 export default function InlineNotice({ tone, message, className }: InlineNoticeProps) {
 	return (
 		<div role="status" className={cn(inlineNoticeVariants({ tone }), className)}>
-			<AlertIcon tone={tone} className="size-5" />
+			<Icon src={icAlert} className="size-5" />
 			<p>{message}</p>
 		</div>
 	);
