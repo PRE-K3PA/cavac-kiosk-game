@@ -12,7 +12,7 @@
 		"dist": "bun run build && electron-builder",
 		"check": "biome check .",
 		"check:fix": "biome check --write .",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsc -b",
 		"test": "bun test",
 		"clean": "bun run clean:build && rm -rf node_modules",
 		"clean:build": "rm -rf dist dist-electron release"
@@ -33,6 +33,7 @@
 		"@tailwindcss/vite": "^4.3.3",
 		"@testing-library/dom": "^10.4.2",
 		"@testing-library/react": "^16.3.3",
+		"@types/bun": "^1.4.2",
 		"@types/react": "^19.3.0",
 		"@types/react-dom": "^19.3.0",
 		"@vitejs/plugin-react": "^6.1.1",
