@@ -40,16 +40,17 @@ export default function HowToPlayCard({
 	return (
 		<div
 			className={cn(
-				"relative flex items-center gap-6 rounded-[24px] border-2 border-border-default",
+				"relative flex items-center gap-6 rounded-3xl border-2 border-border-default",
 				"bg-background-surface py-12 shadow-md",
-				isRow ? "w-238 px-8" : "w-[581.333px] flex-col px-10 opacity-90",
+				isRow ? "w-238 px-8" : "w-145.25 flex-col px-10 opacity-90",
 				className,
 			)}
 			{...props}>
 			<span
 				className={cn(
 					"typo-label-m flex shrink-0 items-center justify-center overflow-clip border-3",
-					isRow ? "size-18 rounded-[36px]" : "size-12 rounded-[24px]",
+					"rounded-full",
+					isRow ? "size-18" : "size-12",
 					STEP_ACCENT[accent],
 				)}>
 				{step}
@@ -69,7 +70,7 @@ export default function HowToPlayCard({
 				<TipBubble
 					message={tip}
 					tail={isRow ? "up" : "down"}
-					className={cn("absolute -right-0.5", isRow ? "-bottom-11.5" : "-top-[63.5px]")}
+					className={cn("absolute -right-0.5", isRow ? "-bottom-11.5" : "-top-16")}
 				/>
 			)}
 		</div>
