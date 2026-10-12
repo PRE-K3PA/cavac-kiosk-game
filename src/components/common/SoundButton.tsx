@@ -23,7 +23,7 @@ export default function SoundButton({
 			aria-pressed={muted}
 			className={cn(
 				"flex size-22 cursor-pointer items-center justify-center overflow-clip",
-				"rounded-[44px] border-2 border-border-default bg-background-surface shadow-md",
+				"rounded-full border-2 border-border-default bg-background-surface shadow-md",
 				className,
 			)}
 			{...props}>

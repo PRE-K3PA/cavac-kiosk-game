@@ -18,7 +18,7 @@ export default function LanguageButton({
 			aria-label={label}
 			className={cn(
 				"typo-caption flex size-22 cursor-pointer items-center justify-center overflow-clip",
-				"rounded-[44px] border-2 border-border-default bg-background-surface text-text-primary",
+				"rounded-full border-2 border-border-default bg-background-surface text-text-primary",
 				"shadow-md",
 				className,
 			)}

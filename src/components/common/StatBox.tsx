@@ -19,7 +19,7 @@ export default function StatBox({
 			<p className="typo-label-m whitespace-nowrap text-text-secondary">{label}</p>
 			<div
 				className={cn(
-					"flex h-21 w-full items-center justify-center overflow-clip rounded-[16px]",
+					"flex h-21 w-full items-center justify-center overflow-clip rounded-2xl",
 					"border-2 border-border-default",
 					tone === "subtle" ? "bg-background-surface-subtle" : "bg-background-surface",
 				)}>

@@ -19,7 +19,7 @@ export default function CarouselArrow({
 			type="button"
 			aria-label={label}
 			className={cn(
-				"flex size-16 cursor-pointer items-center justify-center rounded-[32px] border-3",
+				"flex size-16 cursor-pointer items-center justify-center rounded-full border-3",
 				"border-border-default bg-background-surface shadow-md",
 				className,
 			)}

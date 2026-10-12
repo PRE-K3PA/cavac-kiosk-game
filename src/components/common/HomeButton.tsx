@@ -11,7 +11,7 @@ export default function HomeButton({ label, className, ...props }: HomeButtonPro
 			type="button"
 			className={cn(
 				"typo-label-button flex h-37 w-150 cursor-pointer items-center justify-center",
-				"overflow-clip whitespace-nowrap rounded-[74px] border-3 border-border-default",
+				"overflow-clip whitespace-nowrap rounded-full border-3 border-border-default",
 				"bg-background-surface text-text-primary shadow-md",
 				className,
 			)}

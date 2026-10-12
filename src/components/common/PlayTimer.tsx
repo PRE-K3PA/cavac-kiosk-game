@@ -19,12 +19,12 @@ export default function PlayTimer({ time, progress, className, ...props }: PlayT
 				aria-valuemax={100}
 				aria-valuenow={Math.round(ratio * 100)}
 				className={cn(
-					"relative h-3 w-full overflow-clip rounded-[8px]",
+					"relative h-3 w-full overflow-clip rounded-lg",
 					isWarning ? "bg-state-error-subtle" : "bg-brand-primary",
 				)}>
 				<div
 					className={cn(
-						"absolute inset-y-0 left-0 rounded-[8px]",
+						"absolute inset-y-0 left-0 rounded-lg",
 						isWarning ? "bg-state-error" : "bg-brand-secondary-strong",
 					)}
 					style={{ width: `${ratio * 100}%` }}

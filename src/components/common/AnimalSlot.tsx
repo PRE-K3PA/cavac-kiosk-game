@@ -21,7 +21,7 @@ export default function AnimalSlot({
 			{state === "empty" ? (
 				<div
 					className={cn(
-						"absolute inset-0 rounded-[24px] border-3",
+						"absolute inset-0 rounded-3xl border-3",
 						"border-border-placeholder border-dashed",
 					)}
 				/>
@@ -31,7 +31,7 @@ export default function AnimalSlot({
 						aria-hidden="true"
 						className={cn(
 							"absolute inset-[84%_20%_8%_20%] rounded-full bg-(--black)/60",
-							"opacity-35 blur-[3px]",
+							"opacity-35 blur-xs",
 						)}
 					/>
 					{src && (
