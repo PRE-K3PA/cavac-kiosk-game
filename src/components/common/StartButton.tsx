@@ -4,8 +4,8 @@ import { cn } from "@/utils/cn";
 
 const startButton = cva(
 	[
-		"typo-label-cta flex h-[7rem] w-[30rem] items-center justify-center overflow-clip",
-		"whitespace-nowrap rounded-[3.5rem] border-3",
+		"typo-label-cta flex h-28 w-120 items-center justify-center overflow-clip",
+		"whitespace-nowrap rounded-[56px] border-3",
 	],
 	{
 		variants: {
@@ -25,7 +25,12 @@ type StartButtonProps = Omit<ComponentProps<"button">, "children" | "disabled"> 
 	state?: "default" | "pressed" | "disabled";
 };
 
-export function StartButton({ label, state = "default", className, ...props }: StartButtonProps) {
+export default function StartButton({
+	label,
+	state = "default",
+	className,
+	...props
+}: StartButtonProps) {
 	return (
 		<button
 			type="button"

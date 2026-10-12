@@ -7,7 +7,7 @@ type StatBoxProps = Omit<ComponentProps<"div">, "children"> & {
 	tone?: "subtle" | "surface";
 };
 
-export function StatBox({
+export default function StatBox({
 	label = "SCORE",
 	value,
 	tone = "subtle",
@@ -15,15 +15,15 @@ export function StatBox({
 	...props
 }: StatBoxProps) {
 	return (
-		<div className={cn("flex w-[18.25rem] flex-col gap-[0.125rem]", className)} {...props}>
+		<div className={cn("flex w-73 flex-col gap-0.5", className)} {...props}>
 			<p className="typo-label-m whitespace-nowrap text-text-secondary">{label}</p>
 			<div
 				className={cn(
-					"flex h-[5.25rem] w-full items-center justify-center overflow-clip rounded-[1rem]",
+					"flex h-21 w-full items-center justify-center overflow-clip rounded-[16px]",
 					"border-2 border-border-default",
 					tone === "subtle" ? "bg-background-surface-subtle" : "bg-background-surface",
 				)}>
-				<p className="typo-display-m whitespace-nowrap pt-[0.5rem] font-display text-text-primary">
+				<p className="typo-display-m whitespace-nowrap pt-2 font-display text-text-primary">
 					{value}
 				</p>
 			</div>

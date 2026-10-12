@@ -1,24 +1,24 @@
 import { motion } from "motion/react";
 import type { ComponentProps, PointerEvent, ReactNode } from "react";
 import { useRef } from "react";
-import { CarouselArrow } from "@/components/common/CarouselArrow";
-import { CarouselDot } from "@/components/common/CarouselDot";
+import CarouselArrow from "@/components/common/CarouselArrow";
+import CarouselDot from "@/components/common/CarouselDot";
 import { cn } from "@/utils/cn";
 
 const SWIPE_THRESHOLD = 80;
 
 const SIZE = {
 	compact: {
-		root: "w-[116rem] gap-[1.25rem]",
-		stage: "h-[26.25rem] w-[105.5rem]",
-		slot: "-ml-[18.75rem] -mt-[13.125rem] h-[26.25rem] w-[37.5rem]",
+		root: "w-464 gap-5",
+		stage: "h-105 w-422",
+		slot: "-ml-75 -mt-52.5 h-105 w-150",
 		offset: 582,
 		sideScale: 524 / 600,
 	},
 	large: {
-		root: "w-[147.75rem]",
-		stage: "h-[36.75rem] w-[147.75rem]",
-		slot: "-ml-[26.25rem] -mt-[18.375rem] h-[36.75rem] w-[52.5rem]",
+		root: "w-591",
+		stage: "h-147 w-591",
+		slot: "-ml-105 -mt-73.5 h-147 w-210",
 		offset: 815,
 		sideScale: 734 / 840,
 	},
@@ -44,7 +44,7 @@ function wrappedDistance(slideIndex: number, current: number, count: number) {
 	return d > count / 2 ? d - count : d;
 }
 
-export function ResultCarousel({
+export default function ResultCarousel({
 	label,
 	slides,
 	index,
@@ -78,9 +78,9 @@ export function ResultCarousel({
 		<section
 			aria-roledescription="carousel"
 			aria-label={label}
-			className={cn("flex flex-col items-center gap-[1.5rem]", root, className)}
+			className={cn("flex flex-col items-center gap-6", root, className)}
 			{...props}>
-			<div className={cn("flex items-center", size === "compact" && "gap-[1.25rem]")}>
+			<div className={cn("flex items-center", size === "compact" && "gap-5")}>
 				{size === "compact" && arrowLabels && (
 					<CarouselArrow
 						label={arrowLabels.prev}
@@ -132,7 +132,7 @@ export function ResultCarousel({
 				)}
 			</div>
 			{canMove && (
-				<div className="flex items-center gap-[1rem]">
+				<div className="flex items-center gap-4">
 					{slides.map((slide, i) => (
 						<CarouselDot key={slide.id} active={i === current} />
 					))}

@@ -8,7 +8,7 @@ type AnimalSlotProps = Omit<ComponentProps<"div">, "children"> & {
 	name?: string;
 };
 
-export function AnimalSlot({
+export default function AnimalSlot({
 	side = "left",
 	state = "filled",
 	src,
@@ -17,11 +17,11 @@ export function AnimalSlot({
 	...props
 }: AnimalSlotProps) {
 	return (
-		<div className={cn("relative size-[12.5rem]", className)} {...props}>
+		<div className={cn("relative size-50", className)} {...props}>
 			{state === "empty" ? (
 				<div
 					className={cn(
-						"absolute inset-0 rounded-[1.5rem] border-3",
+						"absolute inset-0 rounded-[24px] border-3",
 						"border-border-placeholder border-dashed",
 					)}
 				/>
@@ -31,7 +31,7 @@ export function AnimalSlot({
 						aria-hidden="true"
 						className={cn(
 							"absolute inset-[84%_20%_8%_20%] rounded-full bg-(--black)/60",
-							"opacity-35 blur-[0.1875rem]",
+							"opacity-35 blur-[3px]",
 						)}
 					/>
 					{src && (

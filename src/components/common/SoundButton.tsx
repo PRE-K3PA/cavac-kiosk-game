@@ -9,7 +9,12 @@ type SoundButtonProps = Omit<ComponentProps<"button">, "children" | "aria-label"
 	muted?: boolean;
 };
 
-export function SoundButton({ label, muted = false, className, ...props }: SoundButtonProps) {
+export default function SoundButton({
+	label,
+	muted = false,
+	className,
+	...props
+}: SoundButtonProps) {
 	const icon = muted ? icSoundOff : icSoundOn;
 	return (
 		<button
@@ -17,15 +22,15 @@ export function SoundButton({ label, muted = false, className, ...props }: Sound
 			aria-label={label}
 			aria-pressed={muted}
 			className={cn(
-				"flex size-[5.5rem] cursor-pointer items-center justify-center overflow-clip",
-				"rounded-[2.75rem] border-2 border-border-default bg-background-surface shadow-md",
+				"flex size-22 cursor-pointer items-center justify-center overflow-clip",
+				"rounded-[44px] border-2 border-border-default bg-background-surface shadow-md",
 				className,
 			)}
 			{...props}>
 			{/* 아이콘은 모양(알파)만 쓰고 색은 토큰으로 칠한다 */}
 			<span
 				aria-hidden="true"
-				className="h-[2.25rem] w-[2.5rem] shrink-0 bg-text-primary"
+				className="h-9 w-10 shrink-0 bg-text-primary"
 				style={{
 					maskImage: `url("${icon}")`,
 					maskSize: "contain",

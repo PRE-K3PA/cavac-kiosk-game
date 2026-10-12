@@ -5,13 +5,13 @@ type HomeButtonProps = Omit<ComponentProps<"button">, "children"> & {
 	label: string;
 };
 
-export function HomeButton({ label, className, ...props }: HomeButtonProps) {
+export default function HomeButton({ label, className, ...props }: HomeButtonProps) {
 	return (
 		<button
 			type="button"
 			className={cn(
-				"typo-label-button flex h-[9.25rem] w-[37.5rem] cursor-pointer items-center justify-center",
-				"overflow-clip whitespace-nowrap rounded-[4.625rem] border-3 border-border-default",
+				"typo-label-button flex h-37 w-150 cursor-pointer items-center justify-center",
+				"overflow-clip whitespace-nowrap rounded-[74px] border-3 border-border-default",
 				"bg-background-surface text-text-primary shadow-md",
 				className,
 			)}
