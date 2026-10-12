@@ -290,6 +290,12 @@
 	font-weight: 400;
 }
 
+@utility typo-micro {
+	font-size: 12px;
+	line-height: 1.3;
+	font-weight: 500;
+}
+
 @utility typo-admin-pin {
 	font-size: 44px;
 	line-height: 1.3;
