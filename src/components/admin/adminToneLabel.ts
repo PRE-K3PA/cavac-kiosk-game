@@ -5,3 +5,9 @@ export const ADMIN_TONE_LABEL = {
 } as const;
 
 export type AdminTone = keyof typeof ADMIN_TONE_LABEL;
+
+export const ADMIN_TONE_TEXT = {
+	common: "text-tone-common",
+	vaccine: "text-tone-vaccine",
+	card: "text-tone-card",
+} as const satisfies Record<AdminTone, string>;
