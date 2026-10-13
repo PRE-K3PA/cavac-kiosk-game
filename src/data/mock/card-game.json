@@ -1,0 +1,119 @@
+{
+	"settings": {
+		"pairCount": 8,
+		"penalty": {
+			"time": {
+				"isEnabled": true,
+				"seconds": 3
+			},
+			"score": {
+				"isEnabled": false,
+				"points": 50
+			}
+		}
+	},
+	"products": [
+		{
+			"slot": 1,
+			"image": {
+				"ko": "images/product/2b1f038a-98da-45fa-94d6-1edd83fff92f.png",
+				"en": "images/product/fb1efc63-3a90-419c-a37b-6d8fb344ea8b.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": true
+		},
+		{
+			"slot": 2,
+			"image": {
+				"ko": "images/product/74ff4bb3-8488-4aef-a025-698b8f77e1ec.png",
+				"en": "images/product/5726f574-e415-4735-805a-0d33449559e4.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": true
+		},
+		{
+			"slot": 3,
+			"image": {
+				"ko": "images/product/9848e8b4-2cab-4513-81e4-03b3ac7ac5a9.png",
+				"en": "images/product/fe5d6d03-20f3-460c-81b6-cf9d169680ab.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": true
+		},
+		{
+			"slot": 4,
+			"image": {
+				"ko": "images/product/c99b169a-9a1b-440d-9d4e-94e15fadfc42.png",
+				"en": "images/product/c8689d35-9ff7-48a9-af84-9ab4a0eb20c3.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": true
+		},
+		{
+			"slot": 5,
+			"image": {
+				"ko": "images/product/2a545e65-ef06-4a99-a4fc-9fd3568a9e47.png",
+				"en": "images/product/73109cdf-d2b6-44a2-b36e-78c5087b5520.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": true
+		},
+		{
+			"slot": 6,
+			"image": {
+				"ko": "images/product/904cb011-bbd7-4aff-8be3-a73324969365.png",
+				"en": "images/product/8fd95899-6b79-4909-b856-178982da1f38.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": false
+		},
+		{
+			"slot": 7,
+			"image": {
+				"ko": "images/product/39c00534-4289-4b26-8c2e-7ae26589f2cf.png",
+				"en": "images/product/00818fa5-f5ca-419c-bfe5-4da406f7586a.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": false
+		},
+		{
+			"slot": 8,
+			"image": {
+				"ko": "images/product/1413bbc7-d519-4638-8172-c79639857150.png",
+				"en": "images/product/f40987c8-8cad-4b38-ad23-784472f1cb65.png"
+			},
+			"isEnabled": true,
+			"isShownInResult": true
+		},
+		{
+			"slot": 9,
+			"image": {
+				"ko": "images/product/c0294474-d367-4d51-9596-6700da99106f.png",
+				"en": "images/product/a0d79420-f3fc-4ba8-b5d4-365e3fe324d1.png"
+			},
+			"isEnabled": false,
+			"isShownInResult": true
+		},
+		{
+			"slot": 10,
+			"image": {
+				"ko": "images/product/5951728d-1db6-4ea5-b7d6-72c7c28049c8.png",
+				"en": "images/product/4aade96a-759b-4aea-87e9-c32e27a7c7d6.png"
+			},
+			"isEnabled": false,
+			"isShownInResult": true
+		},
+		{
+			"slot": 11,
+			"image": null,
+			"isEnabled": false,
+			"isShownInResult": true
+		},
+		{
+			"slot": 12,
+			"image": null,
+			"isEnabled": false,
+			"isShownInResult": true
+		}
+	]
+}

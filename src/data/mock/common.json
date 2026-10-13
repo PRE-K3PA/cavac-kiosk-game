@@ -1,0 +1,78 @@
+{
+	"activeGame": "vaccine",
+	"playDurationSeconds": 60,
+	"autoReset": {
+		"isEnabled": true,
+		"idleSeconds": 60
+	},
+	"species": [
+		{
+			"id": "33218a5e-c81d-450b-ae66-8de6aac93a05",
+			"name": "양",
+			"character": "images/species/5595d781-239a-4615-b610-eccdd66e323a.png"
+		},
+		{
+			"id": "a6129eab-aa31-4c92-b157-e0cf1579daa9",
+			"name": "염소",
+			"character": "images/species/dd04c9ce-d300-44fe-b60b-d1208935c861.png"
+		},
+		{
+			"id": "18464b36-3b23-4b72-b0bb-fe48caa699c7",
+			"name": "닭",
+			"character": "images/species/f8c0270d-ada8-4311-ae1c-9fa876338150.png"
+		},
+		{
+			"id": "42b87053-4206-405c-aab6-1ca9ca518cdd",
+			"name": "고양이",
+			"character": "images/species/f8fd0516-ec80-4bbf-8d08-3582577cfe4f.png"
+		},
+		{
+			"id": "78ff794b-63ed-4d6e-a327-a968899dd9a5",
+			"name": "강아지",
+			"character": "images/species/febfb93e-e47f-428d-a446-ec54d66cae09.png"
+		},
+		{
+			"id": "7776fe48-875a-4165-9fbc-be8608856c11",
+			"name": "너구리",
+			"character": "images/species/6e58ff77-735f-45dd-b39a-cba46770ef27.png"
+		},
+		{
+			"id": "d90b6996-8699-449c-92ef-da5c30de0af3",
+			"name": "말",
+			"character": "images/species/bf9cf5bf-a7b6-4966-91c6-d261457f9d3a.png"
+		},
+		{
+			"id": "7673c3c8-8e79-43b9-9b88-6a5056d4314b",
+			"name": "돼지",
+			"character": "images/species/7cf80d12-3077-47f4-97a3-f2d25c83355b.png"
+		},
+		{
+			"id": "beba5e5f-1765-4bd6-929a-153f697e78f8",
+			"name": "소",
+			"character": "images/species/8b4c7fb1-7a71-4e14-a64e-f71d36a14c9b.png"
+		},
+		{
+			"id": "6e9d8022-5adf-4ffc-a942-b008957a3b88",
+			"name": "오리",
+			"character": "images/species/a0aab6c2-63a7-42ee-88fe-e55bf929d289.png"
+		}
+	],
+	"homeAnimals": [
+		{
+			"speciesId": "7673c3c8-8e79-43b9-9b88-6a5056d4314b",
+			"slot": "left-2"
+		},
+		{
+			"speciesId": "78ff794b-63ed-4d6e-a327-a968899dd9a5",
+			"slot": "left-1"
+		},
+		{
+			"speciesId": "42b87053-4206-405c-aab6-1ca9ca518cdd",
+			"slot": "right-1"
+		},
+		{
+			"speciesId": "18464b36-3b23-4b72-b0bb-fe48caa699c7",
+			"slot": "right-2"
+		}
+	]
+}
