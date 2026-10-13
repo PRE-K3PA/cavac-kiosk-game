@@ -1,6 +1,5 @@
 import type { ComponentProps } from "react";
-// TODO: icChevron.svg 가 브랜치 병합된 뒤 아래 import 를 되살린다
-// import icChevron from "@/assets/icons/icChevron.svg";
+import icChevron from "@/assets/icons/icChevron.svg";
 import { cn } from "@/utils/cn";
 
 type CarouselArrowProps = Omit<ComponentProps<"button">, "children" | "aria-label"> & {
@@ -32,13 +31,12 @@ export default function CarouselArrow({
 					"size-9 shrink-0 bg-border-strong",
 					direction === "next" ? "-rotate-90" : "rotate-90",
 				)}
-				// TODO: icChevron.svg 병합 후 아래 mask 스타일을 되살린다
-				// style={{
-				// 	maskImage: `url("${icChevron}")`,
-				// 	maskSize: "contain",
-				// 	maskRepeat: "no-repeat",
-				// 	maskPosition: "center",
-				// }}
+				style={{
+					maskImage: `url("${icChevron}")`,
+					maskSize: "contain",
+					maskRepeat: "no-repeat",
+					maskPosition: "center",
+				}}
 			/>
 		</button>
 	);

@@ -1,4 +1,4 @@
-import icEmpty from "@/assets/images/icEmpty.svg";
+import icEmpty from "@/assets/icons/icEmpty.svg";
 import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 

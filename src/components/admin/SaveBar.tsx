@@ -1,4 +1,4 @@
-import icAlert from "@/assets/images/icAlert.svg";
+import icAlert from "@/assets/icons/icAlert.svg";
 import Button from "@/components/admin/Button";
 import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
