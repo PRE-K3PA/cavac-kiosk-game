@@ -28,7 +28,7 @@ export function normalizeData<F extends DataFile>(file: F, data: DataMap[F]): Da
 	}
 }
 
-/** 정리 → 모양 검사 → 저장 규칙 순서로 확인합니다 */
+/** 모양 검사 → 정리 → 저장 규칙 순서로 확인합니다 */
 export function validateForSave<F extends DataFile>(file: F, data: unknown): ValidationResult<F> {
 	const parsed = dataSchemas[file].safeParse(data);
 	if (!parsed.success) {
