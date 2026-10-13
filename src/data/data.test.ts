@@ -45,6 +45,15 @@ describe("항원 표시", () => {
 });
 
 describe("기본값 (첫 실행)", () => {
+	test("empty 목데이터는 축종만 있고 메인 화면 동물, 백신, 켜진 제품이 없다", () => {
+		const empty = createMockData("empty");
+		expect(empty.common.species.length).toBeGreaterThan(0);
+		expect(empty.common.homeAnimals).toHaveLength(0);
+		expect(empty["vaccine-game"].vaccines).toHaveLength(0);
+		expect(empty["card-game"].products.some((product) => product.isEnabled)).toBe(false);
+		expect(validateForSave("common", empty.common).isValid).toBe(true);
+	});
+
 	test.each([...DATA_FILES])("%s 기본값은 모양 검사를 통과한다", (file) => {
 		expect(dataSchemas[file].safeParse(createDefaultData(file)).success).toBe(true);
 	});
