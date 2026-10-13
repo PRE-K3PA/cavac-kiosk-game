@@ -19,7 +19,7 @@ import type {
 // 배포본에는 들어가지 않습니다 (src/data/storage.ts 가 DEV 에서만 고릅니다)
 //
 // - filled: Figma 화면과 비슷하게 채운 상태
-// - empty : 첫 실행 상태. 축종만 있고 백신 0개, 제품 빈 칸 12개
+// - empty : 첫 실행 상태. 축종만 있고 메인 화면 동물 없음, 백신 0개, 제품 빈 칸 12개
 // - 저장한 값은 메모리에만 둡니다. 새로고침하면 처음 상태로 돌아갑니다
 // - PIN 은 0000, 마스터 PIN 은 9999 (mock 전용 값)
 
@@ -48,8 +48,9 @@ const filledData: DataMap = {
 
 export function createMockData(scenario: MockScenario): DataMap {
 	if (scenario === "filled") return structuredClone(filledData);
+	// 첫 실행에는 main 이 기본 축종만 넣고, 메인 화면 동물은 관리자가 배치하기 전이라 비어 있습니다
 	return {
-		common: structuredClone(filledData.common),
+		common: { ...structuredClone(filledData.common), homeAnimals: [] },
 		"vaccine-game": createDefaultData("vaccine-game"),
 		"card-game": createDefaultData("card-game"),
 	};
