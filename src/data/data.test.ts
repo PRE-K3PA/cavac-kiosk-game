@@ -23,6 +23,13 @@ describe("목데이터", () => {
 		expect(keys).toContain("AI::H9");
 	});
 
+	test("세균 항원과 바이러스 항원이 모두 있다", () => {
+		const types = filled["vaccine-game"].vaccines.flatMap((vaccine) =>
+			vaccine.antigens.map((antigen) => antigen.pathogenType),
+		);
+		expect(new Set(types)).toEqual(new Set(["bacteria", "virus"]));
+	});
+
 	test("세부 타입은 '형' 없이 저장한다", () => {
 		const subtypes = filled["vaccine-game"].vaccines.flatMap((vaccine) =>
 			vaccine.antigens.map((antigen) => antigen.subtype ?? ""),
@@ -78,6 +85,25 @@ describe("저장 규칙", () => {
 		const [first] = data.vaccines[1].antigens;
 		data.vaccines[1].antigens.push({ ...first, id: crypto.randomUUID() });
 		expect(validateForSave("vaccine-game", data).isValid).toBe(false);
+	});
+
+	test("병원체 종류가 세균, 바이러스가 아니면 모양 검사에서 막는다", () => {
+		const data = createMockData("filled")["vaccine-game"];
+		const antigen = data.vaccines[0].antigens[0];
+		data.vaccines[0].antigens[0] = { ...antigen, pathogenType: "parasite" as never };
+		expect(dataSchemas["vaccine-game"].safeParse(data).success).toBe(false);
+	});
+
+	test("약어가 같은데 백신마다 세균, 바이러스 구분이 다르면 막는다", () => {
+		const data = createMockData("filled")["vaccine-game"];
+		const ndAntigens = data.vaccines
+			.flatMap((vaccine) => vaccine.antigens)
+			.filter((antigen) => antigen.abbr === "ND");
+		expect(ndAntigens.length).toBeGreaterThan(1);
+		ndAntigens[0].pathogenType = "bacteria";
+		const result = validateForSave("vaccine-game", data);
+		expect(result.isValid).toBe(false);
+		if (!result.isValid) expect(result.issues.some((issue) => issue.startsWith("ND:"))).toBe(true);
 	});
 
 	test("모든 항원이 고정이면 막는다", () => {

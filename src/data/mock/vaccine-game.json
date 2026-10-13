@@ -42,30 +42,35 @@
 					"id": "6a7bbadb-d023-4d92-898c-393418020f1e",
 					"abbr": "AI",
 					"subtype": "Y280",
+					"pathogenType": "virus",
 					"isPinned": true
 				},
 				{
 					"id": "9dadf9d7-68cc-4618-9927-5b6f1f31add4",
 					"abbr": "ND",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "827d7b0f-6db7-4402-a3f5-8c6e03c2b54c",
 					"abbr": "IB",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": true
 				},
 				{
 					"id": "dfa582d9-dab9-4bbc-8081-bfddac8c4e6b",
 					"abbr": "EDS",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "f16a0510-0793-468e-b30b-cc0fd0f120a7",
 					"abbr": "IBD",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				}
 			]
@@ -94,18 +99,21 @@
 					"id": "1a4f499b-adb7-4de6-87b7-d67455457baf",
 					"abbr": "RV",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "f2e5fa3a-4bc0-4541-a59a-892533626ae9",
 					"abbr": "CDV",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "85806508-9ec4-4a00-834e-36f2fcb43439",
 					"abbr": "CPV",
 					"subtype": "2b",
+					"pathogenType": "virus",
 					"isPinned": false
 				}
 			]
@@ -134,24 +142,28 @@
 					"id": "5b328dbf-df5e-4a54-bb26-fbe43bae6ecb",
 					"abbr": "ND",
 					"subtype": "VII",
+					"pathogenType": "virus",
 					"isPinned": true
 				},
 				{
 					"id": "6395d63d-5138-44d9-baf9-113e348ae0e8",
 					"abbr": "IB",
 					"subtype": "QX",
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "398601d1-8e7c-4419-8963-5047ab625989",
 					"abbr": "AI",
 					"subtype": "H9",
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "1f97ba37-b2f9-4621-a7b0-22777caf565f",
 					"abbr": "EDS",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				}
 			]
@@ -180,12 +192,14 @@
 					"id": "c8699084-94d2-4649-95ca-8650e0ae4b69",
 					"abbr": "PED",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "7176586e-9c9e-4461-9dd4-bde226fd7678",
 					"abbr": "TGE",
 					"subtype": "Purdue",
+					"pathogenType": "virus",
 					"isPinned": false
 				}
 			]
@@ -214,30 +228,35 @@
 					"id": "7a0184fb-3dc6-425a-b16c-5c1a2089dc9e",
 					"abbr": "PRRSV",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": true
 				},
 				{
 					"id": "9ceca848-71fd-44bf-b82c-67b661b4d56e",
 					"abbr": "PCV",
 					"subtype": "2d",
+					"pathogenType": "virus",
 					"isPinned": false
 				},
 				{
 					"id": "0f40f802-65d3-4513-8642-327c7cf9916b",
 					"abbr": "MHP",
 					"subtype": null,
+					"pathogenType": "bacteria",
 					"isPinned": false
 				},
 				{
 					"id": "bd29fa51-b458-490a-b5fa-2f78e43aa6c0",
 					"abbr": "APP",
 					"subtype": null,
+					"pathogenType": "bacteria",
 					"isPinned": false
 				},
 				{
 					"id": "08985893-8aba-444d-bc20-7a1174352dab",
 					"abbr": "AD",
 					"subtype": null,
+					"pathogenType": "virus",
 					"isPinned": false
 				}
 			]

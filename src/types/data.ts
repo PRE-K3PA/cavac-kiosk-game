@@ -56,11 +56,17 @@ export type Penalty = {
 	};
 };
 
+/** 항원의 병원체 종류. 화면 표기(이탤릭 등)를 나누는 데 씁니다 */
+export const PATHOGEN_TYPES = ["bacteria", "virus"] as const;
+export type PathogenType = (typeof PATHOGEN_TYPES)[number];
+
 export type Antigen = {
 	id: string;
 	abbr: string;
 	/** 세부 타입. "형" 없이 저장하고, 없으면 생략하지 않고 null */
 	subtype: string | null;
+	/** 세균인지 바이러스인지. 약어가 같으면 종류도 같아야 합니다 */
+	pathogenType: PathogenType;
 	isPinned: boolean;
 };
 
