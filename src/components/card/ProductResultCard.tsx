@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import { RESULT_CARD_FRAME } from "@/components/common/resultCardStyle";
 import { cn } from "@/utils/cn";
 
 const frameVariants = cva(
@@ -9,8 +10,8 @@ const frameVariants = cva(
 	{
 		variants: {
 			size: {
-				default: "h-105 w-150 rounded-3xl border-4 p-6",
-				large: "h-147 w-210 rounded-[34px] border-6 p-8.5",
+				default: RESULT_CARD_FRAME.default,
+				large: RESULT_CARD_FRAME.large,
 			},
 		},
 		defaultVariants: { size: "default" },
