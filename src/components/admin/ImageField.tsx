@@ -76,7 +76,7 @@ export default function ImageField({
 				<p
 					className={cn(
 						"typo-admin-caption",
-						isError ? "text-state-error" : "whitespace-nowrap text-text-secondary",
+						isError ? "break-keep text-state-error" : "whitespace-nowrap text-text-secondary",
 					)}>
 					{errorMessage || "PNG / JPG"}
 				</p>
