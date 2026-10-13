@@ -21,10 +21,7 @@ function useFontsLoadCount() {
 	return fontsLoadCount;
 }
 
-/**
- * DOM 을 재서 얻은 값을 렌더에 쓴다. 측정 전이거나 inputKey 가 바뀌면 initialValue 를 쓴다.
- * measure 가 DOM 스타일을 바꿔 가며 잰다면 끝나기 전에 원래대로 되돌려야 한다.
- */
+// measure 가 DOM 스타일을 바꿔 가며 잰다면 끝나기 전에 원래대로 되돌려야 한다.
 export function useMeasuredValue<T>(
 	inputKey: string,
 	initialValue: T,
