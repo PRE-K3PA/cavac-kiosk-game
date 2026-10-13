@@ -80,6 +80,21 @@
 	--green-300: #8dd9a6;
 	--green-500: #49b067;
 	--green-600: #3d9960;
+
+	/* 항원 색 추가분 */
+	--antigen-olive: #8f9407;
+	--antigen-tangerine: #d47636;
+	--antigen-jade: #39a08a;
+	--antigen-azure: #2c93da;
+	--antigen-leaf: #60a750;
+	--antigen-rose: #cf7184;
+	--antigen-mustard: #cb9317;
+	--antigen-violet: #9580e0;
+	--antigen-orchid: #bf71bd;
+	--antigen-chartreuse: #a1ca08;
+	--antigen-mauve: #9082a2;
+	--antigen-taupe: #b09a86;
+	--antigen-cornflower: #6d8de8;
 }
 
 @theme {
@@ -139,18 +154,31 @@
 	--color-tone-card: var(--amber-600);
 	--color-tone-card-subtle: var(--amber-50);
 
-	--color-antigen-01: var(--coral-300);
-	--color-antigen-02: var(--pink-200);
-	--color-antigen-03: var(--fuchsia-300);
-	--color-antigen-04: var(--orange-200);
-	--color-antigen-05: var(--yellow-300);
-	--color-antigen-06: var(--lime-300);
-	--color-antigen-07: var(--green-300);
-	--color-antigen-08: var(--teal-300);
-	--color-antigen-09: var(--cyan-400);
-	--color-antigen-10: var(--sky-350);
-	--color-antigen-11: var(--indigo-300);
-	--color-antigen-12: var(--purple-300);
+	--color-antigen-01: var(--pink-200);
+	--color-antigen-02: var(--yellow-300);
+	--color-antigen-03: var(--cyan-400);
+	--color-antigen-04: var(--green-300);
+	--color-antigen-05: var(--orange-200);
+	--color-antigen-06: var(--purple-300);
+	--color-antigen-07: var(--antigen-taupe);
+	--color-antigen-08: var(--antigen-rose);
+	--color-antigen-09: var(--antigen-jade);
+	--color-antigen-10: var(--antigen-azure);
+	--color-antigen-11: var(--antigen-chartreuse);
+	--color-antigen-12: var(--antigen-mauve);
+	--color-antigen-13: var(--coral-300);
+	--color-antigen-14: var(--antigen-tangerine);
+	--color-antigen-15: var(--sky-350);
+	--color-antigen-16: var(--lime-300);
+	--color-antigen-17: var(--antigen-cornflower);
+	--color-antigen-18: var(--antigen-leaf);
+	--color-antigen-19: var(--antigen-orchid);
+	--color-antigen-20: var(--fuchsia-300);
+	--color-antigen-21: var(--antigen-violet);
+	--color-antigen-22: var(--teal-300);
+	--color-antigen-23: var(--antigen-mustard);
+	--color-antigen-24: var(--antigen-olive);
+	--color-antigen-25: var(--indigo-300);
 	--color-antigen-outline: var(--navy-700);
 	--color-antigen-text: var(--navy-800);
 
