@@ -46,7 +46,7 @@ const IMAGE_FIELDS = [
 ] as const;
 
 type Language = (typeof LANGUAGES)[number];
-type LanguageKey = Language["key"];
+type LanguageKey = keyof Localized<string>;
 type NameField = (typeof NAME_FIELDS)[number];
 type ImageFieldConfig = (typeof IMAGE_FIELDS)[number];
 type VaccineName = Pick<Vaccine, "brandName" | "productName">;
