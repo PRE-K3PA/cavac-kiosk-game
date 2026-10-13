@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
-import icMatchedBadge from "@/assets/images/card/icMatchedBadge.svg";
+import icMatchedBadge from "@/assets/icons/icMatchedBadge.svg";
 import imgMemoryLogo from "@/assets/images/card/imgMemoryLogo.png";
 import { cn } from "@/utils/cn";
 
