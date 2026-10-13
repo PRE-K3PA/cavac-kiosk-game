@@ -1,4 +1,6 @@
-export const ANTIGEN_COLOR_CLASS = {
+import type { Antigen, AntigenColorKey } from "@/types/data";
+
+export const ANTIGEN_COLOR_CLASS: Record<AntigenColorKey, string> = {
 	"01": "bg-antigen-01",
 	"02": "bg-antigen-02",
 	"03": "bg-antigen-03",
@@ -24,19 +26,16 @@ export const ANTIGEN_COLOR_CLASS = {
 	"23": "bg-antigen-23",
 	"24": "bg-antigen-24",
 	"25": "bg-antigen-25",
-} as const;
-
-export type AntigenColor = keyof typeof ANTIGEN_COLOR_CLASS;
-
-export type AntigenLabel = {
-	abbr: string;
-	subtype?: string;
-	color: AntigenColor;
 };
 
-export function getAntigenKey({ abbr, subtype }: Pick<AntigenLabel, "abbr" | "subtype">) {
-	return `${abbr}-${subtype ?? ""}`;
-}
+export type AntigenLabel = Pick<Antigen, "abbr" | "subtype" | "pathogenType"> & {
+	color: AntigenColorKey;
+};
+
+// 한글 글꼴에는 이탤릭이 없어 브라우저 합성 대신 기울기를 직접 준다.
+export const BACTERIA_ABBR_CLASS = "-skew-x-12";
+// 기울인 글자 끝이 밀려나는 만큼의 여백이라 각도를 바꾸면 함께 맞춘다.
+export const BACTERIA_ABBR_INSET_CLASS = "px-[0.12em]";
 
 export function splitAntigenAbbr(abbr: string) {
 	return abbr
