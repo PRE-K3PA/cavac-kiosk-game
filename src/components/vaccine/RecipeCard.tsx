@@ -1,8 +1,9 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import AntigenBall from "@/components/vaccine/AntigenBall";
-import { type AntigenLabel, getAntigenKey } from "@/components/vaccine/antigen";
-import { useFontsLoadCount } from "@/components/vaccine/useFontsLoadCount";
+import type { AntigenLabel } from "@/components/vaccine/antigen";
+import { useMeasuredValue } from "@/components/vaccine/useMeasuredValue";
+import { antigenKey } from "@/data/rules";
 import { cn } from "@/utils/cn";
 
 const nameBarVariants = cva(
@@ -38,11 +39,16 @@ function fitNameFontSize(nameText: HTMLElement) {
 		);
 	};
 
-	for (const fontSize of NAME_FONT_SIZES) {
-		nameText.style.fontSize = `${fontSize}px`;
-		if (fits()) return fontSize;
+	const renderedFontSize = nameText.style.fontSize;
+	try {
+		for (const fontSize of NAME_FONT_SIZES) {
+			nameText.style.fontSize = `${fontSize}px`;
+			if (fits()) return fontSize;
+		}
+		return NAME_FONT_SIZES[NAME_FONT_SIZES.length - 1];
+	} finally {
+		nameText.style.fontSize = renderedFontSize;
 	}
-	return NAME_FONT_SIZES[NAME_FONT_SIZES.length - 1];
 }
 
 function splitIntoRows(antigens: AntigenLabel[]) {
@@ -59,16 +65,10 @@ type RecipeCardProps = VariantProps<typeof nameBarVariants> & {
 };
 
 export default function RecipeCard({ name, antigens, tone, className }: RecipeCardProps) {
-	// 글꼴이 늦게 로드되면 글자 폭이 바뀌므로 다시 맞춘다.
-	const fitKey = `${name}|${useFontsLoadCount()}`;
-	const [fitted, setFitted] = useState<{ key: string; fontSize: number }>();
-	const nameFontSize = fitted?.key === fitKey ? fitted.fontSize : NAME_FONT_SIZES[0];
 	const nameTextRef = useRef<HTMLSpanElement>(null);
-
-	useLayoutEffect(() => {
-		if (!nameTextRef.current) return;
-		setFitted({ key: fitKey, fontSize: fitNameFontSize(nameTextRef.current) });
-	}, [fitKey]);
+	const nameFontSize = useMeasuredValue<number>(name, NAME_FONT_SIZES[0], () =>
+		nameTextRef.current ? fitNameFontSize(nameTextRef.current) : undefined,
+	);
 
 	return (
 		<div
@@ -85,10 +85,10 @@ export default function RecipeCard({ name, antigens, tone, className }: RecipeCa
 			<div className="flex flex-col items-center justify-center gap-4 px-6 py-8">
 				{splitIntoRows(antigens).map((row) => (
 					<div
-						key={row.map(getAntigenKey).join("|")}
+						key={row.map(antigenKey).join("|")}
 						className="flex items-center justify-center gap-4">
 						{row.map((antigen) => (
-							<AntigenBall key={getAntigenKey(antigen)} {...antigen} />
+							<AntigenBall key={antigenKey(antigen)} {...antigen} />
 						))}
 					</div>
 				))}
