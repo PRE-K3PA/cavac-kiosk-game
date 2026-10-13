@@ -12,7 +12,7 @@ import { cn } from "@/utils/cn";
 const MAX_ANTIGENS = LIMITS.antigensPerVaccine.max;
 
 const vaccineRowVariants = cva(
-	"flex w-full flex-col gap-3 rounded-2xl bg-background-surface-subtle px-4 py-3",
+	"flex w-219 flex-col gap-3 rounded-2xl bg-background-surface-subtle px-4 py-3",
 	{
 		variants: {
 			isExpanded: {

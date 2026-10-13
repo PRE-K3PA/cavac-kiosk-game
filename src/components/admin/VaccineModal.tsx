@@ -25,7 +25,7 @@ const NAME_FIELDS = [
 	{
 		key: "productName",
 		label: "제품명",
-		width: "min-w-0 flex-1",
+		width: "w-0 min-w-0 flex-1",
 		placeholder: { ko: "예: 5280 ABBNE", en: "영어 제품명" },
 	},
 ] as const;

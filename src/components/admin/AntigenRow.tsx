@@ -143,7 +143,7 @@ export default function AntigenRow({
 							placeholder="세부 타입"
 							aria-label="세부 타입"
 							onChange={handleSubtypeChange}
-							className="h-14 min-w-0 flex-1 rounded-lg px-4"
+							className="h-14 w-0 min-w-0 flex-1 rounded-lg px-4"
 						/>
 					</>
 				) : (
