@@ -1,12 +1,13 @@
 import { motion, useReducedMotion } from "motion/react";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
 	ANTIGEN_COLOR_CLASS,
 	type AntigenLabel,
-	getAntigenKey,
+	BACTERIA_ABBR_CLASS,
 	splitAntigenAbbr,
 } from "@/components/vaccine/antigen";
-import { useFontsLoadCount } from "@/components/vaccine/useFontsLoadCount";
+import { useMeasuredValue } from "@/components/vaccine/useMeasuredValue";
+import { antigenKey } from "@/data/rules";
 import { cn } from "@/utils/cn";
 
 const SIZE_CLASS = {
@@ -35,11 +36,6 @@ const SIZE_CLASS = {
 const MARQUEE_MIN_SECONDS = 6;
 const MARQUEE_SECONDS_PER_CHAR = 0.35;
 
-function getChipLabel({ abbr, subtype }: AntigenLabel) {
-	const abbrText = splitAntigenAbbr(abbr).join(" ");
-	return subtype ? `${abbrText} (${subtype})` : abbrText;
-}
-
 type MarqueeNameProps = {
 	name: string;
 	className: string;
@@ -47,21 +43,15 @@ type MarqueeNameProps = {
 
 function MarqueeName({ name, className }: MarqueeNameProps) {
 	const shouldReduceMotion = useReducedMotion();
-	// 글꼴이 늦게 로드되면 글자 폭이 바뀌므로 다시 잰다.
-	const measureKey = `${name}|${className}|${useFontsLoadCount()}`;
-	const [measured, setMeasured] = useState<{ key: string; isOverflowing: boolean }>();
 	const boxRef = useRef<HTMLParagraphElement>(null);
 	const textRef = useRef<HTMLSpanElement>(null);
-	const isMarquee = !shouldReduceMotion && measured?.key === measureKey && measured.isOverflowing;
+	const isOverflowing = useMeasuredValue(`${name}|${className}`, false, () =>
+		boxRef.current && textRef.current
+			? textRef.current.offsetWidth > boxRef.current.clientWidth
+			: undefined,
+	);
+	const isMarquee = !shouldReduceMotion && isOverflowing;
 	const seconds = Math.max(MARQUEE_MIN_SECONDS, [...name].length * MARQUEE_SECONDS_PER_CHAR);
-
-	useLayoutEffect(() => {
-		if (!boxRef.current || !textRef.current) return;
-		setMeasured({
-			key: measureKey,
-			isOverflowing: textRef.current.offsetWidth > boxRef.current.clientWidth,
-		});
-	}, [measureKey]);
 
 	return (
 		<p
@@ -138,13 +128,19 @@ export default function VaccineResultCard({
 				<ul className={cn("flex flex-wrap items-center", sizeClass.chips)}>
 					{antigens.map((antigen) => (
 						<li
-							key={getAntigenKey(antigen)}
+							key={antigenKey(antigen)}
 							className={cn(
 								"whitespace-nowrap border-antigen-outline text-center text-antigen-text",
 								ANTIGEN_COLOR_CLASS[antigen.color],
 								sizeClass.chip,
 							)}>
-							{getChipLabel(antigen)}
+							<span
+								className={cn(
+									antigen.pathogenType === "bacteria" && ["inline-block", BACTERIA_ABBR_CLASS],
+								)}>
+								{splitAntigenAbbr(antigen.abbr).join(" ")}
+							</span>
+							{antigen.subtype && ` (${antigen.subtype})`}
 						</li>
 					))}
 				</ul>
