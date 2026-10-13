@@ -5,6 +5,7 @@ import type {
 	CommonData,
 	DataFile,
 	DataMap,
+	PathogenType,
 	Vaccine,
 	VaccineGameData,
 } from "@/types/data";
@@ -175,7 +176,21 @@ function collectVaccineGameIssues(data: VaccineGameData): string[] {
 		}
 	}
 
+	issues.push(...collectPathogenTypeIssues(data.vaccines));
 	return issues;
+}
+
+/** 약어가 같은 항원은 백신이 달라도 병원체 종류가 같아야 합니다 */
+function collectPathogenTypeIssues(vaccines: Vaccine[]): string[] {
+	const typesByAbbr = new Map<string, Set<PathogenType>>();
+	for (const antigen of vaccines.flatMap((vaccine) => vaccine.antigens)) {
+		const types = typesByAbbr.get(antigen.abbr) ?? new Set<PathogenType>();
+		types.add(antigen.pathogenType);
+		typesByAbbr.set(antigen.abbr, types);
+	}
+	return [...typesByAbbr]
+		.filter(([abbr, types]) => abbr !== "" && types.size > 1)
+		.map(([abbr]) => `${abbr}: 같은 약어의 항원은 세균, 바이러스 구분이 같아야 합니다.`);
 }
 
 function collectCardGameIssues(data: CardGameData): string[] {

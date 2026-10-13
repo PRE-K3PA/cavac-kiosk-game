@@ -8,6 +8,7 @@ import {
 	HOME_SLOTS,
 	type ImageKind,
 	PAIR_COUNTS,
+	PATHOGEN_TYPES,
 	type Penalty,
 	type VaccineGameData,
 } from "@/types/data";
@@ -106,6 +107,7 @@ export const vaccineGameDataSchema: z.ZodType<VaccineGameData> = z.object({
 					id: idSchema,
 					abbr: z.string(),
 					subtype: z.string().nullable(),
+					pathogenType: z.enum(PATHOGEN_TYPES),
 					isPinned: z.boolean(),
 				}),
 			),
