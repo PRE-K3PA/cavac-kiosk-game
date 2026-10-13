@@ -41,8 +41,6 @@ export default function RecipeTimeBar({ seconds, progress, label, className }: R
 				initial={false}
 				animate={{ width: `${clampedProgress}%` }}
 				transition={{ duration: transitionSeconds, ease: "linear" }}
-				// motion transition 값은 DOM 에 드러나지 않아 테스트에서 확인할 수 있게 노출한다
-				data-transition-seconds={transitionSeconds}
 				className="absolute inset-y-0 left-0 rounded-[10px] bg-brand-secondary"
 			/>
 		</div>
