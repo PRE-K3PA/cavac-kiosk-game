@@ -332,6 +332,22 @@
 	font-weight: 400;
 }
 
+@utility tip-tail-up {
+	clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+@utility tip-tail-down {
+	clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+@utility tip-tail-inner-up {
+	clip-path: polygon(50% 0, 95.6% 100%, 4.4% 100%);
+}
+
+@utility tip-tail-inner-down {
+	clip-path: polygon(4.4% 0, 95.6% 0, 50% 100%);
+}
+
 html,
 body,
 #root {
