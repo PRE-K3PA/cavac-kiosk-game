@@ -2,6 +2,13 @@ import { cva, type VariantProps } from "class-variance-authority";
 import Button from "@/components/admin/Button";
 import { cn } from "@/utils/cn";
 
+const DEFAULT_SHAPE = "square";
+
+const EMPTY_LABEL = {
+	square: "이미지\n없음",
+	wide: "이미지 없음",
+} as const;
+
 const thumbnailVariants = cva(
 	"relative flex h-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2",
 	{
@@ -24,7 +31,7 @@ const thumbnailVariants = cva(
 			{ isFilled: false, isError: false, className: "border-border-placeholder" },
 		],
 		defaultVariants: {
-			shape: "square",
+			shape: DEFAULT_SHAPE,
 		},
 	},
 );
@@ -66,8 +73,8 @@ export default function ImageField({
 						</button>
 					</>
 				) : (
-					<span className="typo-admin-caption whitespace-nowrap text-text-placeholder">
-						이미지 없음
+					<span className="typo-admin-caption whitespace-pre-line text-center text-text-placeholder">
+						{EMPTY_LABEL[shape ?? DEFAULT_SHAPE]}
 					</span>
 				)}
 			</div>

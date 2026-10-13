@@ -10,6 +10,7 @@ import Icon from "@/components/admin/Icon";
 import TextInput from "@/components/admin/TextInput";
 import Tooltip from "@/components/admin/Tooltip";
 import { BACTERIA_ABBR_CLASS } from "@/components/vaccine/antigen";
+import { formatAntigenLabel } from "@/data/rules";
 import { LIMITS } from "@/data/schema";
 import type { Antigen } from "@/types/data";
 import { cn } from "@/utils/cn";
@@ -50,11 +51,20 @@ const pinToggleVariants = cva("flex size-14 shrink-0 items-center justify-center
 
 type AntigenValue = Omit<Antigen, "id">;
 
+function getAntigenName({ abbr, subtype }: AntigenValue) {
+	const trimmedAbbr = abbr.trim();
+	if (trimmedAbbr === "") return "새 항원";
+
+	return formatAntigenLabel({ abbr: trimmedAbbr, subtype: subtype?.trim() || null });
+}
+
 type AntigenRowProps = {
 	value: AntigenValue;
 	isEditing: boolean;
 	abbrErrorMessage?: string;
 	isDoneDisabled?: boolean;
+	/** 다른 행을 수정하는 동안(Q12) 잠긴 행의 수정·삭제만 막습니다. ⓘ 는 막지 않습니다 */
+	isEditDeleteDisabled?: boolean;
 	onChange?: (value: AntigenValue) => void;
 	onEditClick?: () => void;
 	onDoneClick?: () => void;
@@ -67,6 +77,7 @@ export default function AntigenRow({
 	isEditing,
 	abbrErrorMessage,
 	isDoneDisabled,
+	isEditDeleteDisabled,
 	onChange,
 	onEditClick,
 	onDoneClick,
@@ -74,27 +85,37 @@ export default function AntigenRow({
 	className,
 }: AntigenRowProps) {
 	const [isTooltipOpen, setIsTooltipOpen] = useState(false);
-	const infoButtonRef = useRef<HTMLButtonElement>(null);
+	const infoRef = useRef<HTMLDivElement>(null);
+	const tooltipRef = useRef<HTMLDivElement>(null);
 	const tooltipId = useId();
 	const abbrMessageId = useId();
 	const isBacteria = value.pathogenType === "bacteria";
+	const antigenName = getAntigenName(value);
 
-	function subscribeOutsidePointerDown() {
+	// 팝업을 pointerdown 에서 닫으면 손을 뗄 때 click 이 팝업 아래 버튼에 떨어집니다.
+	// 그래서 바깥은 pointerdown 으로, 팝업은 click 으로 닫습니다
+	function subscribeTooltipDismiss() {
 		if (!isTooltipOpen) return;
 
 		function handleDocumentPointerDown(event: PointerEvent) {
-			if (!infoButtonRef.current?.contains(event.target as Node)) setIsTooltipOpen(false);
+			if (!infoRef.current?.contains(event.target as Node)) setIsTooltipOpen(false);
+		}
+
+		function handleDocumentClick(event: MouseEvent) {
+			if (tooltipRef.current?.contains(event.target as Node)) setIsTooltipOpen(false);
 		}
 
 		function unsubscribe() {
 			document.removeEventListener("pointerdown", handleDocumentPointerDown);
+			document.removeEventListener("click", handleDocumentClick);
 		}
 
 		document.addEventListener("pointerdown", handleDocumentPointerDown);
+		document.addEventListener("click", handleDocumentClick);
 		return unsubscribe;
 	}
 
-	useEffect(subscribeOutsidePointerDown, [isTooltipOpen]);
+	useEffect(subscribeTooltipDismiss, [isTooltipOpen]);
 
 	function handleInfoClick() {
 		setIsTooltipOpen(!isTooltipOpen);
@@ -121,7 +142,7 @@ export default function AntigenRow({
 			<div className={antigenRowVariants({ isEditing })}>
 				<button
 					type="button"
-					aria-label={`${value.abbr} 고정`}
+					aria-label={`${antigenName} 고정`}
 					aria-pressed={value.isPinned}
 					disabled={!isEditing}
 					onClick={handlePinClick}
@@ -163,11 +184,10 @@ export default function AntigenRow({
 					</>
 				)}
 				<div className="flex shrink-0 items-center gap-2">
-					<div className="relative">
+					<div ref={infoRef} className="relative">
 						<button
-							ref={infoButtonRef}
 							type="button"
-							aria-label={PATHOGEN_TOOLTIP.title}
+							aria-label={`${antigenName} ${PATHOGEN_TOOLTIP.title}`}
 							aria-expanded={isTooltipOpen}
 							aria-describedby={isTooltipOpen ? tooltipId : undefined}
 							onClick={handleInfoClick}
@@ -178,16 +198,19 @@ export default function AntigenRow({
 							<Icon src={icInfo} />
 						</button>
 						{isTooltipOpen && (
-							<Tooltip
-								id={tooltipId}
-								title={PATHOGEN_TOOLTIP.title}
-								message={PATHOGEN_TOOLTIP.message}
-								className="absolute bottom-full left-1/2 z-10 mb-1.5 -translate-x-1/2"
-							/>
+							<div
+								ref={tooltipRef}
+								className="absolute bottom-full left-1/2 z-10 mb-1.5 -translate-x-1/2">
+								<Tooltip
+									id={tooltipId}
+									title={PATHOGEN_TOOLTIP.title}
+									message={PATHOGEN_TOOLTIP.message}
+								/>
+							</div>
 						)}
 					</div>
 					<Checkbox
-						aria-label={`${value.abbr} 세균`}
+						aria-label={`${antigenName} 세균`}
 						isChecked={isBacteria}
 						disabled={!isEditing}
 						onChange={handleBacteriaChange}
@@ -196,13 +219,14 @@ export default function AntigenRow({
 				<Button
 					variant="secondary"
 					label={isEditing ? "완료" : "수정"}
-					disabled={isEditing && isDoneDisabled}
+					disabled={isEditing ? isDoneDisabled : isEditDeleteDisabled}
 					className="h-14 w-24 shrink-0 px-0"
 					onClick={isEditing ? onDoneClick : onEditClick}
 				/>
 				<Button
 					variant="danger"
 					label="삭제"
+					disabled={!isEditing && isEditDeleteDisabled}
 					className="h-14 w-24 shrink-0 px-0"
 					onClick={onDeleteClick}
 				/>
