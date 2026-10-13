@@ -9,6 +9,7 @@ import FieldMessage from "@/components/admin/FieldMessage";
 import Icon from "@/components/admin/Icon";
 import TextInput from "@/components/admin/TextInput";
 import Tooltip from "@/components/admin/Tooltip";
+import { BACTERIA_ABBR_CLASS } from "@/components/vaccine/antigen";
 import { LIMITS } from "@/data/schema";
 import type { Antigen } from "@/types/data";
 import { cn } from "@/utils/cn";
@@ -150,7 +151,7 @@ export default function AntigenRow({
 						<span
 							className={cn(
 								"w-35 shrink-0 truncate px-4 typo-admin-label text-text-primary",
-								isBacteria && "italic",
+								isBacteria && BACTERIA_ABBR_CLASS,
 							)}>
 							{value.abbr}
 						</span>
