@@ -28,7 +28,7 @@ export default function DeleteConfirmModal({
 				)}>
 				{target}
 			</p>
-			<p className="typo-admin-caption text-text-secondary">삭제된 데이터는 복구할 수 없습니다.</p>
+			<p className="typo-admin-caption text-text-secondary">설정을 저장하면 되돌릴 수 없습니다.</p>
 			{warning === "linked" && (
 				<p
 					className={cn(
