@@ -1,11 +1,13 @@
 import { motion, type TargetAndTransition, useReducedMotion } from "motion/react";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import {
 	ANTIGEN_COLOR_CLASS,
 	type AntigenLabel,
+	BACTERIA_ABBR_CLASS,
+	BACTERIA_ABBR_INSET_CLASS,
 	splitAntigenAbbr,
 } from "@/components/vaccine/antigen";
-import { useFontsLoadCount } from "@/components/vaccine/useFontsLoadCount";
+import { useMeasuredValue } from "@/components/vaccine/useMeasuredValue";
 import { cn } from "@/utils/cn";
 
 const SIZE_CLASS = {
@@ -75,17 +77,24 @@ function fitFontSize(textBox: HTMLElement, lineBox: HTMLElement, scale: number, 
 	const isOverflowing = () =>
 		textBox.offsetHeight > MAX_TEXT_HEIGHT * scale ||
 		lines.some((line) => line.scrollWidth > line.clientWidth);
+	const renderedFontSizes = lines.map((line) => line.style.fontSize);
 	const apply = (fontSize: number) => {
 		for (const line of lines) line.style.fontSize = `${fontSize}px`;
 	};
 
-	let fontSize = start;
-	apply(fontSize);
-	while (fontSize > MIN_FONT_SIZE * scale && isOverflowing()) {
-		fontSize = Math.max(fontSize - FONT_SIZE_STEP * scale, MIN_FONT_SIZE * scale);
+	try {
+		let fontSize = start;
 		apply(fontSize);
+		while (fontSize > MIN_FONT_SIZE * scale && isOverflowing()) {
+			fontSize = Math.max(fontSize - FONT_SIZE_STEP * scale, MIN_FONT_SIZE * scale);
+			apply(fontSize);
+		}
+		return fontSize;
+	} finally {
+		lines.forEach((line, index) => {
+			line.style.fontSize = renderedFontSizes[index] ?? "";
+		});
 	}
-	return fontSize;
 }
 
 const STATE_BALL_CLASS = {
@@ -147,6 +156,7 @@ type AntigenBallProps = AntigenLabel & {
 export default function AntigenBall({
 	abbr,
 	subtype,
+	pathogenType,
 	color,
 	state = "default",
 	size,
@@ -160,23 +170,16 @@ export default function AntigenBall({
 	const lines = getAbbrLines(abbr, hasSubtype);
 	const startFontSize = getStartFontSize(lines, hasSubtype) * scale;
 
-	// 글꼴이 늦게 로드되면 글자 폭이 바뀌므로 다시 맞춘다.
-	const fitKey = `${abbr}|${subtype ?? ""}|${resolvedSize}|${useFontsLoadCount()}`;
-	const [fitted, setFitted] = useState<{ key: string; fontSize: number }>();
-	const fontSize = fitted?.key === fitKey ? fitted.fontSize : startFontSize;
 	const textBoxRef = useRef<HTMLDivElement>(null);
 	const lineBoxRef = useRef<HTMLDivElement>(null);
-
-	useLayoutEffect(() => {
-		if (!textBoxRef.current || !lineBoxRef.current) return;
-		const fittedFontSize = fitFontSize(
-			textBoxRef.current,
-			lineBoxRef.current,
-			scale,
-			startFontSize,
-		);
-		setFitted({ key: fitKey, fontSize: fittedFontSize });
-	}, [fitKey, scale, startFontSize]);
+	const fontSize = useMeasuredValue(
+		`${abbr}|${subtype ?? ""}|${pathogenType}|${resolvedSize}`,
+		startFontSize,
+		() => {
+			if (!textBoxRef.current || !lineBoxRef.current) return;
+			return fitFontSize(textBoxRef.current, lineBoxRef.current, scale, startFontSize);
+		},
+	);
 	const animate = (target: TargetAndTransition | undefined) =>
 		shouldReduceMotion ? undefined : target;
 
@@ -240,7 +243,10 @@ export default function AntigenBall({
 							<p
 								key={line.key}
 								aria-hidden="true"
-								className="overflow-hidden whitespace-nowrap font-bold leading-[1.1]"
+								className={cn(
+									"overflow-hidden whitespace-nowrap font-bold leading-[1.1]",
+									pathogenType === "bacteria" && [BACTERIA_ABBR_CLASS, BACTERIA_ABBR_INSET_CLASS],
+								)}
 								style={{ width: line.width * scale, fontSize }}>
 								{line.text}
 							</p>
