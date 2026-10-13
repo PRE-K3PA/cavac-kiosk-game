@@ -29,6 +29,7 @@ type VaccineRowProps = {
 	antigenCount: number;
 	isEnabled: boolean;
 	isCheckboxDisabled?: boolean;
+	isAddAntigenDisabled?: boolean;
 	isExpanded: boolean;
 	/** 펼쳤을 때 "항원 구성" 아래에 놓을 AntigenRow 들 */
 	children?: ReactNode;
@@ -46,6 +47,7 @@ export default function VaccineRow({
 	antigenCount,
 	isEnabled,
 	isCheckboxDisabled,
+	isAddAntigenDisabled,
 	isExpanded,
 	children,
 	onEnabledChange,
@@ -114,7 +116,7 @@ export default function VaccineRow({
 					{children}
 					<AddButton
 						label="항원 추가"
-						disabled={antigenCount >= MAX_ANTIGENS}
+						disabled={isAddAntigenDisabled || antigenCount >= MAX_ANTIGENS}
 						onClick={onAddAntigenClick}
 						className="w-full"
 					/>
