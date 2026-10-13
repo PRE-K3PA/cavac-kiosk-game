@@ -54,6 +54,7 @@ type AntigenRowProps = {
 	value: AntigenValue;
 	isEditing: boolean;
 	abbrErrorMessage?: string;
+	isDoneDisabled?: boolean;
 	onChange?: (value: AntigenValue) => void;
 	onEditClick?: () => void;
 	onDoneClick?: () => void;
@@ -65,6 +66,7 @@ export default function AntigenRow({
 	value,
 	isEditing,
 	abbrErrorMessage,
+	isDoneDisabled,
 	onChange,
 	onEditClick,
 	onDoneClick,
@@ -194,6 +196,7 @@ export default function AntigenRow({
 				<Button
 					variant="secondary"
 					label={isEditing ? "완료" : "수정"}
+					disabled={isEditing && isDoneDisabled}
 					className="h-14 w-24 shrink-0 px-0"
 					onClick={isEditing ? onDoneClick : onEditClick}
 				/>
