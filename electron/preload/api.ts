@@ -1,4 +1,6 @@
-export interface ElectronApi {
+import type { Platform } from "@/types/data";
+
+export interface ElectronApi extends Platform {
 	getVersion(): Promise<string>;
 }
 
