@@ -2,7 +2,7 @@ import { setTimeout as sleep } from "node:timers/promises";
 
 // Windows 에서는 백신이나 검색 색인이 방금 쓴 파일을 잠깐 잡고 있어 rename, copy 가 실패할 수 있습니다
 const LOCK_ERROR_CODES = new Set(["EPERM", "EBUSY", "EACCES"]);
-const RETRY_DELAYS_MS = [50, 100, 200];
+const RETRY_DELAYS_MS = [50, 100, 200, 400, 800];
 
 function isLockError(error: unknown): boolean {
 	return (
