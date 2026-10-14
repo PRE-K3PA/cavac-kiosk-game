@@ -30,6 +30,7 @@ export const LIMITS = {
 	antigensPerVaccine: { min: 1, max: 5 },
 	antigenAbbr: { min: 1, max: 8 },
 	productSlots: 12,
+	pinLength: 4,
 } as const;
 
 const IMAGE_EXTENSIONS = "png|jpg|jpeg";
