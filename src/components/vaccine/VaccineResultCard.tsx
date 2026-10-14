@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useRef, useState } from "react";
+import { RESULT_CARD_FRAME } from "@/components/common/resultCardStyle";
 import {
 	ANTIGEN_COLOR_CLASS,
 	type AntigenLabel,
@@ -12,7 +13,7 @@ import { cn } from "@/utils/cn";
 
 const SIZE_CLASS = {
 	default: {
-		root: "h-105 w-150 gap-5 rounded-3xl border-4 p-6",
+		root: `${RESULT_CARD_FRAME.default} gap-5`,
 		image: "w-50 rounded-2xl",
 		info: "gap-4",
 		names: "gap-1",
@@ -22,7 +23,7 @@ const SIZE_CLASS = {
 		chip: "rounded-xl border-2 px-3.5 py-1.5 typo-caption",
 	},
 	large: {
-		root: "h-147 w-210 gap-7 rounded-[34px] border-6 p-8.5",
+		root: `${RESULT_CARD_FRAME.large} gap-7`,
 		image: "w-70 rounded-[22px]",
 		info: "gap-5.5",
 		names: "gap-1.5",

@@ -4,8 +4,7 @@ import { cn } from "@/utils/cn";
 
 const buttonVariants = cva(
 	[
-		"flex h-15 w-40 items-center justify-center rounded-xl px-6",
-		"typo-admin-label whitespace-nowrap",
+		"flex items-center justify-center rounded-xl typo-admin-label whitespace-nowrap",
 		"disabled:border-2 disabled:border-border-muted disabled:bg-background-muted",
 		"disabled:text-text-placeholder",
 	],
@@ -29,9 +28,14 @@ const buttonVariants = cva(
 					"active:bg-state-error-strong",
 				],
 			},
+			size: {
+				default: "h-15 w-40 px-6",
+				row: "h-14 w-24 px-0",
+			},
 		},
 		defaultVariants: {
 			variant: "primary",
+			size: "default",
 		},
 	},
 );
@@ -44,12 +48,13 @@ type ButtonProps = Omit<ComponentProps<"button">, "children"> &
 export default function Button({
 	label,
 	variant,
+	size,
 	className,
 	type = "button",
 	...props
 }: ButtonProps) {
 	return (
-		<button type={type} className={cn(buttonVariants({ variant }), className)} {...props}>
+		<button type={type} className={cn(buttonVariants({ variant, size }), className)} {...props}>
 			{label}
 		</button>
 	);
