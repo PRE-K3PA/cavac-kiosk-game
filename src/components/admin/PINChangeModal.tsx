@@ -4,9 +4,8 @@ import FieldMessage from "@/components/admin/FieldMessage";
 import ModalFrame from "@/components/admin/ModalFrame";
 import ModalHeader from "@/components/admin/ModalHeader";
 import TextInput from "@/components/admin/TextInput";
+import { LIMITS } from "@/data/schema";
 import { cn } from "@/utils/cn";
-
-const PIN_LENGTH = 4;
 
 const PIN_FIELDS = [
 	{ key: "current", label: "현재 PIN *" },
@@ -57,7 +56,7 @@ export default function PINChangeModal({
 					id={inputId}
 					type="password"
 					inputMode="numeric"
-					maxLength={PIN_LENGTH}
+					maxLength={LIMITS.pinLength}
 					value={value[key]}
 					isError={Boolean(errorMessage)}
 					aria-describedby={errorMessage ? messageId : undefined}
@@ -71,7 +70,10 @@ export default function PINChangeModal({
 
 	return (
 		<ModalFrame className={cn("w-160", className)}>
-			<ModalHeader title="관리자 PIN 변경" subtitle="4자리 숫자 PIN을 입력해 주세요." />
+			<ModalHeader
+				title="관리자 PIN 변경"
+				subtitle={`${LIMITS.pinLength}자리 숫자 PIN을 입력해 주세요.`}
+			/>
 			{PIN_FIELDS.map(renderField)}
 			<p className="typo-admin-caption text-text-secondary">저장하면 바로 바뀝니다.</p>
 			<div className="flex w-full justify-end gap-3">
