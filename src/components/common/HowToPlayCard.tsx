@@ -6,7 +6,7 @@ type HowToPlayCardProps = Omit<ComponentProps<"div">, "children"> & {
 	step: string;
 	description: string;
 	direction?: "column" | "row";
-	accent?: "blue" | "yellow";
+	accent?: "blue" | "yellow" | "green";
 	media?: ReactNode;
 	tip?: string;
 };
@@ -14,6 +14,7 @@ type HowToPlayCardProps = Omit<ComponentProps<"div">, "children"> & {
 const STEP_ACCENT = {
 	blue: "border-border-strong bg-background-canvas text-brand-secondary-strong",
 	yellow: "border-accent-yellow bg-accent-yellow-subtle text-accent-yellow-text",
+	green: "border-state-success bg-accent-green-subtle text-state-success",
 } as const;
 
 export default function HowToPlayCard({
