@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 import type { ChangeEvent, ComponentProps } from "react";
-import icSearch from "@/assets/images/icSearch.svg";
+import icSearch from "@/assets/icons/icSearch.svg";
 import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 

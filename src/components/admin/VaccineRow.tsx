@@ -1,6 +1,6 @@
 import { cva } from "class-variance-authority";
 import type { ReactNode } from "react";
-import icChevron from "@/assets/images/icChevron.svg";
+import icChevron from "@/assets/icons/icChevron.svg";
 import AddButton from "@/components/admin/AddButton";
 import Button from "@/components/admin/Button";
 import Checkbox from "@/components/admin/Checkbox";
@@ -24,7 +24,7 @@ const vaccineRowVariants = cva(
 );
 
 type VaccineRowProps = {
-	name: Pick<Vaccine, "productName">;
+	productName: Vaccine["productName"];
 	imageSrc: string;
 	antigenCount: number;
 	isEnabled: boolean;
@@ -42,7 +42,7 @@ type VaccineRowProps = {
 };
 
 export default function VaccineRow({
-	name,
+	productName,
 	imageSrc,
 	antigenCount,
 	isEnabled,
@@ -61,7 +61,7 @@ export default function VaccineRow({
 		<div className={cn(vaccineRowVariants({ isExpanded }), className)}>
 			<div className="flex h-16 items-center gap-4">
 				<Checkbox
-					aria-label={`${name.productName.ko} 사용`}
+					aria-label={`${productName.ko} 사용`}
 					isChecked={isEnabled}
 					disabled={isCheckboxDisabled}
 					onChange={onEnabledChange}
@@ -74,8 +74,8 @@ export default function VaccineRow({
 					<img src={imageSrc} alt="" className="size-full object-contain" />
 				</div>
 				<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-					<p className="truncate typo-admin-label text-text-primary">{name.productName.ko}</p>
-					<p className="truncate typo-admin-caption text-text-secondary">{name.productName.en}</p>
+					<p className="truncate typo-admin-label text-text-primary">{productName.ko}</p>
+					<p className="truncate typo-admin-caption text-text-secondary">{productName.en}</p>
 				</div>
 				<button
 					type="button"
@@ -95,13 +95,15 @@ export default function VaccineRow({
 				<Button
 					variant="secondary"
 					label="수정"
-					className="h-14 w-24 shrink-0 px-0"
+					size="row"
+					className="shrink-0"
 					onClick={onEditClick}
 				/>
 				<Button
 					variant="danger"
 					label="삭제"
-					className="h-14 w-24 shrink-0 px-0"
+					size="row"
+					className="shrink-0"
 					onClick={onDeleteClick}
 				/>
 			</div>

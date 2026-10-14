@@ -1,8 +1,8 @@
 import { cva } from "class-variance-authority";
 import { useEffect, useId, useRef, useState } from "react";
-import icInfo from "@/assets/images/icInfo.svg";
-import icPinned from "@/assets/images/icPinned.svg";
-import icUnpinned from "@/assets/images/icUnpinned.svg";
+import icInfo from "@/assets/icons/icInfo.svg";
+import icPinned from "@/assets/icons/icPinned.svg";
+import icUnpinned from "@/assets/icons/icUnpinned.svg";
 import Button from "@/components/admin/Button";
 import Checkbox from "@/components/admin/Checkbox";
 import FieldMessage from "@/components/admin/FieldMessage";
@@ -220,14 +220,16 @@ export default function AntigenRow({
 					variant="secondary"
 					label={isEditing ? "완료" : "수정"}
 					disabled={isEditing ? isDoneDisabled : isEditDeleteDisabled}
-					className="h-14 w-24 shrink-0 px-0"
+					size="row"
+					className="shrink-0"
 					onClick={isEditing ? onDoneClick : onEditClick}
 				/>
 				<Button
 					variant="danger"
 					label="삭제"
 					disabled={!isEditing && isEditDeleteDisabled}
-					className="h-14 w-24 shrink-0 px-0"
+					size="row"
+					className="shrink-0"
 					onClick={onDeleteClick}
 				/>
 			</div>

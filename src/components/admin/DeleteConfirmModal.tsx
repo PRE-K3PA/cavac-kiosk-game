@@ -5,7 +5,7 @@ import { cn } from "@/utils/cn";
 
 type DeleteConfirmModalProps = {
 	target: string;
-	warning?: "none" | "linked";
+	warningMessage?: string;
 	onCancelClick?: () => void;
 	onDeleteClick?: () => void;
 	className?: string;
@@ -13,7 +13,7 @@ type DeleteConfirmModalProps = {
 
 export default function DeleteConfirmModal({
 	target,
-	warning = "none",
+	warningMessage,
 	onCancelClick,
 	onDeleteClick,
 	className,
@@ -29,13 +29,13 @@ export default function DeleteConfirmModal({
 				{target}
 			</p>
 			<p className="typo-admin-caption text-text-secondary">설정을 저장하면 되돌릴 수 없습니다.</p>
-			{warning === "linked" && (
+			{warningMessage && (
 				<p
 					className={cn(
 						"w-full rounded-xl border-2 border-state-error bg-background-surface px-4 py-3",
 						"typo-admin-body text-state-error",
 					)}>
-					메인 화면 칸에 쓰이는 축종입니다. 삭제하면 그 칸이 비워집니다.
+					{warningMessage}
 				</p>
 			)}
 			<div className="flex w-full justify-end gap-3">
