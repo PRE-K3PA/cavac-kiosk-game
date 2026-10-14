@@ -4,6 +4,7 @@ import { createDefaultData } from "@/data/defaults";
 import { validateForSave } from "@/data/rules";
 import { dataSchemas } from "@/data/schema";
 import type { DataFile, DataMap, SaveResult } from "@/types/data";
+import { retryOnFileLock } from "./retry";
 
 // .tmp 에 쓰고 디스크에 기록한 뒤 이름을 바꾸므로, 쓰는 도중 전원이 꺼져도 원본이나 .bak 중 하나는 온전히 남습니다
 
@@ -45,7 +46,7 @@ export function createDataStore(dataDir: string): DataStore {
 	// 쓸 수 없는 원본도 사람이 열어 되살릴 수 있도록 지우지 않고 옆으로 옮깁니다
 	async function moveAsideUnreadable(original: string): Promise<boolean> {
 		try {
-			await rename(original, `${original}.corrupt-${Date.now()}`);
+			await retryOnFileLock(() => rename(original, `${original}.corrupt-${Date.now()}`));
 			return true;
 		} catch (error) {
 			return error instanceof Error && "code" in error && error.code === "ENOENT";
@@ -58,7 +59,7 @@ export function createDataStore(dataDir: string): DataStore {
 
 		// 깨진 원본으로 멀쩡한 .bak 을 덮지 않도록, 원본이 쓸 수 있는 값일 때만 백업합니다
 		if (await readValidFile(file, original)) {
-			await copyFile(original, backup);
+			await retryOnFileLock(() => copyFile(original, backup));
 		}
 
 		const handle = await open(temp, "w");
@@ -68,7 +69,7 @@ export function createDataStore(dataDir: string): DataStore {
 		} finally {
 			await handle.close();
 		}
-		await rename(temp, original);
+		await retryOnFileLock(() => rename(temp, original));
 	}
 
 	return {
