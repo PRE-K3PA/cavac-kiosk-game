@@ -1,5 +1,6 @@
 import { app, BrowserWindow } from "electron";
 import { registerIpcHandlers } from "./ipc";
+import { ensureStorageDirs } from "./paths";
 import { createMainWindow } from "./window";
 
 if (!app.requestSingleInstanceLock()) {
@@ -7,6 +8,12 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 app.whenReady().then(() => {
+	// 폴더를 만들지 못해도 창은 띄웁니다. 설정 파일 폴더는 저장할 때 다시 만듭니다
+	try {
+		ensureStorageDirs();
+	} catch (error) {
+		console.error("저장 폴더를 만들지 못했습니다", error);
+	}
 	registerIpcHandlers();
 	createMainWindow();
 

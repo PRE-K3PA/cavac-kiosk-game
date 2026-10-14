@@ -11,7 +11,7 @@ import type {
 } from "@/types/data";
 
 // window.api 를 직접 부르는 유일한 파일입니다. 화면 코드는 이 파일의 함수만 씁니다
-// Electron 의 Platform 구현이 아직 없거나 브라우저로 열었을 때는 개발 모드에서만 mock 을 씁니다
+// window.api 가 Platform 을 갖추지 않았을 때(브라우저로 열었을 때 등)는 개발 모드에서만 mock 을 씁니다
 // mock 상태는 .env.local 의 VITE_MOCK_SCENARIO=filled|empty 로 바꿉니다
 
 const PLATFORM_METHODS = [
