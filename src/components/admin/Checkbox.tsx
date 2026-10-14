@@ -1,5 +1,5 @@
 import type { ChangeEvent, ComponentProps } from "react";
-import icCheck from "@/assets/images/icCheck.svg";
+import icCheck from "@/assets/icons/icCheck.svg";
 import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 

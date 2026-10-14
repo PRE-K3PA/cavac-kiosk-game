@@ -87,7 +87,8 @@ export default function ProductRow({
 				<Button
 					variant="secondary"
 					label="등록"
-					className="ml-auto h-14 w-24 shrink-0 px-0"
+					size="row"
+					className="ml-auto shrink-0"
 					onClick={onRegisterClick}
 				/>
 			) : (
@@ -112,13 +113,15 @@ export default function ProductRow({
 					<Button
 						variant="secondary"
 						label="수정"
-						className="h-14 w-24 shrink-0 px-0"
+						size="row"
+						className="shrink-0"
 						onClick={onEditClick}
 					/>
 					<Button
 						variant="danger"
 						label="삭제"
-						className="h-14 w-24 shrink-0 px-0"
+						size="row"
+						className="shrink-0"
 						onClick={onDeleteClick}
 					/>
 				</>

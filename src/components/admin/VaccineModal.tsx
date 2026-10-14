@@ -177,7 +177,7 @@ export default function VaccineModal(props: VaccineModalProps) {
 	}
 
 	return (
-		<ModalFrame className={cn("max-h-260 w-180", className)}>
+		<ModalFrame className={cn("w-180", className)}>
 			<ModalHeader tone="vaccine" title={header.title} subtitle={header.subtitle} />
 			{/* 오류 문구가 쌓여 길어지면 본문만 스크롤합니다. 스크롤바는 숨깁니다. Windows 기본 스크롤바는 생길 때 폭을 차지해 입력칸 폭이 갑자기 바뀝니다 */}
 			<div className="flex min-h-0 w-full flex-col gap-5 overflow-y-auto [scrollbar-width:none]">
