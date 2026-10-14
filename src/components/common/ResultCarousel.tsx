@@ -3,6 +3,7 @@ import type { ComponentProps, PointerEvent, ReactNode } from "react";
 import { useRef } from "react";
 import CarouselArrow from "@/components/common/CarouselArrow";
 import CarouselDot from "@/components/common/CarouselDot";
+import { RESULT_CARD_SIZE } from "@/components/common/resultCardStyle";
 import { cn } from "@/utils/cn";
 
 const SWIPE_THRESHOLD = 80;
@@ -11,14 +12,14 @@ const SIZE = {
 	compact: {
 		root: "w-464 gap-5",
 		stage: "h-105 w-422",
-		slot: "-ml-75 -mt-52.5 h-105 w-150",
+		slot: `-ml-75 -mt-52.5 ${RESULT_CARD_SIZE.default}`,
 		offset: 582,
 		sideScale: 524 / 600,
 	},
 	large: {
 		root: "w-591",
 		stage: "h-147 w-591",
-		slot: "-ml-105 -mt-73.5 h-147 w-210",
+		slot: `-ml-105 -mt-73.5 ${RESULT_CARD_SIZE.large}`,
 		offset: 815,
 		sideScale: 734 / 840,
 	},

@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import icAlert from "@/assets/images/icAlert.svg";
+import icAlert from "@/assets/icons/icAlert.svg";
 import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 
