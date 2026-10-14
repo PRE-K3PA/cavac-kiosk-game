@@ -4,7 +4,6 @@ export const RESULT_CARD_SIZE = {
 	large: "h-147 w-210",
 } as const;
 
-/** 카드 크기, 모서리, 테두리 두께, 안쪽 여백 */
 export const RESULT_CARD_FRAME = {
 	default: `${RESULT_CARD_SIZE.default} rounded-3xl border-4 p-6`,
 	large: `${RESULT_CARD_SIZE.large} rounded-[34px] border-6 p-8.5`,
