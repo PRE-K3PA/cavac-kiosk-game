@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import icChevron from "@/assets/images/icChevron.svg";
+import icChevron from "@/assets/icons/icChevron.svg";
 import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
 
