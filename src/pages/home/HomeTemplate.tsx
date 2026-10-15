@@ -14,7 +14,7 @@ import { useHomeAnimals } from "@/pages/home/useHomeAnimals";
 import { HOME_SLOTS, type Localized } from "@/types/data";
 import { cn } from "@/utils/cn";
 
-export type HomeTemplateProps = {
+export type HomeScreenProps = {
 	onStart: () => void;
 	onAdminActivate: () => void;
 };
@@ -30,7 +30,7 @@ export type HomeContent = {
 	steps: readonly [HomeStep, HomeStep, HomeStep];
 };
 
-type HomeTemplateInnerProps = HomeTemplateProps & {
+type HomeTemplateProps = HomeScreenProps & {
 	content: HomeContent;
 	language: Language;
 	onToggleLanguage: () => void;
@@ -103,7 +103,7 @@ export default function HomeTemplate({
 	onToggleLanguage,
 	onStart,
 	onAdminActivate,
-}: HomeTemplateInnerProps) {
+}: HomeTemplateProps) {
 	const [isMuted, setIsMuted] = useState(false);
 	const animals = useHomeAnimals();
 	const orientation = useOrientation();
@@ -112,6 +112,10 @@ export default function HomeTemplate({
 	const isCentered = orientation === "landscape" || portraitAlign === "center";
 	const logo = HOME_LOGO[language];
 	const title = content.title[language];
+
+	function handleSoundClick() {
+		setIsMuted((muted) => !muted);
+	}
 
 	return (
 		<ScreenLayout
@@ -138,7 +142,7 @@ export default function HomeTemplate({
 					<SoundButton
 						label={HOME_COMMON_COPY.soundLabel[language]}
 						muted={isMuted}
-						onClick={() => setIsMuted((muted) => !muted)}
+						onClick={handleSoundClick}
 					/>
 					<LanguageButton
 						label={HOME_COMMON_COPY.languageLabel[language]}

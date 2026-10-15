@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { OrientationProvider } from "@/layout/OrientationContext";
 import type { Orientation } from "@/layout/stage";
 import CardHome from "@/pages/card/CardHome";
-import type { HomeTemplateProps } from "@/pages/home/HomeTemplate";
+import type { HomeScreenProps } from "@/pages/home/HomeTemplate";
 import VaccineHome from "@/pages/vaccine/VaccineHome";
 
 const HOMES = [
@@ -17,7 +17,7 @@ const HOMES = [
 const ORIENTATIONS: Orientation[] = ["landscape", "portrait"];
 
 function renderHome(
-	Home: (props: HomeTemplateProps) => ReactNode,
+	Home: (props: HomeScreenProps) => ReactNode,
 	orientation: Orientation = "landscape",
 ) {
 	const onStart = mock(() => {});
