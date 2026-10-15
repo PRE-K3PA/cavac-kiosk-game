@@ -1,8 +1,8 @@
 import type { MouseEvent } from "react";
 import Button from "@/components/admin/Button";
+import { LIMITS } from "@/data/schema";
 import { cn } from "@/utils/cn";
 
-const PIN_LENGTH = 4;
 const DIGITS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
 const KEY_CLASS_NAME = cn(
@@ -76,9 +76,9 @@ export default function PINPanel({
 			<p className="typo-admin-body text-text-secondary">관리자 PIN을 입력해주세요.</p>
 			<div
 				role="img"
-				aria-label={`${PIN_LENGTH}자리 중 ${pinLength}자리 입력`}
+				aria-label={`${LIMITS.pinLength}자리 중 ${pinLength}자리 입력`}
 				className="flex h-12 items-center gap-6">
-				{Array.from({ length: PIN_LENGTH }, renderDot)}
+				{Array.from({ length: LIMITS.pinLength }, renderDot)}
 			</div>
 			<p role="alert" className="h-7.25 typo-admin-body text-state-error">
 				{isError && "PIN이 올바르지 않습니다. 다시 입력해주세요."}

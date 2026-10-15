@@ -3,7 +3,7 @@ import cardGameMock from "@/data/mock/card-game.json";
 import commonMock from "@/data/mock/common.json";
 import vaccineGameMock from "@/data/mock/vaccine-game.json";
 import { validateForSave } from "@/data/rules";
-import { dataSchemas } from "@/data/schema";
+import { dataSchemas, LIMITS } from "@/data/schema";
 import type {
 	CommonData,
 	DataFile,
@@ -34,7 +34,6 @@ export type MockPlatformOptions = {
 };
 
 const MOCK_MASTER_PIN = "9999";
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES: Record<string, string> = {
 	"image/png": "png",
 	"image/jpeg": "jpg",
@@ -138,7 +137,7 @@ function pickImageFile(kind: ImageKind): Promise<PickResult> {
 
 			const extension = ACCEPTED_IMAGE_TYPES[file.type];
 			if (!extension) return resolve({ status: "error", reason: "format" });
-			if (file.size > MAX_IMAGE_BYTES) return resolve({ status: "error", reason: "size" });
+			if (file.size > LIMITS.imageMaxBytes) return resolve({ status: "error", reason: "size" });
 
 			resolve({
 				status: "ok",
