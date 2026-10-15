@@ -52,10 +52,12 @@ export function hasPinChangeErrors(errors: PinChangeErrors) {
 	return Object.keys(errors).length > 0;
 }
 
-const DEPENDENT_FIELDS: Record<PinChangeField, PinChangeField[]> = {
-	current: ["current", "next"],
-	next: ["next", "confirm"],
-	confirm: ["confirm"],
+// 다른 칸과 비교해 생긴 오류는 그 비교 대상 칸을 고쳐도 풀릴 수 있다
+const DEPENDENT_ERRORS: Partial<
+	Record<PinChangeField, { field: PinChangeField; message: string }>
+> = {
+	current: { field: "next", message: PIN_CHANGE_MESSAGES.sameAsCurrent },
+	next: { field: "confirm", message: PIN_CHANGE_MESSAGES.confirmMismatch },
 };
 
 export function clearEditedFieldErrors(
@@ -66,7 +68,11 @@ export function clearEditedFieldErrors(
 	const remaining = { ...errors };
 	for (const field of PIN_CHANGE_FIELDS) {
 		if (previous[field] === edited[field]) continue;
-		for (const cleared of DEPENDENT_FIELDS[field]) delete remaining[cleared];
+		delete remaining[field];
+		const dependent = DEPENDENT_ERRORS[field];
+		if (dependent && remaining[dependent.field] === dependent.message) {
+			delete remaining[dependent.field];
+		}
 	}
 	return remaining;
 }

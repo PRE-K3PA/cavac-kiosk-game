@@ -80,4 +80,29 @@ describe("PIN 변경 검사", () => {
 		const edited = { ...previous, next: FULL_PIN };
 		expect(clearEditedFieldErrors(errors, previous, edited)).toEqual({});
 	});
+
+	test("다른 칸을 고쳐도 자리 수 부족 오류는 남긴다", () => {
+		const errors = {
+			current: PIN_CHANGE_MESSAGES.tooShort,
+			next: PIN_CHANGE_MESSAGES.tooShort,
+			confirm: PIN_CHANGE_MESSAGES.tooShort,
+		};
+		const afterCurrent = clearEditedFieldErrors(errors, EMPTY_PIN_CHANGE_FORM, {
+			...EMPTY_PIN_CHANGE_FORM,
+			current: "1",
+		});
+		expect(afterCurrent).toEqual({
+			next: PIN_CHANGE_MESSAGES.tooShort,
+			confirm: PIN_CHANGE_MESSAGES.tooShort,
+		});
+
+		const afterNext = clearEditedFieldErrors(errors, EMPTY_PIN_CHANGE_FORM, {
+			...EMPTY_PIN_CHANGE_FORM,
+			next: "1",
+		});
+		expect(afterNext).toEqual({
+			current: PIN_CHANGE_MESSAGES.tooShort,
+			confirm: PIN_CHANGE_MESSAGES.tooShort,
+		});
+	});
 });
