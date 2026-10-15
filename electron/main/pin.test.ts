@@ -1,9 +1,17 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { createMockData } from "@/data/mock/mock-platform";
+import { createDataStore } from "./data-store";
 import { createPinStore, isValidPin } from "./pin";
-import { hashPin, isPinHash, matchesPinHash } from "./pin-hash";
+import {
+	findMasterPinHashError,
+	hashPin,
+	isPinHash,
+	matchesPinHash,
+	RELEASE_MODE,
+} from "./pin-hash";
 
 const NO_MASTER = "";
 
@@ -47,6 +55,16 @@ describe("PIN 해시", () => {
 		expect(isPinHash(pinHash.replace(/.$/, "z"))).toBe(false);
 		expect(isPinHash(pinHash.slice(0, -2))).toBe(false);
 		expect(await matchesPinHash("1234", `${pinHash}:junk`)).toBe(false);
+	});
+
+	test("배포 빌드(release)는 마스터 PIN 해시가 없으면 실패하고, 다른 빌드는 비어 있어도 된다", async () => {
+		const pinHash = await hashPin("1234");
+		expect(findMasterPinHashError("", RELEASE_MODE)).toBeString();
+		expect(findMasterPinHashError("", "production")).toBeUndefined();
+		expect(findMasterPinHashError("", "development")).toBeUndefined();
+		expect(findMasterPinHashError(pinHash, RELEASE_MODE)).toBeUndefined();
+		expect(findMasterPinHashError("scrypt:x", "development")).toBeString();
+		expect(findMasterPinHashError(`${pinHash}:junk`, RELEASE_MODE)).toBeString();
 	});
 
 	test.each(["0000", "9876"])("숫자 4자리는 PIN 형식이다: %s", (pin) => {
@@ -132,11 +150,38 @@ describe("PIN 확인과 변경", () => {
 		expect(await store.verify("1234")).toBe(true);
 	});
 
-	test("pin.json 과 .bak 이 모두 깨지면 0000 으로 들어간다", async () => {
+	test("pin.json 과 .bak 이 모두 깨지면 0000 은 막고 마스터 PIN 으로만 들어간다", async () => {
 		await writeFile(path.join(dataDir, "pin.json"), JSON.stringify({ pinHash: "x" }));
 		await writeFile(path.join(dataDir, "pin.json.bak"), "{ 깨진 파일");
 
-		expect(await createPinStore(dataDir, NO_MASTER).verify("0000")).toBe(true);
+		const store = createPinStore(dataDir, await hashPin("9999"));
+		expect(await store.verify("0000")).toBe(false);
+		expect(await store.verify("9999")).toBe(true);
+		expect(await store.update("9999", "1234")).toEqual({ isSuccess: true });
+		expect(await store.verify("1234")).toBe(true);
+	});
+
+	test(".bak 없이 pin.json 만 깨져도 0000 은 막는다", async () => {
+		const store = createPinStore(dataDir, NO_MASTER);
+		await store.update("0000", "1234");
+		await writeFile(path.join(dataDir, "pin.json"), "{ 깨진 파일");
+
+		expect(await store.verify("0000")).toBe(false);
+	});
+
+	test("pin.json 을 읽을 수 없으면(예: 폴더) 0000 은 막는다", async () => {
+		await mkdir(path.join(dataDir, "pin.json"));
+		expect(await createPinStore(dataDir, NO_MASTER).verify("0000")).toBe(false);
+	});
+
+	test("공통 설정을 저장해도 바꾼 PIN 은 앱을 다시 켜도 그대로다", async () => {
+		await createPinStore(dataDir, NO_MASTER).update("0000", "1234");
+		const saved = await createDataStore(dataDir).write("common", createMockData("filled").common);
+		expect(saved.isSuccess).toBe(true);
+
+		const restarted = createPinStore(dataDir, NO_MASTER);
+		expect(await restarted.verify("1234")).toBe(true);
+		expect(await restarted.verify("0000")).toBe(false);
 	});
 
 	test("깨진 pin.json 이 멀쩡한 .bak 을 덮지 않는다", async () => {
@@ -165,7 +210,8 @@ describe("PIN 확인과 변경", () => {
 	test("쓸 수 없는 위치면 예외 대신 io 를 돌려준다", async () => {
 		const blocked = path.join(dataDir, "not-a-dir");
 		await writeFile(blocked, "");
-		expect(await createPinStore(blocked, NO_MASTER).update("0000", "1234")).toEqual({
+		const store = createPinStore(blocked, await hashPin("9999"));
+		expect(await store.update("9999", "1234")).toEqual({
 			isSuccess: false,
 			reason: "io",
 		});
