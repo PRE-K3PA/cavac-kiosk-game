@@ -2,21 +2,19 @@ import { useState } from "react";
 import imgHomeBackground from "@/assets/images/common/imgHomeBackground.png";
 import imgLogoEn from "@/assets/images/common/imgLogoEn.png";
 import imgLogoKo from "@/assets/images/common/imgLogoKo.png";
-import AdminHotspot from "@/components/common/AdminHotspot";
 import AnimalSlot from "@/components/common/AnimalSlot";
 import HowToPlayCard from "@/components/common/HowToPlayCard";
 import LanguageButton from "@/components/common/LanguageButton";
 import SoundButton from "@/components/common/SoundButton";
 import StartButton from "@/components/common/StartButton";
 import type { Language } from "@/hooks/useLanguage";
+import { useOrientation } from "@/layout/OrientationContext";
+import ScreenLayout from "@/layout/ScreenLayout";
 import { useHomeAnimals } from "@/pages/home/useHomeAnimals";
 import { HOME_SLOTS, type Localized } from "@/types/data";
 import { cn } from "@/utils/cn";
 
-export type HomeOrientation = "landscape" | "portrait";
-
 export type HomeTemplateProps = {
-	orientation?: HomeOrientation;
 	onStart: () => void;
 	onAdminActivate: () => void;
 };
@@ -78,7 +76,6 @@ const LAYOUT = {
 			"right-1": "right-47.25",
 			"right-2": "right-8",
 		},
-		hotspot: "",
 	},
 	portrait: {
 		header: "h-40 px-12 py-6",
@@ -96,12 +93,10 @@ const LAYOUT = {
 			"right-1": "right-39.75",
 			"right-2": "right-7.5",
 		},
-		hotspot: "size-50",
 	},
 } as const;
 
 export default function HomeTemplate({
-	orientation = "landscape",
 	portraitAlign = "center",
 	content,
 	language,
@@ -111,6 +106,7 @@ export default function HomeTemplate({
 }: HomeTemplateInnerProps) {
 	const [isMuted, setIsMuted] = useState(false);
 	const animals = useHomeAnimals();
+	const orientation = useOrientation();
 
 	const layout = LAYOUT[orientation];
 	const isCentered = orientation === "landscape" || portraitAlign === "center";
@@ -118,15 +114,19 @@ export default function HomeTemplate({
 	const title = content.title[language];
 
 	return (
-		<div className="relative flex size-full flex-col overflow-hidden">
-			<img
-				src={imgHomeBackground}
-				alt=""
-				draggable={false}
-				className="pointer-events-none absolute inset-0 size-full object-cover"
-			/>
-			<div aria-hidden="true" className="absolute inset-0 bg-background-surface/35" />
-
+		<ScreenLayout
+			onAdminActivate={onAdminActivate}
+			background={
+				<>
+					<img
+						src={imgHomeBackground}
+						alt=""
+						draggable={false}
+						className="size-full object-cover"
+					/>
+					<div className="absolute inset-0 bg-background-surface/35" />
+				</>
+			}>
 			<header className={cn("relative flex shrink-0 items-center justify-between", layout.header)}>
 				<img
 					src={logo.src}
@@ -209,11 +209,6 @@ export default function HomeTemplate({
 					/>
 				);
 			})}
-
-			<AdminHotspot
-				onActivate={onAdminActivate}
-				className={cn("absolute top-0 left-0", layout.hotspot)}
-			/>
-		</div>
+		</ScreenLayout>
 	);
 }
