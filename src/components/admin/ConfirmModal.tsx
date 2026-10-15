@@ -6,6 +6,7 @@ import { cn } from "@/utils/cn";
 
 type ExitConfirmProps = {
 	type: "exit";
+	isSaveAndLeaveDisabled?: boolean;
 	onLeaveClick?: () => void;
 	onSaveAndLeaveClick?: () => void;
 };
@@ -44,6 +45,7 @@ export default function ConfirmModal(props: ConfirmModalProps) {
 						variant="primary"
 						label="저장하고 나가기"
 						className="w-60"
+						disabled={props.isSaveAndLeaveDisabled}
 						onClick={props.onSaveAndLeaveClick}
 					/>
 				</div>
