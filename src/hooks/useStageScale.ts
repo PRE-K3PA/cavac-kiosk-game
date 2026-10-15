@@ -5,11 +5,14 @@ function readWindowFit(): StageFit {
 	return fitStage({ width: window.innerWidth, height: window.innerHeight });
 }
 
-export function useStageScale(): StageFit {
+export default function useStageScale(): StageFit {
 	const [fit, setFit] = useState(readWindowFit);
 
 	useEffect(() => {
-		const handleResize = () => setFit(readWindowFit());
+		function handleResize() {
+			setFit(readWindowFit());
+		}
+
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
