@@ -4,6 +4,7 @@ import { handleImageProtocol, registerImageScheme } from "./image-protocol";
 import { removeAllUnusedImages } from "./images";
 import { registerIpcHandlers } from "./ipc";
 import { ensureStorageDirs, getDataDir, getImagesDir } from "./paths";
+import { createPinStore, MASTER_PIN_HASH } from "./pin";
 import { createMainWindow } from "./window";
 
 if (!app.requestSingleInstanceLock()) {
@@ -21,7 +22,7 @@ app.whenReady().then(() => {
 	}
 	const dataStore = createDataStore(getDataDir());
 	handleImageProtocol();
-	registerIpcHandlers(dataStore);
+	registerIpcHandlers(dataStore, createPinStore(getDataDir(), MASTER_PIN_HASH));
 	createMainWindow();
 	void removeAllUnusedImages(getDataDir(), getImagesDir());
 

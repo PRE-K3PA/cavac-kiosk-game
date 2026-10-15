@@ -6,11 +6,13 @@ import {
 	IMAGE_KINDS,
 	type ImageKind,
 	type ImageResult,
+	type PinChangeResult,
 	type SaveResult,
 } from "@/types/data";
 import type { DataStore } from "./data-store";
 import { importImage, removeUnusedImages } from "./images";
 import { getDataDir, getImagesDir } from "./paths";
+import type { PinStore } from "./pin";
 
 function isDataFile(value: unknown): value is DataFile {
 	return DATA_FILES.some((file) => file === value);
@@ -25,7 +27,7 @@ const IMAGE_DIALOG_OPTIONS: OpenDialogOptions = {
 	filters: [{ name: "이미지", extensions: [...IMAGE_EXTENSIONS] }],
 };
 
-export function registerIpcHandlers(dataStore: DataStore): void {
+export function registerIpcHandlers(dataStore: DataStore, pinStore: PinStore): void {
 	ipcMain.handle("app:getVersion", () => process.env.npm_package_version ?? "0.0.0");
 
 	ipcMain.handle("data:get", (_event, file: unknown) => {
@@ -58,4 +60,18 @@ export function registerIpcHandlers(dataStore: DataStore): void {
 
 		return importImage(getImagesDir(), kind, sourcePath);
 	});
+
+	ipcMain.handle("pin:verify", (_event, pin: unknown) => {
+		return typeof pin === "string" && pinStore.verify(pin);
+	});
+
+	ipcMain.handle(
+		"pin:update",
+		async (_event, current: unknown, next: unknown): Promise<PinChangeResult> => {
+			if (typeof current !== "string" || typeof next !== "string") {
+				return { isSuccess: false, reason: "io" };
+			}
+			return pinStore.update(current, next);
+		},
+	);
 }
