@@ -1,8 +1,8 @@
 import { useLanguage } from "@/hooks/useLanguage";
 import { CARD_HOME } from "@/pages/card/cardHomeContent";
-import HomeTemplate, { type HomeTemplateProps } from "@/pages/home/HomeTemplate";
+import HomeTemplate, { type HomeScreenProps } from "@/pages/home/HomeTemplate";
 
-export default function CardHome(props: HomeTemplateProps) {
+export default function CardHome(props: HomeScreenProps) {
 	const { language, toggleLanguage } = useLanguage();
 	return (
 		<HomeTemplate
