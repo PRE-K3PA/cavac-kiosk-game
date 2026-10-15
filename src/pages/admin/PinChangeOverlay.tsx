@@ -1,6 +1,9 @@
 import { useState } from "react";
 import ModalOverlay from "@/components/admin/ModalOverlay";
-import PINChangeModal from "@/components/admin/PINChangeModal";
+import PINChangeModal, {
+	type PinChangeErrors,
+	type PinChangeValue,
+} from "@/components/admin/PINChangeModal";
 import SaveFailedModal from "@/components/admin/SaveFailedModal";
 import { updatePin } from "@/data/storage";
 import {
@@ -8,8 +11,6 @@ import {
 	EMPTY_PIN_CHANGE_FORM,
 	hasPinChangeErrors,
 	PIN_CHANGE_MESSAGES,
-	type PinChangeErrors,
-	type PinChangeForm,
 	validatePinChange,
 } from "@/features/admin/pinForm";
 import type { PinChangeResult } from "@/types/data";
@@ -28,12 +29,12 @@ async function savePin(current: string, next: string): Promise<PinChangeResult> 
 }
 
 export default function PinChangeOverlay({ onCancel, onChanged }: PinChangeOverlayProps) {
-	const [form, setForm] = useState<PinChangeForm>(EMPTY_PIN_CHANGE_FORM);
+	const [form, setForm] = useState<PinChangeValue>(EMPTY_PIN_CHANGE_FORM);
 	const [errors, setErrors] = useState<PinChangeErrors>({});
 	const [isSaving, setIsSaving] = useState(false);
 	const [isSaveFailed, setIsSaveFailed] = useState(false);
 
-	function handleFormChange(edited: PinChangeForm) {
+	function handleFormChange(edited: PinChangeValue) {
 		setErrors(clearEditedFieldErrors(errors, form, edited));
 		setForm(edited);
 	}
@@ -80,7 +81,7 @@ export default function PinChangeOverlay({ onCancel, onChanged }: PinChangeOverl
 				<PINChangeModal
 					value={form}
 					errorMessages={errors}
-					isSaveDisabled={isSaving}
+					disabled={isSaving}
 					onChange={handleFormChange}
 					onCancelClick={handleCancelClick}
 					onSaveClick={handleSaveClick}

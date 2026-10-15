@@ -1,12 +1,15 @@
+import type { PinChangeErrors, PinChangeValue } from "@/components/admin/PINChangeModal";
 import { LIMITS } from "@/data/schema";
 
-const PIN_CHANGE_FIELDS = ["current", "next", "confirm"] as const;
+type PinChangeField = keyof PinChangeValue;
 
-export type PinChangeField = (typeof PIN_CHANGE_FIELDS)[number];
-export type PinChangeForm = Record<PinChangeField, string>;
-export type PinChangeErrors = Partial<Record<PinChangeField, string>>;
+const PIN_CHANGE_FIELDS = [
+	"current",
+	"next",
+	"confirm",
+] as const satisfies readonly PinChangeField[];
 
-export const EMPTY_PIN_CHANGE_FORM: PinChangeForm = { current: "", next: "", confirm: "" };
+export const EMPTY_PIN_CHANGE_FORM: PinChangeValue = { current: "", next: "", confirm: "" };
 
 export const PIN_CHANGE_MESSAGES = {
 	tooShort: `${LIMITS.pinLength}자리 숫자를 입력해 주세요.`,
@@ -28,7 +31,7 @@ export function deletePinDigit(pin: string) {
 	return pin.slice(0, -1);
 }
 
-export function validatePinChange(form: PinChangeForm): PinChangeErrors {
+export function validatePinChange(form: PinChangeValue): PinChangeErrors {
 	const errors: PinChangeErrors = {};
 
 	if (!isPinComplete(form.current)) errors.current = PIN_CHANGE_MESSAGES.tooShort;
@@ -62,8 +65,8 @@ const DEPENDENT_ERRORS: Partial<
 
 export function clearEditedFieldErrors(
 	errors: PinChangeErrors,
-	previous: PinChangeForm,
-	edited: PinChangeForm,
+	previous: PinChangeValue,
+	edited: PinChangeValue,
 ): PinChangeErrors {
 	const remaining = { ...errors };
 	for (const field of PIN_CHANGE_FIELDS) {
