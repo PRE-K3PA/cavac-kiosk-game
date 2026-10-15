@@ -101,6 +101,10 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 		setOverlay(null);
 	}
 
+	function handleCancelClick() {
+		setOverlay("discardConfirm");
+	}
+
 	function handleOverlayClose() {
 		setOverlay(null);
 	}
@@ -133,7 +137,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 				summary={summary}
 				isCancelDisabled={!isDirty || isSaving}
 				isSaveDisabled={!isDirty || isSaving}
-				onCancelClick={() => setOverlay("discardConfirm")}
+				onCancelClick={handleCancelClick}
 				onSaveClick={handleSaveClick}
 				className={layout.saveBar}
 			/>

@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, type StoreApi } from "zustand";
 import { createDefaultData } from "@/data/defaults";
 import { validateForSave } from "@/data/rules";
 import { getData, updateData } from "@/data/storage";
@@ -69,7 +69,12 @@ function replaceFile<F extends DataFile>(target: DataMap, file: F, data: DataMap
 // 저장이 겹쳐 불려도 같은 파일을 두 번 쓰지 않게, 진행 중인 저장을 함께 기다립니다
 let pendingSave: Promise<boolean> | null = null;
 
-export const useSettingsDraft = create<SettingsDraftState>()((set, get) => {
+type SettingsDraftStore = StoreApi<SettingsDraftState>;
+
+function createSettingsDraftState(
+	set: SettingsDraftStore["setState"],
+	get: SettingsDraftStore["getState"],
+): SettingsDraftState {
 	async function saveDirtyFiles(): Promise<boolean> {
 		const sent = get().draft;
 		const files = getDirtyFiles(get());
@@ -94,39 +99,45 @@ export const useSettingsDraft = create<SettingsDraftState>()((set, get) => {
 		return results.every(({ result }) => result.isSuccess);
 	}
 
+	async function load() {
+		set({ isLoaded: false });
+		const [common, vaccineGame, cardGame] = await Promise.all([
+			loadFile("common"),
+			loadFile("vaccine-game"),
+			loadFile("card-game"),
+		]);
+		const loaded = { common, "vaccine-game": vaccineGame, "card-game": cardGame };
+		set({ isLoaded: true, original: loaded, draft: loaded });
+	}
+
+	function setDraft<F extends DataFile>(file: F, data: DataMap[F]) {
+		set((state) => ({ draft: { ...state.draft, [file]: data } }));
+	}
+
+	function revert() {
+		set((state) => ({ draft: state.original }));
+	}
+
+	function save() {
+		pendingSave ??= saveDirtyFiles().finally(() => {
+			pendingSave = null;
+		});
+		return pendingSave;
+	}
+
 	return {
 		isLoaded: false,
 		isSaving: false,
 		original: createDefaultDataMap(),
 		draft: createDefaultDataMap(),
-
-		load: async () => {
-			set({ isLoaded: false });
-			const [common, vaccineGame, cardGame] = await Promise.all([
-				loadFile("common"),
-				loadFile("vaccine-game"),
-				loadFile("card-game"),
-			]);
-			const loaded = { common, "vaccine-game": vaccineGame, "card-game": cardGame };
-			set({ isLoaded: true, original: loaded, draft: loaded });
-		},
-
-		setDraft: (file, data) => {
-			set((state) => ({ draft: { ...state.draft, [file]: data } }));
-		},
-
-		revert: () => {
-			set((state) => ({ draft: state.original }));
-		},
-
-		save: () => {
-			pendingSave ??= saveDirtyFiles().finally(() => {
-				pendingSave = null;
-			});
-			return pendingSave;
-		},
+		load,
+		setDraft,
+		revert,
+		save,
 	};
-});
+}
+
+export const useSettingsDraft = create<SettingsDraftState>()(createSettingsDraftState);
 
 export function selectIsDirty(state: SettingsDraftState): boolean {
 	return getDirtyFiles(state).length > 0;
