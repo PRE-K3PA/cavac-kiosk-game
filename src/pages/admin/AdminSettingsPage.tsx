@@ -45,13 +45,13 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 
 	const summary = hasIssues ? `저장할 수 없습니다 · ${issueCount}곳을 확인해 주세요` : undefined;
 
-	async function saveAndShowResult() {
+	async function handleSaveClick() {
 		setOverlay(null);
 		if (hasIssues) return;
 		setOverlay((await save()) ? "saved" : "saveFailed");
 	}
 
-	async function saveAndExit() {
+	async function handleSaveAndLeaveClick() {
 		setOverlay(null);
 		if (hasIssues) return;
 		if (await save()) {
@@ -70,17 +70,17 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 		onExit();
 	}
 
-	function leaveWithoutSaving() {
+	function handleLeaveClick() {
 		revert();
 		onExit();
 	}
 
-	function revertAndClose() {
+	function handleRevertClick() {
 		revert();
 		setOverlay(null);
 	}
 
-	function closeOverlay() {
+	function handleOverlayClose() {
 		setOverlay(null);
 	}
 
@@ -118,34 +118,37 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 				isCancelDisabled={!isDirty || isSaving}
 				isSaveDisabled={!isDirty || isSaving}
 				onCancelClick={() => setOverlay("discardConfirm")}
-				onSaveClick={saveAndShowResult}
+				onSaveClick={handleSaveClick}
 				className="portrait:h-35"
 			/>
 
 			{overlay && (
 				<ModalOverlay>
-					{overlay === "saved" && <SavedModal onConfirmClick={closeOverlay} />}
+					{overlay === "saved" && <SavedModal onConfirmClick={handleOverlayClose} />}
 					{overlay === "saveFailed" && (
-						<SaveFailedModal onCloseClick={closeOverlay} onRetryClick={saveAndShowResult} />
+						<SaveFailedModal onCloseClick={handleOverlayClose} onRetryClick={handleSaveClick} />
 					)}
 					{overlay === "saveAndExitFailed" && (
-						<SaveFailedModal onCloseClick={closeOverlay} onRetryClick={saveAndExit} />
+						<SaveFailedModal
+							onCloseClick={handleOverlayClose}
+							onRetryClick={handleSaveAndLeaveClick}
+						/>
 					)}
 					{overlay === "exitConfirm" && (
 						<ConfirmModal
 							type="exit"
 							tone={activeTone}
-							onCancelClick={closeOverlay}
-							onLeaveClick={leaveWithoutSaving}
-							onSaveAndLeaveClick={saveAndExit}
+							onCancelClick={handleOverlayClose}
+							onLeaveClick={handleLeaveClick}
+							onSaveAndLeaveClick={handleSaveAndLeaveClick}
 						/>
 					)}
 					{overlay === "discardConfirm" && (
 						<ConfirmModal
 							type="discard"
 							tone={activeTone}
-							onCancelClick={closeOverlay}
-							onRevertClick={revertAndClose}
+							onCancelClick={handleOverlayClose}
+							onRevertClick={handleRevertClick}
 						/>
 					)}
 				</ModalOverlay>
