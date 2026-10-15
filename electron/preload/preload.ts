@@ -1,8 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { type ElectronApi, IMAGE_URL_SCHEME } from "./api";
 
-const TEMPORARY_PIN = "0000";
-
 const api: ElectronApi = {
 	getVersion: () => ipcRenderer.invoke("app:getVersion"),
 
@@ -12,9 +10,8 @@ const api: ElectronApi = {
 	postImage: (kind) => ipcRenderer.invoke("image:post", kind),
 	getImageUrl: (path) => `${IMAGE_URL_SCHEME}://${path}`,
 
-	verifyPin: async (pin) => pin === TEMPORARY_PIN,
-	updatePin: async (current) =>
-		current === TEMPORARY_PIN ? { isSuccess: true } : { isSuccess: false, reason: "wrong-current" },
+	verifyPin: (pin) => ipcRenderer.invoke("pin:verify", pin),
+	updatePin: (current, next) => ipcRenderer.invoke("pin:update", current, next),
 };
 
 contextBridge.exposeInMainWorld("api", api);
