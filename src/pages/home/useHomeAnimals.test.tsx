@@ -3,10 +3,18 @@ import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import type { CommonData } from "@/types/data";
 
-let storedCommon: () => Promise<Partial<CommonData>> = async () => ({});
+let storedCommon: Partial<CommonData> = {};
+let isReadFailing = false;
+let isRead = false;
+
+async function getStoredCommon(): Promise<Partial<CommonData>> {
+	isRead = true;
+	if (isReadFailing) throw new Error("읽기 실패");
+	return storedCommon;
+}
 
 mock.module("@/data/storage", () => ({
-	getData: () => storedCommon(),
+	getData: getStoredCommon,
 	getImageUrl: (path: string) => `file://${path}`,
 }));
 
@@ -31,20 +39,22 @@ const SPECIES = [
 ];
 
 beforeEach(() => {
-	storedCommon = async () => ({});
+	storedCommon = {};
+	isReadFailing = false;
+	isRead = false;
 });
 
 afterEach(cleanup);
 
 describe("useHomeAnimals", () => {
 	test("저장된 배치대로 슬롯마다 이름과 이미지 주소가 채워진다", async () => {
-		storedCommon = async () => ({
+		storedCommon = {
 			species: SPECIES,
 			homeAnimals: [
 				{ slot: "left-2", speciesId: "s1" },
 				{ slot: "right-1", speciesId: "s2" },
 			],
-		});
+		};
 		render(<AnimalProbe />);
 
 		expect((await screen.findByTestId("left-2")).textContent).toBe(
@@ -55,11 +65,7 @@ describe("useHomeAnimals", () => {
 	});
 
 	test("저장 데이터를 읽지 못해도 예외 없이 빈 상태로 렌더된다", async () => {
-		let isRead = false;
-		storedCommon = async () => {
-			isRead = true;
-			throw new Error("읽기 실패");
-		};
+		isReadFailing = true;
 		render(<AnimalProbe />);
 
 		await waitFor(() => expect(isRead).toBe(true));
@@ -67,13 +73,13 @@ describe("useHomeAnimals", () => {
 	});
 
 	test("축종 목록에 없는 speciesId 는 건너뛰고 나머지는 보여준다", async () => {
-		storedCommon = async () => ({
+		storedCommon = {
 			species: SPECIES,
 			homeAnimals: [
 				{ slot: "left-2", speciesId: "missing" },
 				{ slot: "left-1", speciesId: "s2" },
 			],
-		});
+		};
 		render(<AnimalProbe />);
 
 		expect((await screen.findByTestId("left-1")).textContent).toContain("돼지");
