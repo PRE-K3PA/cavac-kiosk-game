@@ -5,9 +5,9 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import type { ReactNode } from "react";
 import { OrientationProvider } from "@/layout/OrientationContext";
 import type { Orientation } from "@/layout/stage";
-import CardHome from "@/pages/card/05_CardHome";
+import CardHome from "@/pages/card/CardHome";
 import type { HomeTemplateProps } from "@/pages/home/HomeTemplate";
-import VaccineHome from "@/pages/vaccine/01_VaccineHome";
+import VaccineHome from "@/pages/vaccine/VaccineHome";
 
 const HOMES = [
 	{ name: "백신 제조 홈", Home: VaccineHome, koTitle: "백신 제조", enTitle: "Vaccine" },
