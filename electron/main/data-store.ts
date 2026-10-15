@@ -8,14 +8,7 @@ import { retryOnFileLock } from "./retry";
 
 // .tmp 에 쓰고 디스크에 기록한 뒤 이름을 바꾸므로, 쓰는 도중 전원이 꺼져도 원본이나 .bak 중 하나는 온전히 남습니다
 
-export type LoadResult<F extends DataFile> = {
-	data: DataMap[F];
-	/** 원본을 읽지 못해 .bak 이나 기본값을 쓴 경우 */
-	isRecovered: boolean;
-};
-
 export type DataStore = {
-	load<F extends DataFile>(file: F): Promise<LoadResult<F>>;
 	read<F extends DataFile>(file: F): Promise<DataMap[F]>;
 	write<F extends DataFile>(file: F, data: unknown): Promise<SaveResult<F>>;
 };
@@ -79,26 +72,20 @@ export function createDataStore(dataDir: string): DataStore {
 		await retryOnFileLock(() => rename(temp, original));
 	}
 
-	function load<F extends DataFile>(file: F): Promise<LoadResult<F>> {
-		return enqueue(file, async () => {
-			const { original, backup } = getFilePaths(file);
-			const current = await readValidFile(file, original);
-			if (current) return { data: current, isRecovered: false };
-
-			const recovered = (await readValidFile(file, backup)) ?? createDefaultData(file);
-			// 원본을 옮기지 못했으면 덮어쓰지 않습니다. 복구본 저장에 실패해도 화면은 띄워야 하므로 무시합니다
-			if (await moveAsideUnreadable(original)) {
-				await writeFileSafely(file, recovered).catch(() => undefined);
-			}
-			return { data: recovered, isRecovered: true };
-		});
-	}
-
 	return {
-		load,
+		read(file) {
+			return enqueue(file, async () => {
+				const { original, backup } = getFilePaths(file);
+				const current = await readValidFile(file, original);
+				if (current) return current;
 
-		async read(file) {
-			return (await load(file)).data;
+				const recovered = (await readValidFile(file, backup)) ?? createDefaultData(file);
+				// 원본을 옮기지 못했으면 덮어쓰지 않습니다. 복구본 저장에 실패해도 화면은 띄워야 하므로 무시합니다
+				if (await moveAsideUnreadable(original)) {
+					await writeFileSafely(file, recovered).catch(() => undefined);
+				}
+				return recovered;
+			});
 		},
 
 		write(file, data) {

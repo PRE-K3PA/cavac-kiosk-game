@@ -69,12 +69,6 @@ describe("읽기", () => {
 		expect(await readFile(filePath(corruptFiles[0]), "utf8")).toBe(unreadable);
 	});
 
-	test("원본을 읽었는지, 복구했는지 알려 준다", async () => {
-		const store = createDataStore(dataDir);
-		expect((await store.load("common")).isRecovered).toBe(true);
-		expect((await store.load("common")).isRecovered).toBe(false);
-	});
-
 	test("원본과 .bak 이 모두 쓸 수 없는 값이면 기본값으로 복구한다", async () => {
 		await writeFile(filePath("common.json"), JSON.stringify({ activeGame: "unknown" }));
 		await writeFile(filePath("common.json.bak"), "");

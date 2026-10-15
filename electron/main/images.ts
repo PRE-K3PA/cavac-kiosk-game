@@ -1,16 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { copyFile, mkdir, open, readdir, stat, unlink } from "node:fs/promises";
+import { copyFile, mkdir, open, readdir, readFile, stat, unlink } from "node:fs/promises";
 import path from "node:path";
-import { collectImagePaths, IMAGE_KINDS_BY_FILE } from "@/data/images";
-import { LIMITS } from "@/data/schema";
-import {
-	DATA_FILES,
-	IMAGE_KINDS,
-	type ImageKind,
-	type ImagePath,
-	type ImageResult,
-} from "@/types/data";
-import type { DataStore } from "./data-store";
+import { findImagePaths, isImagePath, LIMITS } from "@/data/schema";
+import { DATA_FILES, type DataFile, type ImageKind, type ImageResult } from "@/types/data";
 import { retryOnFileLock } from "./retry";
 
 type ImageFormat = "png" | "jpg";
@@ -27,7 +19,12 @@ const FORMAT_BY_EXTENSION: Record<string, ImageFormat> = {
 	".jpeg": "jpg",
 };
 
-export const IMAGE_FILE_EXTENSIONS = ["png", "jpg", "jpeg"];
+// 저장할 때 그 설정 파일의 이미지 폴더만 정리해야, 다른 탭에서 등록하고 아직 저장하지 않은 이미지를 지우지 않습니다
+const IMAGE_KINDS_BY_FILE: Record<DataFile, readonly ImageKind[]> = {
+	common: ["species"],
+	"vaccine-game": ["vaccine-bottle", "vaccine-logo"],
+	"card-game": ["product"],
+};
 
 async function hasSignature(filePath: string, format: ImageFormat): Promise<boolean> {
 	const signature = SIGNATURES[format];
@@ -52,6 +49,8 @@ export async function importImage(
 	const format = FORMAT_BY_EXTENSION[path.extname(sourcePath).toLowerCase()];
 	if (!format) return { status: "error", reason: "format" };
 
+	const fileName = `${randomUUID()}.${format}`;
+	const targetPath = path.join(imagesDir, kind, fileName);
 	try {
 		if ((await stat(sourcePath)).size > LIMITS.imageMaxBytes) {
 			return { status: "error", reason: "size" };
@@ -60,56 +59,65 @@ export async function importImage(
 			return { status: "error", reason: "format" };
 		}
 
-		const fileName = `${randomUUID()}.${format}`;
 		await mkdir(path.join(imagesDir, kind), { recursive: true });
-		await retryOnFileLock(() => copyFile(sourcePath, path.join(imagesDir, kind, fileName)));
+		await retryOnFileLock(() => copyFile(sourcePath, targetPath));
 		return { status: "ok", path: `images/${kind}/${fileName}` };
 	} catch {
+		await unlink(targetPath).catch(() => undefined);
 		return { status: "error", reason: "io" };
 	}
 }
 
-/** kinds 폴더에서 usedPaths 에 없는 파일을 지웁니다. 지우지 못한 파일은 다음 정리 때 다시 시도합니다 */
+// 원본뿐 아니라 .bak, .corrupt-* 가 가리키는 이미지도 남겨야 그 파일로 복구했을 때 이미지가 비지 않습니다
+async function collectReferencedImages(
+	dataDir: string,
+	file: DataFile,
+): Promise<Set<string> | undefined> {
+	const fileNames = await readdir(dataDir).catch(() => []);
+	const referenced = new Set<string>();
+	for (const fileName of fileNames.filter((name) => name.startsWith(`${file}.json`))) {
+		try {
+			const text = await readFile(path.join(dataDir, fileName), "utf8");
+			for (const imagePath of findImagePaths(text)) referenced.add(imagePath);
+		} catch {
+			return undefined;
+		}
+	}
+	return referenced;
+}
+
+/** 설정 파일들이 가리키지 않는 이미지를 지웁니다. 설정 파일을 하나라도 읽지 못하면 지우지 않습니다 */
 export async function removeUnusedImages(
+	dataDir: string,
 	imagesDir: string,
-	kinds: readonly ImageKind[],
-	usedPaths: readonly ImagePath[],
+	file: DataFile,
 ): Promise<void> {
-	const used = new Set(usedPaths);
-	for (const kind of kinds) {
+	const referenced = await collectReferencedImages(dataDir, file);
+	if (!referenced) return;
+
+	for (const kind of IMAGE_KINDS_BY_FILE[file]) {
 		const dir = path.join(imagesDir, kind);
 		const fileNames = await readdir(dir).catch(() => []);
 		for (const fileName of fileNames) {
-			if (used.has(`images/${kind}/${fileName}`)) continue;
+			if (referenced.has(`images/${kind}/${fileName}`)) continue;
 			await unlink(path.join(dir, fileName)).catch(() => undefined);
 		}
 	}
 }
 
-/** 원본을 읽지 못해 복구한 설정은 원래 쓰던 이미지를 모르므로, 그 설정의 폴더는 정리하지 않습니다 */
-export async function removeUnusedImagesOnStartup(
-	imagesDir: string,
-	dataStore: DataStore,
-): Promise<void> {
+export async function removeAllUnusedImages(dataDir: string, imagesDir: string): Promise<void> {
 	for (const file of DATA_FILES) {
-		const { data, isRecovered } = await dataStore.load(file);
-		if (isRecovered) continue;
-		await removeUnusedImages(imagesDir, IMAGE_KINDS_BY_FILE[file], collectImagePaths(file, data));
+		await removeUnusedImages(dataDir, imagesDir, file);
 	}
 }
 
-/** cavac://images/<kind>/<file> 을 imagesDir 안의 파일 경로로 바꿉니다. 다른 모양이면 undefined */
+/** cavac://images/<kind>/<uuid>.<ext> 를 imagesDir 안의 파일 경로로 바꿉니다. 다른 모양이면 undefined */
 export function resolveImageUrl(imagesDir: string, url: string): string | undefined {
 	try {
 		const { host, pathname } = new URL(url);
-		const segments = pathname.split("/").slice(1).map(decodeURIComponent);
-		if (host !== "images" || segments.length !== 2) return undefined;
-
-		// 인코딩된 구분자나 점으로 시작하는 이름으로 images 밖을 가리키지 못하게 파일 이름 하나만 받습니다
-		const [kind, fileName] = segments;
-		const isFileName = fileName === path.basename(fileName) && !fileName.startsWith(".");
-		if (!IMAGE_KINDS.some((imageKind) => imageKind === kind) || !isFileName) return undefined;
-		return path.join(imagesDir, kind, fileName);
+		const imagePath = `images${decodeURIComponent(pathname)}`;
+		if (host !== "images" || !isImagePath(imagePath)) return undefined;
+		return path.join(imagesDir, ...imagePath.split("/").slice(1));
 	} catch {
 		return undefined;
 	}

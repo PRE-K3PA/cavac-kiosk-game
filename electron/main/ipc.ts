@@ -1,5 +1,5 @@
 import { BrowserWindow, dialog, ipcMain, type OpenDialogOptions } from "electron";
-import { collectImagePaths, IMAGE_KINDS_BY_FILE } from "@/data/images";
+import { IMAGE_EXTENSIONS } from "@/data/schema";
 import {
 	DATA_FILES,
 	type DataFile,
@@ -9,8 +9,8 @@ import {
 	type SaveResult,
 } from "@/types/data";
 import type { DataStore } from "./data-store";
-import { IMAGE_FILE_EXTENSIONS, importImage, removeUnusedImages } from "./images";
-import { getImagesDir } from "./paths";
+import { importImage, removeUnusedImages } from "./images";
+import { getDataDir, getImagesDir } from "./paths";
 
 function isDataFile(value: unknown): value is DataFile {
 	return DATA_FILES.some((file) => file === value);
@@ -22,7 +22,7 @@ function isImageKind(value: unknown): value is ImageKind {
 
 const IMAGE_DIALOG_OPTIONS: OpenDialogOptions = {
 	properties: ["openFile"],
-	filters: [{ name: "이미지", extensions: IMAGE_FILE_EXTENSIONS }],
+	filters: [{ name: "이미지", extensions: [...IMAGE_EXTENSIONS] }],
 };
 
 export function registerIpcHandlers(dataStore: DataStore): void {
@@ -41,8 +41,7 @@ export function registerIpcHandlers(dataStore: DataStore): void {
 		}
 		const result = await dataStore.write(file, data);
 		if (result.isSuccess) {
-			const usedPaths = collectImagePaths(file, result.data);
-			await removeUnusedImages(getImagesDir(), IMAGE_KINDS_BY_FILE[file], usedPaths);
+			await removeUnusedImages(getDataDir(), getImagesDir(), file);
 		}
 		return result;
 	});

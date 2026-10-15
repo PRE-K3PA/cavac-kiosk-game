@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from "electron";
 import { createDataStore } from "./data-store";
 import { handleImageProtocol, registerImageScheme } from "./image-protocol";
-import { removeUnusedImagesOnStartup } from "./images";
+import { removeAllUnusedImages } from "./images";
 import { registerIpcHandlers } from "./ipc";
 import { ensureStorageDirs, getDataDir, getImagesDir } from "./paths";
 import { createMainWindow } from "./window";
@@ -23,7 +23,7 @@ app.whenReady().then(() => {
 	handleImageProtocol();
 	registerIpcHandlers(dataStore);
 	createMainWindow();
-	void removeUnusedImagesOnStartup(getImagesDir(), dataStore);
+	void removeAllUnusedImages(getDataDir(), getImagesDir());
 
 	app.on("activate", () => {
 		if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
