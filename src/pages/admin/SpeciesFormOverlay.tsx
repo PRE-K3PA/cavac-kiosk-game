@@ -11,6 +11,7 @@ import {
 	validateSpeciesName,
 } from "@/features/admin/speciesForm";
 import SpeciesDeleteOverlay from "@/pages/admin/SpeciesDeleteOverlay";
+import SpeciesImageZoomOverlay from "@/pages/admin/SpeciesImageZoomOverlay";
 import type { ImagePath, Species } from "@/types/data";
 
 type SpeciesFormOverlayProps = {
@@ -26,6 +27,7 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 	const [imageError, setImageError] = useState<string>();
 	const [isSelectingImage, setIsSelectingImage] = useState(false);
 	const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+	const [isImageZoomOpen, setIsImageZoomOpen] = useState(false);
 
 	const common = useSettingsDraft((state) => state.draft.common);
 	const setDraft = useSettingsDraft((state) => state.setDraft);
@@ -83,10 +85,14 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 		setIsDeleteConfirmOpen(false);
 	}
 
-	if (isDeleteConfirmOpen && species) {
-		return (
-			<SpeciesDeleteOverlay species={species} onCancel={handleDeleteCancel} onDeleted={onDone} />
-		);
+	// TODO: 홈 화면(이은석) 완료 후 캐릭터 미리보기(ImagePreviewOverlay_Character1~4) 연결
+	function handleImagePreviewClick() {
+		if (isSelectingImage) return;
+		setIsImageZoomOpen(true);
+	}
+
+	function handleImageZoomClose() {
+		setIsImageZoomOpen(false);
 	}
 
 	const modeProps = species
@@ -94,20 +100,28 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 		: { mode: "add" as const };
 
 	return (
-		<ModalOverlay>
-			{/* TODO: 홈 화면(이은석) 완료 후 캐릭터 미리보기(onImagePreviewClick) 연결 */}
-			<SpeciesModal
-				{...modeProps}
-				name={name}
-				imageSrc={imageSrc}
-				nameErrorMessage={nameError}
-				imageErrorMessage={imageError}
-				isConfirmDisabled={isSelectingImage}
-				onNameChange={handleNameChange}
-				onImageSelectClick={handleImageSelectClick}
-				onCancelClick={handleCancelClick}
-				onConfirmClick={handleConfirmClick}
-			/>
-		</ModalOverlay>
+		<>
+			<ModalOverlay>
+				<SpeciesModal
+					{...modeProps}
+					name={name}
+					imageSrc={imageSrc}
+					nameErrorMessage={nameError}
+					imageErrorMessage={imageError}
+					isConfirmDisabled={isSelectingImage}
+					onNameChange={handleNameChange}
+					onImageSelectClick={handleImageSelectClick}
+					onImagePreviewClick={handleImagePreviewClick}
+					onCancelClick={handleCancelClick}
+					onConfirmClick={handleConfirmClick}
+				/>
+			</ModalOverlay>
+			{isImageZoomOpen && imageSrc && (
+				<SpeciesImageZoomOverlay imageSrc={imageSrc} name={name} onClose={handleImageZoomClose} />
+			)}
+			{isDeleteConfirmOpen && species && (
+				<SpeciesDeleteOverlay species={species} onCancel={handleDeleteCancel} onDeleted={onDone} />
+			)}
+		</>
 	);
 }
