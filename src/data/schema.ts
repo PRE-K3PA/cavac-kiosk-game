@@ -6,7 +6,9 @@ import {
 	type DataMap,
 	GAME_TYPES,
 	HOME_SLOTS,
+	IMAGE_KINDS,
 	type ImageKind,
+	type ImagePath,
 	PAIR_COUNTS,
 	PATHOGEN_TYPES,
 	type Penalty,
@@ -34,10 +36,21 @@ export const LIMITS = {
 	imageMaxBytes: 10 * 1024 * 1024,
 } as const;
 
-const IMAGE_EXTENSIONS = "png|jpg|jpeg";
+export const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg"] as const;
+const IMAGE_FILE_NAME = `[0-9a-f-]{36}\\.(?:${IMAGE_EXTENSIONS.join("|")})`;
+const IMAGE_PATH = `images/(?:${IMAGE_KINDS.join("|")})/${IMAGE_FILE_NAME}`;
+
+export function isImagePath(value: string): boolean {
+	return new RegExp(`^${IMAGE_PATH}$`).test(value);
+}
+
+/** 문자열 안의 이미지 경로를 모두 찾습니다. JSON 으로 읽히지 않는 깨진 파일에도 씁니다 */
+export function findImagePaths(text: string): ImagePath[] {
+	return text.match(new RegExp(IMAGE_PATH, "g")) ?? [];
+}
 
 export function imagePathSchema(kind: ImageKind) {
-	const pattern = new RegExp(`^images/${kind}/[0-9a-f-]{36}\\.(${IMAGE_EXTENSIONS})$`);
+	const pattern = new RegExp(`^images/${kind}/${IMAGE_FILE_NAME}$`);
 	return z.string().regex(pattern, `${kind} 이미지 경로 형식이 아닙니다`);
 }
 
