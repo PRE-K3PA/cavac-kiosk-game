@@ -33,7 +33,7 @@ export default function PinChangeOverlay({ onCancel, onChanged }: PinChangeOverl
 	const [isSaving, setIsSaving] = useState(false);
 	const [isSaveFailed, setIsSaveFailed] = useState(false);
 
-	function handleChange(edited: PinChangeForm) {
+	function handleFormChange(edited: PinChangeForm) {
 		setErrors(clearEditedFieldErrors(errors, form, edited));
 		setForm(edited);
 	}
@@ -63,6 +63,10 @@ export default function PinChangeOverlay({ onCancel, onChanged }: PinChangeOverl
 		onCancel();
 	}
 
+	function handleSaveFailedClose() {
+		setIsSaveFailed(false);
+	}
+
 	function handleRetryClick() {
 		setIsSaveFailed(false);
 		void handleSaveClick();
@@ -71,16 +75,13 @@ export default function PinChangeOverlay({ onCancel, onChanged }: PinChangeOverl
 	return (
 		<ModalOverlay>
 			{isSaveFailed ? (
-				<SaveFailedModal
-					onCloseClick={() => setIsSaveFailed(false)}
-					onRetryClick={handleRetryClick}
-				/>
+				<SaveFailedModal onCloseClick={handleSaveFailedClose} onRetryClick={handleRetryClick} />
 			) : (
 				<PINChangeModal
 					value={form}
 					errorMessages={errors}
 					isSaveDisabled={isSaving}
-					onChange={handleChange}
+					onChange={handleFormChange}
 					onCancelClick={handleCancelClick}
 					onSaveClick={handleSaveClick}
 				/>
