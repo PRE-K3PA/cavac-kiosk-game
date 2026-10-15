@@ -7,8 +7,12 @@ export function getDataDir(): string {
 	return path.join(app.getPath("userData"), "data");
 }
 
+export function getImagesDir(): string {
+	return path.join(app.getPath("userData"), "images");
+}
+
 export function getImageDir(kind: ImageKind): string {
-	return path.join(app.getPath("userData"), "images", kind);
+	return path.join(getImagesDir(), kind);
 }
 
 export function ensureStorageDirs(): void {
