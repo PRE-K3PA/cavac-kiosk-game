@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createDefaultData } from "@/data/defaults";
-import { collectSaveIssues } from "@/data/rules";
+import { validateForSave } from "@/data/rules";
 import { getData, updateData } from "@/data/storage";
 import { DATA_FILES, type DataFile, type DataMap } from "@/types/data";
 
@@ -136,10 +136,13 @@ export function selectIsFileDirty(file: DataFile) {
 	return (state: SettingsDraftState): boolean => isFileDirty(state, file);
 }
 
-/** 바뀐 파일의 저장 규칙 위반 개수. 바꾸지 않은 파일은 쓰지 않으므로 세지 않습니다 */
+/**
+ * 바뀐 파일의 저장 규칙 위반 개수. 바꾸지 않은 파일은 쓰지 않으므로 세지 않습니다.
+ * main 이 저장 전에 하는 검사(validateForSave)와 같아야 저장 실패가 반복되지 않습니다
+ */
 export function selectSaveIssueCount(state: SettingsDraftState): number {
-	return getDirtyFiles(state).reduce(
-		(count, file) => count + collectSaveIssues(file, state.draft[file]).length,
-		0,
-	);
+	return getDirtyFiles(state).reduce((count, file) => {
+		const validation = validateForSave(file, state.draft[file]);
+		return validation.isValid ? count : count + validation.issues.length;
+	}, 0);
 }
