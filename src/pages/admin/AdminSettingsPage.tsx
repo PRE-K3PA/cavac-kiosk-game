@@ -12,9 +12,29 @@ import {
 	selectSaveIssueCount,
 	useSettingsDraft,
 } from "@/features/admin/settingsDraft";
+import { useOrientation } from "@/layout/OrientationContext";
 import { cn } from "@/utils/cn";
 
 const TONES = ["common", "vaccine", "card"] as const satisfies readonly AdminTone[];
+
+const LAYOUT = {
+	landscape: {
+		header: "",
+		body: "",
+		nav: "w-80 flex-col border-r-2 px-4 py-8",
+		tab: "",
+		main: "p-5",
+		saveBar: "",
+	},
+	portrait: {
+		header: "h-35 gap-4 px-8",
+		body: "flex-col",
+		nav: "h-30 w-full flex-row items-center border-b-2 px-8",
+		tab: "h-22 w-80",
+		main: "px-12 py-8",
+		saveBar: "h-35",
+	},
+} as const;
 
 type Overlay = "saved" | "saveFailed" | "saveAndExitFailed" | "exitConfirm" | "discardConfirm";
 
@@ -27,6 +47,7 @@ type AdminSettingsPageProps = {
 export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPageProps) {
 	const [activeTone, setActiveTone] = useState<AdminTone>("common");
 	const [overlay, setOverlay] = useState<Overlay | null>(null);
+	const layout = LAYOUT[useOrientation()];
 
 	const isLoaded = useSettingsDraft((state) => state.isLoaded);
 	const isSaving = useSettingsDraft((state) => state.isSaving);
@@ -90,26 +111,21 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 				tone={activeTone}
 				isUnsaved={isDirty}
 				onExitClick={handleExitClick}
-				className="portrait:h-35 portrait:gap-4 portrait:px-8"
+				className={layout.header}
 			/>
-			<div className="flex min-h-0 flex-1 portrait:flex-col">
-				<nav
-					className={cn(
-						"flex w-80 shrink-0 flex-col gap-4 border-r-2 border-border-default px-4 py-8",
-						"portrait:h-30 portrait:w-full portrait:flex-row portrait:items-center",
-						"portrait:border-r-0 portrait:border-b-2 portrait:px-8 portrait:py-0",
-					)}>
+			<div className={cn("flex min-h-0 flex-1", layout.body)}>
+				<nav className={cn("flex shrink-0 gap-4 border-border-default", layout.nav)}>
 					{TONES.map((tone) => (
 						<SettingsTab
 							key={tone}
 							tone={tone}
 							isActive={tone === activeTone}
 							onClick={() => setActiveTone(tone)}
-							className="portrait:h-22 portrait:w-80"
+							className={layout.tab}
 						/>
 					))}
 				</nav>
-				<main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-5 portrait:px-12 portrait:py-8">
+				<main className={cn("min-h-0 min-w-0 flex-1 overflow-y-auto", layout.main)}>
 					{isLoaded && contents[activeTone]}
 				</main>
 			</div>
@@ -119,7 +135,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 				isSaveDisabled={!isDirty || isSaving}
 				onCancelClick={() => setOverlay("discardConfirm")}
 				onSaveClick={handleSaveClick}
-				className="portrait:h-35"
+				className={layout.saveBar}
 			/>
 
 			{overlay && (
@@ -138,6 +154,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 						<ConfirmModal
 							type="exit"
 							tone={activeTone}
+							isSaveAndLeaveDisabled={hasIssues}
 							onCancelClick={handleOverlayClose}
 							onLeaveClick={handleLeaveClick}
 							onSaveAndLeaveClick={handleSaveAndLeaveClick}

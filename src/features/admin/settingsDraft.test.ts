@@ -1,5 +1,3 @@
-// tsconfig.test.json 은 테스트 파일만 넣어서, storage.ts 가 쓰는 window.api 선언을 따로 불러옵니다
-/// <reference path="../../../electron/preload/api.ts" />
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 import { createMockData } from "@/data/mock/mock-platform";
 import type { DataFile, DataMap, SaveResult } from "@/types/data";
