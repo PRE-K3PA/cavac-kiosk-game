@@ -15,11 +15,13 @@ const PIN_FIELDS = [
 
 type PinField = (typeof PIN_FIELDS)[number];
 type PinFieldKey = PinField["key"];
-type PinChangeValue = Record<PinFieldKey, string>;
+export type PinChangeValue = Record<PinFieldKey, string>;
+export type PinChangeErrors = Partial<Record<PinFieldKey, string>>;
 
 type PINChangeModalProps = {
 	value: PinChangeValue;
-	errorMessages?: Partial<Record<PinFieldKey, string>>;
+	errorMessages?: PinChangeErrors;
+	disabled?: boolean;
 	isSaveDisabled?: boolean;
 	onChange?: (value: PinChangeValue) => void;
 	onCancelClick?: () => void;
@@ -30,6 +32,7 @@ type PINChangeModalProps = {
 export default function PINChangeModal({
 	value,
 	errorMessages = {},
+	disabled,
 	isSaveDisabled,
 	onChange,
 	onCancelClick,
@@ -58,6 +61,7 @@ export default function PINChangeModal({
 					inputMode="numeric"
 					maxLength={LIMITS.pinLength}
 					value={value[key]}
+					disabled={disabled}
 					isError={Boolean(errorMessage)}
 					aria-describedby={errorMessage ? messageId : undefined}
 					onChange={handleChange}
@@ -77,8 +81,8 @@ export default function PINChangeModal({
 			{PIN_FIELDS.map(renderField)}
 			<p className="typo-admin-caption text-text-secondary">저장하면 바로 바뀝니다.</p>
 			<div className="flex w-full justify-end gap-3">
-				<Button variant="secondary" label="취소" onClick={onCancelClick} />
-				<Button label="저장" disabled={isSaveDisabled} onClick={onSaveClick} />
+				<Button variant="secondary" label="취소" disabled={disabled} onClick={onCancelClick} />
+				<Button label="저장" disabled={disabled || isSaveDisabled} onClick={onSaveClick} />
 			</div>
 		</ModalFrame>
 	);
