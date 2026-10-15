@@ -48,38 +48,35 @@ export default function SpeciesManagerFlow({ onClose }: SpeciesManagerFlowProps)
 		setOverlay(MANAGER);
 	}
 
-	if (overlay.type === "add") {
-		return <SpeciesFormOverlay onCancel={handleManagerReturn} onDone={handleManagerReturn} />;
-	}
-	if (overlay.type === "edit" && targetSpecies) {
-		return (
-			<SpeciesFormOverlay
-				species={targetSpecies}
-				onCancel={handleManagerReturn}
-				onDone={handleManagerReturn}
-			/>
-		);
-	}
-	if (overlay.type === "delete" && targetSpecies) {
-		return (
-			<SpeciesDeleteOverlay
-				species={targetSpecies}
-				onCancel={handleManagerReturn}
-				onDeleted={handleManagerReturn}
-			/>
-		);
-	}
-
 	return (
-		<ModalOverlay>
-			<SpeciesManagerModal
-				orientation={orientation}
-				species={managerItems}
-				onAddClick={handleAddClick}
-				onEditClick={handleEditClick}
-				onDeleteClick={handleDeleteClick}
-				onCloseClick={onClose}
-			/>
-		</ModalOverlay>
+		<>
+			<ModalOverlay>
+				<SpeciesManagerModal
+					orientation={orientation}
+					species={managerItems}
+					onAddClick={handleAddClick}
+					onEditClick={handleEditClick}
+					onDeleteClick={handleDeleteClick}
+					onCloseClick={onClose}
+				/>
+			</ModalOverlay>
+			{overlay.type === "add" && (
+				<SpeciesFormOverlay onCancel={handleManagerReturn} onDone={handleManagerReturn} />
+			)}
+			{overlay.type === "edit" && targetSpecies && (
+				<SpeciesFormOverlay
+					species={targetSpecies}
+					onCancel={handleManagerReturn}
+					onDone={handleManagerReturn}
+				/>
+			)}
+			{overlay.type === "delete" && targetSpecies && (
+				<SpeciesDeleteOverlay
+					species={targetSpecies}
+					onCancel={handleManagerReturn}
+					onDeleted={handleManagerReturn}
+				/>
+			)}
+		</>
 	);
 }
