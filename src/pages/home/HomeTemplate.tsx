@@ -56,7 +56,7 @@ const STEP_ACCENTS = ["yellow", "green", "blue"] as const;
 // -webkit-text-stroke 는 글자 경계 중앙에 그려지므로 Figma 외곽선 폭의 2배를 주고 fill 을 위에 칠한다
 const TITLE_OUTLINE = cn(
 	"[paint-order:stroke_fill] [stroke-linejoin:round]",
-	"[-webkit-text-stroke-color:var(--color-text-inverse)] [-webkit-text-stroke-width:1.5rem]",
+	"[-webkit-text-stroke-color:var(--color-text-inverse)] [-webkit-text-stroke-width:24px]",
 );
 
 const LAYOUT = {

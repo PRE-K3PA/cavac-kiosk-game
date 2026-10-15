@@ -1,7 +1,7 @@
 /// <reference path="../../vite-env.d.ts" />
 import { describe, expect, test } from "bun:test";
-import { CARD_HOME } from "@/pages/card/05_cardHomeContent";
-import { VACCINE_HOME } from "@/pages/vaccine/01_vaccineHomeContent";
+import { CARD_HOME } from "@/pages/card/cardHomeContent";
+import { VACCINE_HOME } from "@/pages/vaccine/vaccineHomeContent";
 
 const HOME_CONTENTS = [
 	["백신 제조 홈", VACCINE_HOME],

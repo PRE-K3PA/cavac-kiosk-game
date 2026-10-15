@@ -1,13 +1,13 @@
 import { useLanguage } from "@/hooks/useLanguage";
-import { CARD_HOME } from "@/pages/card/05_cardHomeContent";
 import HomeTemplate, { type HomeTemplateProps } from "@/pages/home/HomeTemplate";
+import { VACCINE_HOME } from "@/pages/vaccine/vaccineHomeContent";
 
-export default function CardHome(props: HomeTemplateProps) {
+export default function VaccineHome(props: HomeTemplateProps) {
 	const { language, toggleLanguage } = useLanguage();
 	return (
 		<HomeTemplate
-			content={CARD_HOME}
-			portraitAlign="start"
+			content={VACCINE_HOME}
+			portraitAlign="center"
 			language={language}
 			onToggleLanguage={toggleLanguage}
 			{...props}
