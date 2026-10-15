@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useStageScale } from "@/hooks/useStageScale";
+import useStageScale from "@/hooks/useStageScale";
 import { OrientationProvider } from "@/layout/OrientationContext";
 import { STAGE_SIZE } from "@/layout/stage";
 
