@@ -31,6 +31,7 @@ export const LIMITS = {
 	antigenAbbr: { min: 1, max: 8 },
 	productSlots: 12,
 	pinLength: 4,
+	imageMaxBytes: 10 * 1024 * 1024,
 } as const;
 
 const IMAGE_EXTENSIONS = "png|jpg|jpeg";
