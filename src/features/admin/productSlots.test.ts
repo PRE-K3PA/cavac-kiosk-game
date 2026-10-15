@@ -4,14 +4,15 @@ import { createMockData } from "@/data/mock/mock-platform";
 import { validateForSave } from "@/data/rules";
 import {
 	changePairCount,
+	compactProducts,
 	countEnabledProducts,
 	deleteProduct,
-	disableEmptyProducts,
 	disableProduct,
 	enableProduct,
-	setProductImage,
+	registerProduct,
+	replaceProductImage,
 	setShownInResult,
-} from "@/features/admin/utils/productSlots";
+} from "@/features/admin/productSlots";
 import type { CardGameData, ImagePath, Localized, PairCount } from "@/types/data";
 
 /** 모양 검사(imagePathSchema)의 경로 형식 images/product/<uuid>.png 를 지키는 테스트용 사진 */
@@ -47,6 +48,10 @@ function selectedSlots(data: CardGameData): number[] {
 		.filter((product) => product.isEnabled)
 		.map((product) => product.slot)
 		.sort((a, b) => a - b);
+}
+
+function filledSlots(data: CardGameData): number[] {
+	return data.products.filter((product) => product.image !== null).map((product) => product.slot);
 }
 
 function hiddenFromResultSlots(data: CardGameData): number[] {
@@ -149,26 +154,60 @@ describe("사용 켜기", () => {
 	});
 });
 
-describe("제품 등록·수정", () => {
-	test("빈 칸에 등록할 때 사용 제품이 쌍 수보다 적으면 켠다", () => {
+describe("제품 등록", () => {
+	test("첫 빈 칸에 등록하고, 사용 제품이 쌍 수보다 적으면 켠다", () => {
 		const data = filledCardGame();
 		data.products[7].isEnabled = false;
 
-		const registered = setProductImage(data, 11, NEW_IMAGE);
+		const registered = registerProduct(data, NEW_IMAGE);
 
 		expect(registered.products[10].image).toEqual(NEW_IMAGE);
 		expect(selectedSlots(registered)).toEqual([1, 2, 3, 4, 5, 6, 7, 11]);
 	});
 
-	test("빈 칸에 등록할 때 사용 제품이 이미 쌍 수만큼이면 꺼진 채로 둔다", () => {
-		const registered = setProductImage(filledCardGame(), 11, NEW_IMAGE);
+	test("사용 제품이 이미 쌍 수만큼이면 꺼진 채로 등록한다", () => {
+		const registered = registerProduct(filledCardGame(), NEW_IMAGE);
 
 		expect(registered.products[10].image).toEqual(NEW_IMAGE);
 		expect(selectedSlots(registered)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
 	});
 
+	test("중간에 빈 칸이 있으면 그 칸에 등록한다", () => {
+		const data = filledCardGame();
+		data.products[1].image = null;
+
+		expect(registerProduct(data, NEW_IMAGE).products[1].image).toEqual(NEW_IMAGE);
+	});
+
+	test("빈 칸이 없으면 그대로 둔다", () => {
+		const data = filledCardGame();
+		data.products[10].image = productImage(11);
+		data.products[11].image = productImage(12);
+
+		expect(registerProduct(data, NEW_IMAGE)).toEqual(data);
+	});
+
+	test("사진 없이 켜져 있던 칸에 등록하면 그 칸은 켜진 채로 둔다", () => {
+		const data = filledCardGame();
+		data.products[7].isEnabled = false;
+		data.products[10].isEnabled = true;
+
+		expect(selectedSlots(registerProduct(data, NEW_IMAGE))).toEqual([1, 2, 3, 4, 5, 6, 7, 11]);
+	});
+
+	test("새로 등록하면 결과 화면 표시는 기본값(켬)이다", () => {
+		const data = emptyCardGame();
+		data.products[0].isShownInResult = false;
+
+		expect(registerProduct(data, NEW_IMAGE).products[0].isShownInResult).toBe(
+			createDefaultData("card-game").products[0].isShownInResult,
+		);
+	});
+});
+
+describe("사진 수정", () => {
 	test("켜진 제품의 사진을 바꿔도 켜진 채로 둔다", () => {
-		const edited = setProductImage(filledCardGame(), 1, NEW_IMAGE);
+		const edited = replaceProductImage(filledCardGame(), 1, NEW_IMAGE);
 
 		expect(edited.products[0].image).toEqual(NEW_IMAGE);
 		expect(selectedSlots(edited)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
@@ -178,42 +217,67 @@ describe("제품 등록·수정", () => {
 		const data = filledCardGame();
 		data.products[7].isEnabled = false;
 
-		const edited = setProductImage(data, 9, NEW_IMAGE);
+		const edited = replaceProductImage(data, 9, NEW_IMAGE);
 
 		expect(edited.products[8].image).toEqual(NEW_IMAGE);
 		expect(selectedSlots(edited)).toEqual([1, 2, 3, 4, 5, 6, 7]);
 	});
 
-	test("사진 없이 켜져 있던 칸에 등록하면 그 칸은 켜진 채로 둔다", () => {
+	test("빈 칸에는 사진을 넣지 않는다 (등록은 registerProduct)", () => {
 		const data = filledCardGame();
-		data.products[7].isEnabled = false;
-		data.products[10].isEnabled = true;
 
-		expect(selectedSlots(setProductImage(data, 11, NEW_IMAGE))).toEqual([1, 2, 3, 4, 5, 6, 7, 11]);
-	});
-
-	test("빈 칸에 새로 등록하면 결과 화면 표시는 기본값(켬)이다", () => {
-		const data = emptyCardGame();
-		data.products[0].isShownInResult = false;
-
-		expect(setProductImage(data, 1, NEW_IMAGE).products[0].isShownInResult).toBe(true);
+		expect(replaceProductImage(data, 11, NEW_IMAGE)).toEqual(data);
 	});
 });
 
 describe("제품 삭제", () => {
-	test("사진을 지우고 끄며, 결과 화면 표시는 켬으로 되돌린다", () => {
+	test("지운 칸 아래 제품이 한 칸씩 올라오고, 맨 아래에 첫 실행의 빈 칸이 생긴다", () => {
+		// 6번은 켜져 있고 결과 화면 표시가 꺼져 있어, 지운 제품의 값이 남으면 빈 칸 비교에서 드러납니다
 		const deleted = deleteProduct(filledCardGame(), 6);
 
-		expect(deleted.products[5]).toEqual(createDefaultData("card-game").products[5]);
+		expect(filledSlots(deleted)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+		expect(deleted.products[5].image).toEqual(filledCardGame().products[6].image);
+		expect(selectedSlots(deleted)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+		expect(hiddenFromResultSlots(deleted)).toEqual([6]);
+		expect(deleted.products.slice(9)).toEqual(createDefaultData("card-game").products.slice(9));
 	});
 });
 
-describe("불러오기 보정", () => {
-	test("사진이 없는데 켜진 칸만 끄고 나머지는 그대로 둔다", () => {
+describe("빈 칸 정리 (불러올 때)", () => {
+	test("중간의 빈 칸을 없애고 아래 제품을 당겨 올린다", () => {
+		const data = filledCardGame();
+		data.products[1].image = null;
+		data.products[4].image = null;
+
+		const compacted = compactProducts(data);
+
+		expect(filledSlots(compacted)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+		expect(compacted.products[2].image).toEqual(data.products[3].image);
+		expect(selectedSlots(compacted)).toEqual([1, 2, 3, 4, 5, 6]);
+		expect(hiddenFromResultSlots(compacted)).toEqual([4, 5]);
+	});
+
+	test("사진 없이 켜진 칸은 첫 실행의 빈 칸으로 되돌린다", () => {
 		const data = filledCardGame();
 		data.products[10].isEnabled = true;
+		data.products[10].isShownInResult = false;
 
-		expect(selectedSlots(disableEmptyProducts(data))).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+		const compacted = compactProducts(data);
+
+		expect(compacted.products[10]).toEqual(createDefaultData("card-game").products[10]);
+		expect(selectedSlots(compacted)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+	});
+
+	test("칸 번호 순서가 아닌 목록도 1번 칸부터 순서대로 정리한다", () => {
+		const data = filledCardGame();
+		data.products.reverse();
+
+		const compacted = compactProducts(data);
+
+		expect(compacted.products.map((product) => product.slot)).toEqual([
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+		]);
+		expect(compacted.products[0].image).toEqual(filledCardGame().products[0].image);
 	});
 });
 
@@ -241,10 +305,11 @@ describe("받은 값", () => {
 		expect(() => {
 			changePairCount(data, 4);
 			enableProduct(disableProduct(data, 8), 9);
-			setProductImage(data, 11, NEW_IMAGE);
+			registerProduct(data, NEW_IMAGE);
+			replaceProductImage(data, 1, NEW_IMAGE);
 			setShownInResult(data, 6, true);
 			deleteProduct(data, 1);
-			disableEmptyProducts(data);
+			compactProducts(data);
 		}).not.toThrow();
 		expect(data).toEqual(filledCardGame());
 	});
@@ -255,8 +320,8 @@ describe("저장 규칙과 함께", () => {
 		"첫 실행에서 %i쌍으로 고르고 그만큼 등록하면 저장할 수 있다",
 		(pairCount: PairCount) => {
 			let data = changePairCount(emptyCardGame(), pairCount);
-			for (let slot = 1; slot <= pairCount; slot += 1) {
-				data = setProductImage(data, slot, productImage(slot));
+			for (let id = 1; id <= pairCount; id += 1) {
+				data = registerProduct(data, productImage(id));
 			}
 
 			expect(validateForSave("card-game", data)).toMatchObject({ isValid: true });
@@ -269,6 +334,15 @@ describe("저장 규칙과 함께", () => {
 
 		expect(validateForSave("card-game", reduced)).toMatchObject({ isValid: true });
 		expect(validateForSave("card-game", restored)).toMatchObject({ isValid: true });
+	});
+
+	test("켜진 제품을 지우면 칸 1~12 는 그대로이고 사용 제품 수만 모자라 저장할 수 없다", () => {
+		const deleted = deleteProduct(filledCardGame(), 3);
+
+		expect(validateForSave("card-game", deleted)).toEqual({
+			isValid: false,
+			issues: [expect.stringContaining("현재 7개")],
+		});
 	});
 
 	test("사진이 10장뿐인 목데이터를 12쌍으로 바꾸면 사용 제품 수가 모자라 저장할 수 없다", () => {

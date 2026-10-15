@@ -55,42 +55,58 @@ export function setShownInResult(
 }
 
 /**
- * 빈 칸에 등록하면 사용 제품이 모자랄 때만 켜고, 결과 화면 표시는 기본값(켬)으로 둡니다.
- * 수정은 사진만 바꿉니다
+ * 칸 번호가 가장 작은 빈 칸에 등록해 빈 칸이 늘 목록 아래에 모이게 합니다.
+ * 사용 제품이 모자랄 때만 켜고, 결과 화면 표시는 기본값(켬)으로 둡니다
  */
-export function setProductImage(
+export function registerProduct(data: CardGameData, image: Localized<ImagePath>): CardGameData {
+	const target = data.products
+		.filter((product) => product.image === null)
+		.sort((a, b) => a.slot - b.slot)[0];
+	if (target === undefined) return data;
+
+	const others = data.products.filter((product) => product.slot !== target.slot);
+	const hasRoom = countEnabledProducts(others) < data.settings.pairCount;
+	return updateProduct(data, target.slot, () => ({
+		...emptySlot(target.slot),
+		image,
+		isEnabled: hasRoom,
+	}));
+}
+
+/** 등록된 제품의 사진만 바꿉니다. 사용과 결과 화면 표시는 그대로 둡니다 */
+export function replaceProductImage(
 	data: CardGameData,
 	slot: number,
 	image: Localized<ImagePath>,
 ): CardGameData {
-	const others = data.products.filter((product) => product.slot !== slot);
-	const hasRoom = countEnabledProducts(others) < data.settings.pairCount;
 	return updateProduct(data, slot, (product) =>
-		product.image === null
-			? { ...product, image, isEnabled: hasRoom, isShownInResult: true }
-			: { ...product, image },
+		product.image === null ? product : { ...product, image },
 	);
 }
 
-/** 지운 칸은 첫 실행의 빈 칸(defaults.ts)과 같은 상태로 되돌립니다 */
+/** 지운 칸 아래 제품을 한 칸씩 당겨 올려, 빈 칸이 늘 목록 아래에 모이게 합니다 */
 export function deleteProduct(data: CardGameData, slot: number): CardGameData {
-	return updateProduct(data, slot, (product) => ({
-		...product,
-		image: null,
-		isEnabled: false,
-		isShownInResult: true,
-	}));
+	return compactProducts(updateProduct(data, slot, (product) => ({ ...product, image: null })));
 }
 
 /**
- * 사진 없이 켜진 칸을 끕니다. 모양 검사는 통과하지만 행에서는 빈 칸으로 보여 끌 방법이 없습니다.
- * 설정을 불러올 때 한 번 거칩니다
+ * 등록된 제품을 칸 번호 순서대로 위로 모으고, 아래는 첫 실행의 빈 칸으로 채웁니다.
+ * 사진 없이 켜진 칸도 이때 정리됩니다. 설정을 불러올 때 한 번 거칩니다
  */
-export function disableEmptyProducts(data: CardGameData): CardGameData {
-	const products = data.products.map((product) =>
-		product.image === null && product.isEnabled ? { ...product, isEnabled: false } : product,
+export function compactProducts(data: CardGameData): CardGameData {
+	const filled = data.products
+		.filter((product) => product.image !== null)
+		.sort((a, b) => a.slot - b.slot)
+		.map((product, index) => ({ ...product, slot: index + 1 }));
+	const empty = Array.from({ length: data.products.length - filled.length }, (_, index) =>
+		emptySlot(filled.length + index + 1),
 	);
-	return { ...data, products };
+	return { ...data, products: [...filled, ...empty] };
+}
+
+/** 첫 실행의 빈 칸(defaults.ts)과 같은 상태 */
+function emptySlot(slot: number): ProductSlot {
+	return { slot, image: null, isEnabled: false, isShownInResult: true };
 }
 
 function updateProduct(
