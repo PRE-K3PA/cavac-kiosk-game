@@ -9,7 +9,7 @@
 		"dev": "vite",
 		"build": "bun run typecheck && vite build",
 		"preview": "vite preview",
-		"dist": "bun run build && electron-builder",
+		"dist": "bun run typecheck && vite build --mode release && electron-builder",
 		"check": "biome check .",
 		"check:fix": "biome check --write .",
 		"typecheck": "tsc -b",

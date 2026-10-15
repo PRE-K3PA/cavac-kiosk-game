@@ -18,6 +18,11 @@ export function isValidPin(pin: string): boolean {
 	return PIN_PATTERN.test(pin);
 }
 
+type PinFile =
+	| { status: "valid"; pinHash: string }
+	| { status: "missing" }
+	| { status: "unreadable" };
+
 export type PinStore = {
 	verify(pin: string): Promise<boolean>;
 	update(current: string, next: string): Promise<PinChangeResult>;
@@ -34,21 +39,39 @@ export function createPinStore(dataDir: string, masterPinHash: string): PinStore
 		return result;
 	}
 
-	async function readPinHash(fromPath: string): Promise<string | undefined> {
+	async function readPinFile(fromPath: string): Promise<PinFile> {
+		let text: string;
 		try {
-			const parsed: unknown = JSON.parse(await readFile(fromPath, "utf8"));
-			if (typeof parsed !== "object" || parsed === null || !("pinHash" in parsed)) return undefined;
+			text = await retryOnFileLock(() => readFile(fromPath, "utf8"));
+		} catch (error) {
+			const isMissing = error instanceof Error && "code" in error && error.code === "ENOENT";
+			return { status: isMissing ? "missing" : "unreadable" };
+		}
+		try {
+			const parsed: unknown = JSON.parse(text);
+			if (typeof parsed !== "object" || parsed === null || !("pinHash" in parsed)) {
+				return { status: "unreadable" };
+			}
 			const { pinHash } = parsed;
-			return typeof pinHash === "string" && isPinHash(pinHash) ? pinHash : undefined;
+			return typeof pinHash === "string" && isPinHash(pinHash)
+				? { status: "valid", pinHash }
+				: { status: "unreadable" };
 		} catch {
-			return undefined;
+			return { status: "unreadable" };
 		}
 	}
 
-	// 파일이 없거나 깨졌으면 .bak 을, 그것도 없으면 초기 PIN 을 씁니다
+	// 초기 PIN 은 첫 실행(파일이 아예 없음)에만 받습니다
+	// 파일이 있는데 깨졌거나 읽지 못하면 실수나 일시적인 오류로 0000 이 열리지 않도록 마스터 PIN 으로만 들어갑니다
 	async function matchesSavedPin(pin: string): Promise<boolean> {
-		const pinHash = (await readPinHash(filePath)) ?? (await readPinHash(backupPath));
-		return pinHash ? matchesPinHash(pin, pinHash) : pin === DEFAULT_PIN;
+		const saved = await readPinFile(filePath);
+		if (saved.status === "valid") return matchesPinHash(pin, saved.pinHash);
+
+		const backup = await readPinFile(backupPath);
+		if (backup.status === "valid") return matchesPinHash(pin, backup.pinHash);
+
+		const isFirstRun = saved.status === "missing" && backup.status === "missing";
+		return isFirstRun && pin === DEFAULT_PIN;
 	}
 
 	async function matchesAnyPin(pin: string): Promise<boolean> {
@@ -58,7 +81,7 @@ export function createPinStore(dataDir: string, masterPinHash: string): PinStore
 
 	async function savePin(pin: string): Promise<void> {
 		await mkdir(dataDir, { recursive: true });
-		if (await readPinHash(filePath)) {
+		if ((await readPinFile(filePath)).status === "valid") {
 			await retryOnFileLock(() => copyFile(filePath, backupPath));
 		}
 		const pinFile = { pinHash: await hashPin(pin) };

@@ -21,6 +21,20 @@ export function isPinHash(value: string): boolean {
 	return PIN_HASH_PATTERN.test(value);
 }
 
+export const RELEASE_MODE = "release";
+
+/** 빌드할 때 넣을 마스터 PIN 해시를 검사하고, 문제가 있으면 사유를 돌려줍니다 */
+export function findMasterPinHashError(masterPinHash: string, mode: string): string | undefined {
+	if (masterPinHash === "") {
+		return mode === RELEASE_MODE
+			? "배포 빌드에는 MASTER_PIN_HASH 가 필요합니다. .env.local 을 확인해 주세요"
+			: undefined;
+	}
+	return isPinHash(masterPinHash)
+		? undefined
+		: "MASTER_PIN_HASH 형식이 아닙니다. hash-pin 스크립트로 만든 값을 넣어 주세요";
+}
+
 export async function hashPin(pin: string): Promise<string> {
 	const salt = randomBytes(SALT_BYTES);
 	const key = await deriveKey(pin, salt);
