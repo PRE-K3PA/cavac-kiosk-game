@@ -12,6 +12,7 @@ import {
 } from "@/features/admin/homeAnimals";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useOrientation } from "@/layout/OrientationContext";
+import SpeciesManagerFlow from "@/pages/admin/SpeciesManagerFlow";
 import type { HomeAnimal, HomeSlot } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -25,12 +26,9 @@ const SLOT_GROUPS = [
 	["right-1", "right-2"],
 ] as const satisfies readonly (readonly HomeSlot[])[];
 
-type HomeAnimalPanelProps = {
-	onSpeciesManageClick?: () => void;
-};
-
-export default function HomeAnimalPanel({ onSpeciesManageClick }: HomeAnimalPanelProps) {
+export default function HomeAnimalPanel() {
 	const [selectedSlot, setSelectedSlot] = useState<HomeSlot | null>(null);
+	const [isSpeciesManagerOpen, setIsSpeciesManagerOpen] = useState(false);
 	const layout = LAYOUT[useOrientation()];
 
 	const common = useSettingsDraft((state) => state.draft.common);
@@ -69,6 +67,15 @@ export default function HomeAnimalPanel({ onSpeciesManageClick }: HomeAnimalPane
 		updateHomeAnimals(clearHomeAnimal(common.homeAnimals, selectedSlot));
 	}
 
+	function handleSpeciesManagerOpen() {
+		setSelectedSlot(null);
+		setIsSpeciesManagerOpen(true);
+	}
+
+	function handleSpeciesManagerClose() {
+		setIsSpeciesManagerOpen(false);
+	}
+
 	return (
 		<section
 			className={cn(
@@ -80,8 +87,7 @@ export default function HomeAnimalPanel({ onSpeciesManageClick }: HomeAnimalPane
 				<Button
 					variant="secondary"
 					label="축종 관리"
-					disabled={!onSpeciesManageClick}
-					onClick={onSpeciesManageClick}
+					onClick={handleSpeciesManagerOpen}
 					className="h-16 w-50"
 				/>
 			</div>
@@ -111,6 +117,7 @@ export default function HomeAnimalPanel({ onSpeciesManageClick }: HomeAnimalPane
 				onSpeciesSelect={handleSpeciesSelect}
 				onClearClick={handleSlotClearClick}
 			/>
+			{isSpeciesManagerOpen && <SpeciesManagerFlow onClose={handleSpeciesManagerClose} />}
 		</section>
 	);
 }
