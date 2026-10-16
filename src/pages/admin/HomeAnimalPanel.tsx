@@ -3,7 +3,6 @@ import AnimalPicker from "@/components/admin/AnimalPicker";
 import Button from "@/components/admin/Button";
 import HomeAnimalSlot from "@/components/admin/HomeAnimalSlot";
 import SectionHeader from "@/components/admin/SectionHeader";
-import { getImageUrl } from "@/data/storage";
 import {
 	clearHomeAnimal,
 	findHomeAnimal,
@@ -11,6 +10,7 @@ import {
 	placeHomeAnimal,
 } from "@/features/admin/homeAnimals";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
+import { toSpeciesOptions } from "@/features/admin/speciesForm";
 import { useOrientation } from "@/layout/OrientationContext";
 import SpeciesManagerFlow from "@/pages/admin/SpeciesManagerFlow";
 import type { HomeAnimal, HomeSlot } from "@/types/data";
@@ -34,11 +34,7 @@ export default function HomeAnimalPanel() {
 	const common = useSettingsDraft((state) => state.draft.common);
 	const setDraft = useSettingsDraft((state) => state.setDraft);
 
-	const pickerSpecies = common.species.map((species) => ({
-		id: species.id,
-		name: species.name,
-		imageSrc: getImageUrl(species.character),
-	}));
+	const pickerSpecies = toSpeciesOptions(common.species);
 	const selectedSpeciesId = selectedSlot
 		? findHomeAnimal(common.homeAnimals, selectedSlot)?.speciesId
 		: undefined;

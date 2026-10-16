@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ImagePreviewModal from "@/components/admin/ImagePreviewModal";
 import ModalOverlay from "@/components/admin/ModalOverlay";
 import SpeciesModal from "@/components/admin/SpeciesModal";
 import { getImageUrl } from "@/data/storage";
@@ -11,7 +12,6 @@ import {
 	validateSpeciesName,
 } from "@/features/admin/speciesForm";
 import SpeciesDeleteOverlay from "@/pages/admin/SpeciesDeleteOverlay";
-import SpeciesImageZoomOverlay from "@/pages/admin/SpeciesImageZoomOverlay";
 import type { ImagePath, Species } from "@/types/data";
 
 type SpeciesFormOverlayProps = {
@@ -117,7 +117,21 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 				/>
 			</ModalOverlay>
 			{isImageZoomOpen && imageSrc && (
-				<SpeciesImageZoomOverlay imageSrc={imageSrc} name={name} onClose={handleImageZoomClose} />
+				<ModalOverlay>
+					<ImagePreviewModal
+						tone="common"
+						description="캐릭터 이미지"
+						items={[
+							{
+								caption: name.trim() || "캐릭터",
+								content: (
+									<img src={imageSrc} alt="" className="aspect-square w-full object-contain" />
+								),
+							},
+						]}
+						onCloseClick={handleImageZoomClose}
+					/>
+				</ModalOverlay>
 			)}
 			{isDeleteConfirmOpen && species && (
 				<SpeciesDeleteOverlay species={species} onCancel={handleDeleteCancel} onDeleted={onDone} />
