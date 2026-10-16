@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import icChevron from "@/assets/icons/icChevron.svg";
 import Icon from "@/components/admin/Icon";
 import { cn } from "@/utils/cn";
@@ -17,6 +18,15 @@ type SelectProps<T extends SelectValue> = {
 	disabled?: boolean;
 	onChange?: (value: T) => void;
 	className?: string;
+};
+
+const LIST_GAP = 8;
+
+type ListPosition = {
+	left: number;
+	top: number;
+	width: number;
+	scale: number;
 };
 
 type SelectOptionButtonProps<T extends SelectValue> = {
@@ -58,37 +68,69 @@ export default function Select<T extends SelectValue>({
 	onChange,
 	className,
 }: SelectProps<T>) {
-	const [isOpen, setIsOpen] = useState(false);
-	const rootRef = useRef<HTMLDivElement>(null);
+	const [listPosition, setListPosition] = useState<ListPosition | null>(null);
+	const fieldRef = useRef<HTMLButtonElement>(null);
+	const listRef = useRef<HTMLDivElement>(null);
+	const isOpen = listPosition !== null;
 	const selected = options.find(isSelectedOption);
 
 	function isSelectedOption(option: SelectOption<T>) {
 		return option.value === value;
 	}
 
-	function subscribeOutsidePointerDown() {
+	function subscribeCloseTriggers() {
 		if (!isOpen) return;
 
+		function close() {
+			setListPosition(null);
+		}
+
 		function handleDocumentPointerDown(event: PointerEvent) {
-			if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
+			const target = event.target as Node;
+			if (fieldRef.current?.contains(target) || listRef.current?.contains(target)) return;
+			close();
+		}
+
+		function handleDocumentScroll(event: Event) {
+			if (!listRef.current?.contains(event.target as Node)) close();
 		}
 
 		function unsubscribe() {
 			document.removeEventListener("pointerdown", handleDocumentPointerDown);
+			document.removeEventListener("scroll", handleDocumentScroll, true);
+			window.removeEventListener("resize", close);
 		}
 
 		document.addEventListener("pointerdown", handleDocumentPointerDown);
+		document.addEventListener("scroll", handleDocumentScroll, true);
+		window.addEventListener("resize", close);
 		return unsubscribe;
 	}
 
-	useEffect(subscribeOutsidePointerDown, [isOpen]);
+	useEffect(subscribeCloseTriggers, [isOpen]);
+
+	// 무대가 transform: scale 로 그려지므로 화면상 크기와 원래 크기의 비로 배율을 구한다
+	function measureListPosition(field: HTMLButtonElement): ListPosition {
+		const rect = field.getBoundingClientRect();
+		const scale = rect.width / field.offsetWidth;
+		return {
+			left: rect.left,
+			top: rect.bottom + LIST_GAP * scale,
+			width: field.offsetWidth,
+			scale,
+		};
+	}
 
 	function handleFieldClick() {
-		setIsOpen(!isOpen);
+		if (isOpen || !fieldRef.current) {
+			setListPosition(null);
+			return;
+		}
+		setListPosition(measureListPosition(fieldRef.current));
 	}
 
 	function handleOptionSelect(next: T) {
-		setIsOpen(false);
+		setListPosition(null);
 		if (next !== value) onChange?.(next);
 	}
 
@@ -104,8 +146,9 @@ export default function Select<T extends SelectValue>({
 	}
 
 	return (
-		<div ref={rootRef} className={cn("relative w-45", className)}>
+		<div className={cn("w-45", className)}>
 			<button
+				ref={fieldRef}
 				type="button"
 				aria-label={label}
 				aria-expanded={isOpen}
@@ -121,15 +164,24 @@ export default function Select<T extends SelectValue>({
 				</span>
 				<Icon src={icChevron} className={cn("size-5 bg-border-strong", isOpen && "rotate-180")} />
 			</button>
-			{isOpen && (
-				<div
-					className={cn(
-						"absolute top-full right-0 left-0 z-10 mt-2 flex flex-col overflow-hidden",
-						"rounded-xl border-2 border-border-default bg-background-surface py-2 shadow-md",
-					)}>
-					{options.map(renderOption)}
-				</div>
-			)}
+			{listPosition &&
+				createPortal(
+					<div
+						ref={listRef}
+						style={{
+							left: listPosition.left,
+							top: listPosition.top,
+							width: listPosition.width,
+							transform: `scale(${listPosition.scale})`,
+						}}
+						className={cn(
+							"fixed z-50 max-h-43 origin-top-left overflow-y-auto",
+							"rounded-xl border-2 border-border-default bg-background-surface shadow-md",
+						)}>
+						{options.map(renderOption)}
+					</div>,
+					document.body,
+				)}
 		</div>
 	);
 }
