@@ -1,12 +1,11 @@
-import { copyFile, mkdir, open, readFile, rename } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rename } from "node:fs/promises";
 import path from "node:path";
 import { createDefaultData } from "@/data/defaults";
 import { validateForSave } from "@/data/rules";
 import { dataSchemas } from "@/data/schema";
 import type { DataFile, DataMap, SaveResult } from "@/types/data";
+import { writeFileAtomically } from "./atomic-write";
 import { retryOnFileLock } from "./retry";
-
-// .tmp 에 쓰고 디스크에 기록한 뒤 이름을 바꾸므로, 쓰는 도중 전원이 꺼져도 원본이나 .bak 중 하나는 온전히 남습니다
 
 export type DataStore = {
 	read<F extends DataFile>(file: F): Promise<DataMap[F]>;
@@ -18,7 +17,7 @@ export function createDataStore(dataDir: string): DataStore {
 
 	function getFilePaths(file: DataFile) {
 		const original = path.join(dataDir, `${file}.json`);
-		return { original, backup: `${original}.bak`, temp: `${original}.tmp` };
+		return { original, backup: `${original}.bak` };
 	}
 
 	// 같은 파일을 동시에 쓰면 .tmp 가 섞이므로 파일마다 차례로 처리합니다
@@ -54,7 +53,7 @@ export function createDataStore(dataDir: string): DataStore {
 	}
 
 	async function writeFileSafely<F extends DataFile>(file: F, data: DataMap[F]): Promise<void> {
-		const { original, backup, temp } = getFilePaths(file);
+		const { original, backup } = getFilePaths(file);
 		await mkdir(dataDir, { recursive: true });
 
 		// 깨진 원본으로 멀쩡한 .bak 을 덮지 않도록, 원본이 쓸 수 있는 값일 때만 백업합니다
@@ -62,14 +61,7 @@ export function createDataStore(dataDir: string): DataStore {
 			await retryOnFileLock(() => copyFile(original, backup));
 		}
 
-		const handle = await open(temp, "w");
-		try {
-			await handle.writeFile(`${JSON.stringify(data, null, "\t")}\n`, "utf8");
-			await handle.sync();
-		} finally {
-			await handle.close();
-		}
-		await retryOnFileLock(() => rename(temp, original));
+		await writeFileAtomically(original, `${JSON.stringify(data, null, "\t")}\n`);
 	}
 
 	return {
