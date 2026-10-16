@@ -7,6 +7,9 @@ files:
   - dist/**
   - dist-electron/**
   - package.json
+extraResources:
+  - from: resources/default-species
+    to: default-species
 win:
   target:
     - nsis
