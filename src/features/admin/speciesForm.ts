@@ -1,4 +1,5 @@
 import { LIMITS } from "@/data/schema";
+import { getImageUrl } from "@/data/storage";
 import { removeSpeciesFromHome } from "@/features/admin/homeAnimals";
 import type { CommonData, HomeAnimal, Species } from "@/types/data";
 
@@ -50,4 +51,8 @@ export function deleteSpecies(common: CommonData, speciesId: string): CommonData
 
 export function isSpeciesOnHome(homeAnimals: HomeAnimal[], speciesId: string): boolean {
 	return homeAnimals.some((animal) => animal.speciesId === speciesId);
+}
+
+export function toSpeciesOptions(species: Species[]) {
+	return species.map(({ id, name, character }) => ({ id, name, imageSrc: getImageUrl(character) }));
 }
