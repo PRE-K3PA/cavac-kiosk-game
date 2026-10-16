@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import icChevron from "@/assets/icons/icChevron.svg";
 import Icon from "@/components/admin/Icon";
@@ -108,6 +108,20 @@ export default function Select<T extends SelectValue>({
 	}
 
 	useEffect(subscribeCloseTriggers, [isOpen]);
+
+	// scrollIntoView 는 바깥 스크롤까지 움직여 목록이 닫히므로 목록의 scrollTop 만 맞춘다
+	function scrollToSelectedOption() {
+		if (!isOpen) return;
+
+		const list = listRef.current;
+		const option = list?.querySelector<HTMLElement>("[aria-pressed='true']");
+		if (!list || !option) return;
+
+		const isHidden = option.offsetTop + option.offsetHeight > list.clientHeight;
+		if (isHidden) list.scrollTop = option.offsetTop;
+	}
+
+	useLayoutEffect(scrollToSelectedOption, [isOpen]);
 
 	// 무대가 transform: scale 로 그려지므로 화면상 크기와 원래 크기의 비로 배율을 구한다
 	function measureListPosition(field: HTMLButtonElement): ListPosition {
