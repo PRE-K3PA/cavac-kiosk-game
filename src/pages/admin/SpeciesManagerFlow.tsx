@@ -1,8 +1,8 @@
 import { useState } from "react";
 import ModalOverlay from "@/components/admin/ModalOverlay";
 import SpeciesManagerModal from "@/components/admin/SpeciesManagerModal";
-import { getImageUrl } from "@/data/storage";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
+import { toSpeciesOptions } from "@/features/admin/speciesForm";
 import { useOrientation } from "@/layout/OrientationContext";
 import SpeciesDeleteOverlay from "@/pages/admin/SpeciesDeleteOverlay";
 import SpeciesFormOverlay from "@/pages/admin/SpeciesFormOverlay";
@@ -24,11 +24,7 @@ export default function SpeciesManagerFlow({ onClose }: SpeciesManagerFlowProps)
 	const orientation = useOrientation();
 	const species = useSettingsDraft((state) => state.draft.common.species);
 
-	const managerItems = species.map((item) => ({
-		id: item.id,
-		name: item.name,
-		imageSrc: getImageUrl(item.character),
-	}));
+	const managerItems = toSpeciesOptions(species);
 	const targetSpecies =
 		"speciesId" in overlay ? species.find((item) => item.id === overlay.speciesId) : undefined;
 
