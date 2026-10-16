@@ -5,6 +5,10 @@ export type Language = keyof Localized<unknown>;
 
 export function useLanguage() {
 	const [language, setLanguage] = useState<Language>("ko");
-	const toggleLanguage = () => setLanguage((current) => (current === "ko" ? "en" : "ko"));
+
+	function toggleLanguage() {
+		setLanguage((current) => (current === "ko" ? "en" : "ko"));
+	}
+
 	return { language, toggleLanguage };
 }
