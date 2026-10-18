@@ -1,4 +1,3 @@
-import { useState } from "react";
 import imgHomeBackground from "@/assets/images/common/imgHomeBackground.png";
 import imgLogoEn from "@/assets/images/common/imgLogoEn.png";
 import imgLogoKo from "@/assets/images/common/imgLogoKo.png";
@@ -7,10 +6,10 @@ import HowToPlayCard from "@/components/common/HowToPlayCard";
 import LanguageButton from "@/components/common/LanguageButton";
 import SoundButton from "@/components/common/SoundButton";
 import StartButton from "@/components/common/StartButton";
-import type { Language } from "@/hooks/useLanguage";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { useHomeAnimals } from "@/pages/home/useHomeAnimals";
+import { useSessionStore } from "@/store/sessionStore";
 import { HOME_SLOTS, type Localized } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -32,8 +31,6 @@ export type HomeContent = {
 
 type HomeTemplateProps = HomeScreenProps & {
 	content: HomeContent;
-	language: Language;
-	onToggleLanguage: () => void;
 	/** 세로 화면에서 본문을 위쪽부터 쌓을지 세로 중앙에 둘지. 가로 화면은 항상 중앙 */
 	portraitAlign?: "start" | "center";
 };
@@ -99,12 +96,13 @@ const LAYOUT = {
 export default function HomeTemplate({
 	portraitAlign = "center",
 	content,
-	language,
-	onToggleLanguage,
 	onStart,
 	onAdminActivate,
 }: HomeTemplateProps) {
-	const [isMuted, setIsMuted] = useState(false);
+	const language = useSessionStore((s) => s.language);
+	const toggleLanguage = useSessionStore((s) => s.toggleLanguage);
+	const isMuted = useSessionStore((s) => s.isMuted);
+	const toggleMute = useSessionStore((s) => s.toggleMute);
 	const animals = useHomeAnimals();
 	const orientation = useOrientation();
 
@@ -112,10 +110,6 @@ export default function HomeTemplate({
 	const isCentered = orientation === "landscape" || portraitAlign === "center";
 	const logo = HOME_LOGO[language];
 	const title = content.title[language];
-
-	function handleSoundClick() {
-		setIsMuted((muted) => !muted);
-	}
 
 	return (
 		<ScreenLayout
@@ -142,12 +136,12 @@ export default function HomeTemplate({
 					<SoundButton
 						label={HOME_COMMON_COPY.soundLabel[language]}
 						muted={isMuted}
-						onClick={handleSoundClick}
+						onClick={toggleMute}
 					/>
 					<LanguageButton
 						label={HOME_COMMON_COPY.languageLabel[language]}
 						language={language}
-						onClick={onToggleLanguage}
+						onClick={toggleLanguage}
 					/>
 				</div>
 			</header>

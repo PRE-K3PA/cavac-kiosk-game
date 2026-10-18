@@ -8,6 +8,7 @@ import type { Orientation } from "@/layout/stage";
 import CardHome from "@/pages/card/CardHome";
 import type { HomeScreenProps } from "@/pages/home/HomeTemplate";
 import VaccineHome from "@/pages/vaccine/VaccineHome";
+import { useSessionStore } from "@/store/sessionStore";
 
 const HOMES = [
 	{ name: "백신 제조 홈", Home: VaccineHome, koTitle: "백신 제조", enTitle: "Vaccine" },
@@ -30,7 +31,10 @@ function renderHome(
 	return { ...view, onStart, onAdminActivate };
 }
 
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	useSessionStore.getState().reset();
+});
 
 describe.each(HOMES)("$name", ({ Home, koTitle, enTitle }) => {
 	test("처음에는 한국어 제목과 시작하기 버튼이 보인다", () => {
