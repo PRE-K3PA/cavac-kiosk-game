@@ -1,9 +1,10 @@
 import type { ComponentProps } from "react";
+import type { Language } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 type LanguageButtonProps = Omit<ComponentProps<"button">, "children" | "aria-label"> & {
 	label: string;
-	language?: "ko" | "en";
+	language?: Language;
 };
 
 export default function LanguageButton({
