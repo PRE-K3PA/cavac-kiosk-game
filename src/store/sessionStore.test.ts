@@ -10,6 +10,11 @@ describe("sessionStore", () => {
 		expect(isMuted).toBe(false);
 	});
 
+	test("setLanguage 로 언어를 정한다", () => {
+		useSessionStore.getState().setLanguage("en");
+		expect(useSessionStore.getState().language).toBe("en");
+	});
+
 	test("toggleLanguage 는 한국어와 영어를 오간다", () => {
 		useSessionStore.getState().toggleLanguage();
 		expect(useSessionStore.getState().language).toBe("en");
@@ -18,7 +23,7 @@ describe("sessionStore", () => {
 	});
 
 	test("언어와 음소거를 바꾼 뒤 reset 하면 둘 다 기본값으로 돌아온다", () => {
-		useSessionStore.getState().toggleLanguage();
+		useSessionStore.getState().setLanguage("en");
 		useSessionStore.getState().toggleMute();
 		expect(useSessionStore.getState().isMuted).toBe(true);
 
