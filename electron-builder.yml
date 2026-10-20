@@ -10,8 +10,11 @@ files:
 win:
   target:
     - nsis
+    - portable
   icon: resources/icon.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
+portable:
+  artifactName: ${productName} Portable ${version}.${ext}
