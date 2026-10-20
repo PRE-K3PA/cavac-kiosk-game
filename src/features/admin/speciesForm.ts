@@ -9,7 +9,7 @@ export const SPECIES_FORM_MESSAGES = {
 	nameEmpty: "축종명을 입력해 주세요.",
 	nameLength: `축종명은 ${min}~${max}자로 입력해 주세요.`,
 	nameDuplicate: "이미 등록된 축종명입니다.",
-	imageEmpty: "캐릭터 이미지를 넣어 주세요",
+	imageEmpty: "캐릭터 이미지를 넣어 주세요.",
 } as const;
 
 export const SPECIES_HOME_WARNING =
