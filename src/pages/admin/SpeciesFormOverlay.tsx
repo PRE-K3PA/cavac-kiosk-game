@@ -85,7 +85,6 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 		setIsDeleteConfirmOpen(false);
 	}
 
-	// TODO: 홈 화면(이은석) 완료 후 캐릭터 미리보기(ImagePreviewOverlay_Character1~4) 연결
 	function handleImagePreviewClick() {
 		if (isSelectingImage) return;
 		setIsImageZoomOpen(true);
