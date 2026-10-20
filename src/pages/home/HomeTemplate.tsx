@@ -9,7 +9,7 @@ import SoundButton from "@/components/common/SoundButton";
 import StartButton from "@/components/common/StartButton";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
-import { useHomeAnimals } from "@/pages/home/useHomeAnimals";
+import { type HomeAnimals, useHomeAnimals } from "@/pages/home/useHomeAnimals";
 import { useSessionStore } from "@/store/sessionStore";
 import { HOME_SLOTS, type Localized } from "@/types/data";
 import { cn } from "@/utils/cn";
@@ -34,6 +34,8 @@ type HomeTemplateProps = HomeScreenProps & {
 	content: HomeContent;
 	/** 세로 화면에서 본문을 위쪽부터 쌓을지 세로 중앙에 둘지. 가로 화면은 항상 중앙 */
 	portraitAlign?: "start" | "center";
+	/** 넘기면 저장된 동물 대신 이 동물을 놓습니다. 관리자 화면의 캐릭터 미리보기가 씁니다 */
+	animals?: HomeAnimals;
 };
 
 const HOME_COMMON_COPY = {
@@ -99,13 +101,15 @@ export default function HomeTemplate({
 	content,
 	onStart,
 	onAdminActivate,
+	animals: previewAnimals,
 }: HomeTemplateProps) {
 	const language = useSessionStore((s) => s.language);
 	const toggleLanguage = useSessionStore((s) => s.toggleLanguage);
 	const isMuted = useSessionStore((s) => s.isMuted);
 	const toggleMute = useSessionStore((s) => s.toggleMute);
 	const resetSession = useSessionStore((s) => s.reset);
-	const animals = useHomeAnimals();
+	const savedAnimals = useHomeAnimals();
+	const animals = previewAnimals ?? savedAnimals;
 	const orientation = useOrientation();
 
 	// 홈은 다음 관람객이 처음 만나는 화면입니다. 앞 사람의 언어와 음소거를 여기서 지웁니다
