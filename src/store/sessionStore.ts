@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create, type StoreApi } from "zustand";
 import type { Language } from "@/types/data";
 
 // 방문자 한 명이 쓰는 동안만 유지하는 설정. 파일이나 localStorage 에 저장하지 않습니다
@@ -18,10 +18,24 @@ type SessionState = {
 	reset: () => void;
 };
 
-export const useSessionStore = create<SessionState>()((set) => ({
-	...DEFAULT_SESSION,
-	setLanguage: (language) => set({ language }),
-	toggleLanguage: () => set((s) => ({ language: s.language === "ko" ? "en" : "ko" })),
-	toggleMute: () => set((s) => ({ isMuted: !s.isMuted })),
-	reset: () => set(DEFAULT_SESSION),
-}));
+function createSessionState(set: StoreApi<SessionState>["setState"]): SessionState {
+	function setLanguage(language: Language) {
+		set({ language });
+	}
+
+	function toggleLanguage() {
+		set((s) => ({ language: s.language === "ko" ? "en" : "ko" }));
+	}
+
+	function toggleMute() {
+		set((s) => ({ isMuted: !s.isMuted }));
+	}
+
+	function reset() {
+		set(DEFAULT_SESSION);
+	}
+
+	return { ...DEFAULT_SESSION, setLanguage, toggleLanguage, toggleMute, reset };
+}
+
+export const useSessionStore = create<SessionState>()(createSessionState);
