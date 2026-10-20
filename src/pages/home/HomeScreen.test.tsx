@@ -44,7 +44,7 @@ describe.each(HOMES)("$name", ({ Home, koTitle, enTitle }) => {
 	});
 
 	test("앞 관람객이 바꾼 언어와 음소거는 홈이 나타날 때 기본값으로 돌아간다", () => {
-		useSessionStore.getState().setLanguage("en");
+		useSessionStore.getState().toggleLanguage();
 		useSessionStore.getState().toggleMute();
 
 		renderHome(Home);
