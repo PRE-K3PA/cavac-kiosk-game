@@ -11,7 +11,6 @@ const DEFAULT_SESSION = {
 type SessionState = {
 	language: Language;
 	isMuted: boolean;
-	setLanguage: (language: Language) => void;
 	toggleLanguage: () => void;
 	toggleMute: () => void;
 	/** 다음 관람객을 위한 대기 상태로 돌아갈 때 부릅니다 */
@@ -19,10 +18,6 @@ type SessionState = {
 };
 
 function createSessionState(set: StoreApi<SessionState>["setState"]): SessionState {
-	function setLanguage(language: Language) {
-		set({ language });
-	}
-
 	function toggleLanguage() {
 		set((s) => ({ language: s.language === "ko" ? "en" : "ko" }));
 	}
@@ -35,7 +30,7 @@ function createSessionState(set: StoreApi<SessionState>["setState"]): SessionSta
 		set(DEFAULT_SESSION);
 	}
 
-	return { ...DEFAULT_SESSION, setLanguage, toggleLanguage, toggleMute, reset };
+	return { ...DEFAULT_SESSION, toggleLanguage, toggleMute, reset };
 }
 
 export const useSessionStore = create<SessionState>()(createSessionState);
