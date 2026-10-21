@@ -209,6 +209,15 @@
 	--text-shadow-hard-lg: 0 8px 0 var(--slate-900);
 }
 
+/* -webkit-text-stroke 는 글자 경계 중앙에 그려지므로 Figma 외곽선 폭의 2배를 --text-outline-width 로 준다.
+   fill 은 paint-order 로 외곽선 위에 칠한다. 색은 --text-outline-color, 기본은 text-primary */
+@utility outlined-text {
+	paint-order: stroke fill;
+	stroke-linejoin: round;
+	-webkit-text-stroke-width: var(--text-outline-width, 0);
+	-webkit-text-stroke-color: var(--text-outline-color, var(--color-text-primary));
+}
+
 @utility typo-display-xl {
 	font-size: 120px;
 	line-height: 1.3;
