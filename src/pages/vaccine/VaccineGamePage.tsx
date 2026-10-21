@@ -7,7 +7,7 @@ import { getRoundVaccines } from "@/features/vaccine-game/round";
 import VaccinePlay from "@/pages/vaccine/VaccinePlay";
 import VaccineRecipe from "@/pages/vaccine/VaccineRecipe";
 import VaccineResult from "@/pages/vaccine/VaccineResult";
-import type { GameLanguage } from "@/pages/vaccine/vaccineGameContent";
+import { useSessionStore } from "@/store/sessionStore";
 import type { Vaccine, VaccineGameSettings } from "@/types/data";
 
 type GameSetup = {
@@ -37,17 +37,12 @@ async function loadSetup(): Promise<GameSetup> {
 }
 
 type VaccineGamePageProps = {
-	// sessionStore(#67) 병합 전까지 언어는 props 로 받는다
-	language: GameLanguage;
 	onHome: () => void;
 	onAdminActivate: () => void;
 };
 
-export default function VaccineGamePage({
-	language,
-	onHome,
-	onAdminActivate,
-}: VaccineGamePageProps) {
+export default function VaccineGamePage({ onHome, onAdminActivate }: VaccineGamePageProps) {
+	const language = useSessionStore((s) => s.language);
 	const [setup, setSetup] = useState<GameSetup | null>(null);
 	const [step, setStep] = useState<Step>({ type: "recipe" });
 

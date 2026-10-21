@@ -11,11 +11,8 @@ import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import { useTweenedNumber } from "@/pages/vaccine/useTweenedNumber";
 import VaccineBackground from "@/pages/vaccine/VaccineBackground";
-import {
-	formatScore,
-	type GameLanguage,
-	VACCINE_GAME_COPY,
-} from "@/pages/vaccine/vaccineGameContent";
+import { formatScore, VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
+import type { Language } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 // Figma 에 간격이 없어 이번에 정했다
@@ -40,7 +37,7 @@ const LAYOUT = {
 type VaccineResultProps = {
 	result: GameResult;
 	colors: AntigenColors;
-	language: GameLanguage;
+	language: Language;
 	onHome: () => void;
 	onAdminActivate: () => void;
 };

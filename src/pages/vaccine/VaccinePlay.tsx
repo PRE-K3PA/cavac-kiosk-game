@@ -31,10 +31,9 @@ import {
 	formatMissingAntigen,
 	formatScore,
 	formatSeconds,
-	type GameLanguage,
 	VACCINE_GAME_COPY,
 } from "@/pages/vaccine/vaccineGameContent";
-import type { Vaccine, VaccineGameSettings } from "@/types/data";
+import type { Language, Vaccine, VaccineGameSettings } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 // AntigenBall 은 164px 하나뿐이라 Figma 크기(목록 140·132, 낙하 176)는 비율로 줄이고 늘린다
@@ -116,7 +115,7 @@ type VaccinePlayProps = {
 	settings: VaccineGameSettings;
 	playDurationSeconds: number;
 	colors: AntigenColors;
-	language: GameLanguage;
+	language: Language;
 	onFinish: (result: GameResult) => void;
 	onAdminActivate: () => void;
 };
