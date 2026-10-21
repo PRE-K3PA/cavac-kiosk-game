@@ -16,7 +16,16 @@ const updateData = mock<UpdateData>(async (file, data) => {
 	return { isSuccess: true, data: structuredClone(data) };
 });
 
-mock.module("@/data/storage", () => ({ getData, updateData }));
+// Bun 의 mock.module 은 같이 실행되는 다른 테스트 파일에도 적용되므로 storage 의 export 를 모두 채웁니다
+mock.module("@/data/storage", () => ({
+	getAppVersion: mock(async () => "0.0.0"),
+	getData,
+	updateData,
+	postImage: mock(),
+	getImageUrl: mock((path: string) => path),
+	verifyPin: mock(),
+	updatePin: mock(),
+}));
 
 const { selectIsDirty, selectIsFileDirty, selectSaveIssueCount, useSettingsDraft } = await import(
 	"@/features/admin/settingsDraft"
