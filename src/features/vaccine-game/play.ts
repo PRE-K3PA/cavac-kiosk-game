@@ -22,6 +22,8 @@ import type { Antigen, Vaccine, VaccineGameSettings } from "@/types/data";
 
 export const CORRECT_VISIBLE_MS = 450;
 export const FEEDBACK_VISIBLE_MS = 1500;
+/** 완성한 순간 병이 가득 찬 모습을 잠깐 보여 준 뒤 다음 백신으로 비운다 */
+export const FULL_BOTTLE_VISIBLE_MS = 700;
 
 export type PlayFeedback = {
 	/** 오답 안내에 보여 줄, 아직 모으지 않은 항원 */
@@ -49,6 +51,8 @@ export type PlayState = {
 	maxOnScreen: number;
 	feedback: PlayFeedback | null;
 	lastTap: TapEvent | null;
+	/** 마지막으로 백신을 완성한 시점(게임 경과 ms) */
+	completedAtMs: number | null;
 };
 
 export type PlayOptions = {
@@ -72,7 +76,15 @@ export function createPlay(
 		maxOnScreen: settings.maxAntigensOnScreen,
 		feedback: null,
 		lastTap: null,
+		completedAtMs: null,
 	};
+}
+
+export function isBottleFull(state: PlayState): boolean {
+	return (
+		state.completedAtMs !== null &&
+		state.game.elapsedMs - state.completedAtMs < FULL_BOTTLE_VISIBLE_MS
+	);
 }
 
 function isCorrectExpired(item: FallingAntigen, elapsedMs: number): boolean {
@@ -135,6 +147,7 @@ export function tapFalling(state: PlayState, id: number): PlayState {
 
 	const judged: FallingAntigen = { ...target, judgement: outcome, judgedAtMs: game.elapsedMs };
 	const [missing] = getNeededAntigens(game);
+	const isVaccineCompleted = game.completedCount > state.game.completedCount;
 	return {
 		...state,
 		game,
@@ -146,9 +159,10 @@ export function tapFalling(state: PlayState, id: number): PlayState {
 			outcome,
 			scoreDelta: game.score - state.game.score,
 			combo: game.combo,
-			isVaccineCompleted: game.completedCount > state.game.completedCount,
+			isVaccineCompleted,
 			x: target.x,
 			y: target.y,
 		},
+		completedAtMs: isVaccineCompleted ? game.elapsedMs : state.completedAtMs,
 	};
 }

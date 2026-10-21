@@ -18,7 +18,7 @@ import {
 	isHintActive,
 } from "@/features/vaccine-game/game";
 import { useVaccinePlay } from "@/features/vaccine-game/hooks/useVaccinePlay";
-import { CORRECT_VISIBLE_MS } from "@/features/vaccine-game/play";
+import { CORRECT_VISIBLE_MS, isBottleFull } from "@/features/vaccine-game/play";
 import type { FallingAntigen } from "@/features/vaccine-game/spawn";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
@@ -43,8 +43,6 @@ const FALLING_BALL_SIZE = 176;
 const HALF_BALL = FALLING_BALL_SIZE / 2;
 // PlayTimer 의 경고 기준(남은 시간 1/6)과 같게 화면 가장자리도 깜박인다
 const WARNING_RATIO = 1 / 6;
-// 완성한 순간 병이 가득 찬 모습을 잠깐 보여 준 뒤 다음 백신으로 비운다
-const FULL_BOTTLE_MS = 700;
 const BOTTLE_FILL_SECONDS = 0.5;
 
 const PANEL =
@@ -150,7 +148,6 @@ export default function VaccinePlay({
 	const [screenScope, animateScreen] = useAnimate<HTMLDivElement>();
 	const [flashScope, animateFlash] = useAnimate<HTMLDivElement>();
 	const [bottleScope, animateBottle] = useAnimate<HTMLDivElement>();
-	const [isBottleFull, setIsBottleFull] = useState(false);
 
 	const vaccine = getCurrentVaccine(game);
 	const remainingMs = getRemainingMs(game);
@@ -158,7 +155,7 @@ export default function VaccinePlay({
 	const neededKeys = new Set(getNeededAntigens(game).map(antigenKey));
 	const isHinting = isHintActive(game);
 	const bottleFill = useTweenedNumber(
-		isBottleFull ? 100 : getBottleFill(game),
+		isBottleFull(play) ? 100 : getBottleFill(game),
 		BOTTLE_FILL_SECONDS,
 	);
 	const copy = VACCINE_GAME_COPY;
@@ -174,10 +171,6 @@ export default function VaccinePlay({
 		}
 		const bounce = lastTap.isVaccineCompleted ? [1, 1.35, 0.9, 1.08, 1] : [1, 1.12, 1];
 		animateBottle(bottleScope.current, { scale: bounce }, { duration: 0.6 });
-		if (!lastTap.isVaccineCompleted) return;
-		setIsBottleFull(true);
-		const timerId = setTimeout(() => setIsBottleFull(false), FULL_BOTTLE_MS);
-		return () => clearTimeout(timerId);
 	}, [
 		lastTap,
 		shouldReduceMotion,
