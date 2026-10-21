@@ -13,6 +13,8 @@ export type Localized<T> = {
 	en: T;
 };
 
+export type Language = keyof Localized<string>;
+
 export const GAME_TYPES = ["vaccine", "card"] as const;
 export type GameType = (typeof GAME_TYPES)[number];
 

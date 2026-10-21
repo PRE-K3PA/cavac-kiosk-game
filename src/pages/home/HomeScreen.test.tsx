@@ -8,6 +8,7 @@ import type { Orientation } from "@/layout/stage";
 import CardHome from "@/pages/card/CardHome";
 import type { HomeScreenProps } from "@/pages/home/HomeTemplate";
 import VaccineHome from "@/pages/vaccine/VaccineHome";
+import { useSessionStore } from "@/store/sessionStore";
 
 const HOMES = [
 	{ name: "백신 제조 홈", Home: VaccineHome, koTitle: "백신 제조", enTitle: "Vaccine" },
@@ -30,13 +31,26 @@ function renderHome(
 	return { ...view, onStart, onAdminActivate };
 }
 
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	useSessionStore.getState().reset();
+});
 
 describe.each(HOMES)("$name", ({ Home, koTitle, enTitle }) => {
 	test("처음에는 한국어 제목과 시작하기 버튼이 보인다", () => {
 		renderHome(Home);
 		expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(koTitle);
 		expect(screen.getByRole("button", { name: "시작하기" })).toBeTruthy();
+	});
+
+	test("앞 관람객이 바꾼 언어와 음소거는 홈이 나타날 때 기본값으로 돌아간다", () => {
+		useSessionStore.getState().setLanguage("en");
+		useSessionStore.getState().toggleMute();
+
+		renderHome(Home);
+
+		expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(koTitle);
+		expect(useSessionStore.getState().isMuted).toBe(false);
 	});
 
 	test("언어 버튼을 누르면 영어 제목과 Start 버튼으로 바뀐다", () => {
