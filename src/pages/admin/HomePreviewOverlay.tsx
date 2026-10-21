@@ -1,11 +1,10 @@
 import ImagePreviewModal from "@/components/admin/ImagePreviewModal";
 import ModalOverlay from "@/components/admin/ModalOverlay";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
-import { toSpeciesOptions } from "@/features/admin/speciesForm";
 import { OrientationProvider } from "@/layout/OrientationContext";
 import { CARD_HOME } from "@/pages/card/cardHomeContent";
 import HomeTemplate, { type HomeContent } from "@/pages/home/HomeTemplate";
-import type { HomeAnimals } from "@/pages/home/useHomeAnimals";
+import { toHomeAnimals } from "@/pages/home/useHomeAnimals";
 import { VACCINE_HOME } from "@/pages/vaccine/vaccineHomeContent";
 import type { GameType } from "@/types/data";
 
@@ -24,12 +23,7 @@ function ignore() {}
 export default function HomePreviewOverlay({ onClose }: HomePreviewOverlayProps) {
 	const common = useSettingsDraft((state) => state.draft.common);
 
-	const speciesOptions = toSpeciesOptions(common.species);
-	const animals: HomeAnimals = {};
-	for (const { slot, speciesId } of common.homeAnimals) {
-		const found = speciesOptions.find((species) => species.id === speciesId);
-		if (found) animals[slot] = { src: found.imageSrc, name: found.name };
-	}
+	const animals = toHomeAnimals(common);
 	const animalCount = Object.keys(animals).length;
 
 	return (
