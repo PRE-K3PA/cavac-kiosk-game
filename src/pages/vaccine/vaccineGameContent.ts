@@ -1,6 +1,4 @@
-import type { Localized } from "@/types/data";
-
-export type GameLanguage = keyof Localized<string>;
+import type { Language, Localized } from "@/types/data";
 
 export const VACCINE_GAME_COPY = {
 	recipeTitle: {
@@ -27,11 +25,11 @@ export const VACCINE_GAME_COPY = {
 	home: { ko: "처음으로", en: "Home" },
 } satisfies Record<string, Localized<string>>;
 
-export function formatSeconds(seconds: number, language: GameLanguage): string {
+export function formatSeconds(seconds: number, language: Language): string {
 	return language === "ko" ? `${seconds}초` : `${seconds}s`;
 }
 
-export function formatCount(count: number, language: GameLanguage): string {
+export function formatCount(count: number, language: Language): string {
 	return language === "ko" ? `${count}개` : String(count);
 }
 
@@ -39,10 +37,10 @@ export function formatScore(score: number): string {
 	return score.toLocaleString("en-US");
 }
 
-export function formatCombo(combo: number, language: GameLanguage): string {
+export function formatCombo(combo: number, language: Language): string {
 	return language === "ko" ? `${combo} 콤보!` : `${combo} COMBO!`;
 }
 
-export function formatMissingAntigen(label: string, language: GameLanguage): string {
+export function formatMissingAntigen(label: string, language: Language): string {
 	return language === "ko" ? `${label}가 필요해요!` : `We need ${label}!`;
 }

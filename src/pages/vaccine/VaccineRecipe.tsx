@@ -8,8 +8,8 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import VaccineBackground from "@/pages/vaccine/VaccineBackground";
-import { type GameLanguage, VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
-import type { Vaccine } from "@/types/data";
+import { VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
+import type { Language, Vaccine } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 const RECIPE_TONES = ["01", "02", "03", "04", "05"] as const;
@@ -54,7 +54,7 @@ function useFitScale() {
 type VaccineRecipeProps = {
 	vaccines: Vaccine[];
 	colors: AntigenColors;
-	language: GameLanguage;
+	language: Language;
 	onDone: () => void;
 	onAdminActivate: () => void;
 };
