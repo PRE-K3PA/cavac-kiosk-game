@@ -1,3 +1,4 @@
+import sfxButton from "@/assets/sounds/sfxButton.wav";
 import sfxFanfare from "@/assets/sounds/sfxFanfare.wav";
 import sfxMatch from "@/assets/sounds/sfxMatch.wav";
 import sfxPop from "@/assets/sounds/sfxPop.wav";
@@ -10,6 +11,7 @@ import sfxWrong from "@/assets/sounds/sfxWrong.wav";
 
 export const SOUND_NAMES = {
 	pop: "pop",
+	button: "button",
 	match: "match",
 	wrong: "wrong",
 	tick: "tick",
@@ -21,6 +23,7 @@ export type SoundName = (typeof SOUND_NAMES)[keyof typeof SOUND_NAMES];
 
 const SOUNDS: Record<SoundName, string> = {
 	pop: sfxPop,
+	button: sfxButton,
 	match: sfxMatch,
 	wrong: sfxWrong,
 	tick: sfxTick,

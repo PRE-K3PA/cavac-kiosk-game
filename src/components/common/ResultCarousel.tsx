@@ -4,7 +4,9 @@ import { useRef } from "react";
 import CarouselArrow from "@/components/common/CarouselArrow";
 import CarouselDot from "@/components/common/CarouselDot";
 import { RESULT_CARD_SIZE } from "@/components/common/resultCardStyle";
+import { useSound } from "@/hooks/useSound";
 import { cn } from "@/utils/cn";
+import { SOUND_NAMES } from "@/utils/soundEngine";
 
 const SWIPE_THRESHOLD = 80;
 
@@ -56,13 +58,17 @@ export default function ResultCarousel({
 	...props
 }: ResultCarouselProps) {
 	const swipeStartX = useRef<number | null>(null);
+	const play = useSound();
 	const count = slides.length;
 	if (count === 0) return null;
 
 	const { root, stage, slot, offset, sideScale } = SIZE[size];
 	const current = ((index % count) + count) % count;
 	const canMove = count > 1;
-	const move = (step: number) => onIndexChange((current + step + count) % count);
+	const move = (step: number) => {
+		play(SOUND_NAMES.button);
+		onIndexChange((current + step + count) % count);
+	};
 
 	const handlePointerDown = (event: PointerEvent) => {
 		swipeStartX.current = event.clientX;
