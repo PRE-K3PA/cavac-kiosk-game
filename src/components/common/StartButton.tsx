@@ -10,8 +10,10 @@ const startButton = cva(
 	{
 		variants: {
 			state: {
-				default:
+				default: [
 					"cursor-pointer border-brand-primary-strong bg-brand-accent text-text-on-brand shadow-lg",
+					"active:bg-brand-primary-strong active:shadow-sm",
+				],
 				pressed: "border-brand-primary-strong bg-brand-primary-strong text-text-on-brand shadow-sm",
 				disabled: "border-border-muted bg-background-muted text-text-secondary",
 			},

@@ -2,6 +2,7 @@ import { create, type StoreApi } from "zustand";
 import { createDefaultData } from "@/data/defaults";
 import { validateForSave } from "@/data/rules";
 import { getData, updateData } from "@/data/storage";
+import { compactProducts } from "@/features/admin/productSlots";
 import { DATA_FILES, type DataFile, type DataMap } from "@/types/data";
 
 // 관리자 10~12 화면이 함께 고치는 설정 초안. 저장 전까지는 파일에 쓰지 않습니다
@@ -106,7 +107,7 @@ function createSettingsDraftState(
 			loadFile("vaccine-game"),
 			loadFile("card-game"),
 		]);
-		const loaded = { common, "vaccine-game": vaccineGame, "card-game": cardGame };
+		const loaded = { common, "vaccine-game": vaccineGame, "card-game": compactProducts(cardGame) };
 		set({ isLoaded: true, original: loaded, draft: loaded });
 	}
 
