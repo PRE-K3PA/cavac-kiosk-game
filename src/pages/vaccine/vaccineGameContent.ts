@@ -42,5 +42,5 @@ export function formatCombo(combo: number, language: Language): string {
 }
 
 export function formatMissingAntigen(label: string, language: Language): string {
-	return language === "ko" ? `${label}가 필요해요!` : `We need ${label}!`;
+	return language === "ko" ? `${label} 항원이 필요해요!` : `We need ${label}!`;
 }
