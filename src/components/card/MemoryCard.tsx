@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import { type ComponentProps, useState } from "react";
 import icMatchedBadge from "@/assets/icons/icMatchedBadge.svg";
 import imgMemoryLogo from "@/assets/images/card/imgMemoryLogo.png";
 import { cn } from "@/utils/cn";
@@ -24,21 +24,30 @@ const memoryCardFaceVariants = cva(
 	},
 );
 
+// 뒤집힘 시간 duration-400 은 features/card-game 의 CARD_FLIP_MS 와 같아야 합니다
 type MemoryCardProps = Omit<ComponentProps<"button">, "children" | "aria-label"> & {
 	label: string;
 	state?: MemoryCardState;
 	productImage?: string;
+	/** 뒷면 로고. 언어에 맞는 로고는 화면이 고릅니다 */
+	logo?: string;
 };
 
 export default function MemoryCard({
 	label,
 	state = "back",
 	productImage,
+	logo = imgMemoryLogo,
 	disabled,
 	className,
 	...props
 }: MemoryCardProps) {
 	const isFaceUp = state !== "back";
+	// 뒷면으로 돌아가는 동안에는 직전 앞면 모양(오답 테두리 등)을 유지합니다
+	const [faceState, setFaceState] = useState<Exclude<MemoryCardState, "back">>(
+		isFaceUp ? state : "front",
+	);
+	if (isFaceUp && state !== faceState) setFaceState(state);
 
 	return (
 		<button
@@ -62,16 +71,12 @@ export default function MemoryCard({
 							"flex h-full min-w-px flex-1 items-center justify-center overflow-clip",
 							"rounded-xl bg-background-surface-subtle px-3.5 py-2.5",
 						)}>
-						<div className="h-14 w-35 shrink-0">
-							<img alt="" src={imgMemoryLogo} className="size-full object-contain opacity-50" />
+						<div className="h-14 w-35 min-w-0">
+							<img alt="" src={logo} className="size-full object-contain opacity-50" />
 						</div>
 					</div>
 				</div>
-				<div
-					className={cn(
-						memoryCardFaceVariants({ state: isFaceUp ? state : "front" }),
-						"rotate-y-180",
-					)}>
+				<div className={cn(memoryCardFaceVariants({ state: faceState }), "rotate-y-180")}>
 					<div
 						className={cn(
 							"flex min-h-px w-full flex-1 items-center justify-center overflow-clip",
