@@ -3,7 +3,6 @@ import ImagePreviewModal from "@/components/admin/ImagePreviewModal";
 import ModalOverlay from "@/components/admin/ModalOverlay";
 import SpeciesModal from "@/components/admin/SpeciesModal";
 import { getImageUrl } from "@/data/storage";
-import { IMAGE_ERROR_MESSAGES, selectImage } from "@/features/admin/imageUpload";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import {
 	addSpecies,
@@ -11,6 +10,7 @@ import {
 	updateSpecies,
 	validateSpeciesName,
 } from "@/features/admin/speciesForm";
+import { useImageSelect } from "@/features/admin/useImageSelect";
 import SpeciesDeleteOverlay from "@/pages/admin/SpeciesDeleteOverlay";
 import type { ImagePath, Species } from "@/types/data";
 
@@ -24,13 +24,17 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 	const [name, setName] = useState(species?.name ?? "");
 	const [character, setCharacter] = useState<ImagePath | undefined>(species?.character);
 	const [nameError, setNameError] = useState<string>();
-	const [imageError, setImageError] = useState<string>();
-	const [isSelectingImage, setIsSelectingImage] = useState(false);
 	const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 	const [isImageZoomOpen, setIsImageZoomOpen] = useState(false);
 
 	const common = useSettingsDraft((state) => state.draft.common);
 	const setDraft = useSettingsDraft((state) => state.setDraft);
+	const {
+		isSelecting: isSelectingImage,
+		errorMessages: imageErrors,
+		setErrorMessage: setImageError,
+		selectImageFor,
+	} = useImageSelect<"character">();
 
 	const imageSrc = character && getImageUrl(character);
 
@@ -40,18 +44,8 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 	}
 
 	async function handleImageSelectClick() {
-		if (isSelectingImage) return;
-		setIsSelectingImage(true);
-		const result = await selectImage("species");
-		setIsSelectingImage(false);
-
-		if (result.status === "cancel") return;
-		if (result.status === "error") {
-			setImageError(IMAGE_ERROR_MESSAGES[result.reason]);
-			return;
-		}
-		setCharacter(result.path);
-		setImageError(undefined);
+		const path = await selectImageFor("character", "species");
+		if (path) setCharacter(path);
 	}
 
 	function handleConfirmClick() {
@@ -62,7 +56,7 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 			return;
 		}
 		if (!character) {
-			setImageError(SPECIES_FORM_MESSAGES.imageEmpty);
+			setImageError("character", SPECIES_FORM_MESSAGES.imageEmpty);
 			return;
 		}
 
@@ -106,7 +100,7 @@ export default function SpeciesFormOverlay({ species, onCancel, onDone }: Specie
 					name={name}
 					imageSrc={imageSrc}
 					nameErrorMessage={nameError}
-					imageErrorMessage={imageError}
+					imageErrorMessage={imageErrors.character}
 					isConfirmDisabled={isSelectingImage}
 					onNameChange={handleNameChange}
 					onImageSelectClick={handleImageSelectClick}
