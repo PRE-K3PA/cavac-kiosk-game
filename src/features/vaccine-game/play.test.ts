@@ -6,6 +6,8 @@ import {
 	CORRECT_VISIBLE_MS,
 	createPlay,
 	FEEDBACK_VISIBLE_MS,
+	FULL_BOTTLE_VISIBLE_MS,
+	isBottleFull,
 	type PlayOptions,
 	type PlayState,
 	tapFalling,
@@ -152,5 +154,36 @@ describe("tapFalling", () => {
 		advancePlay(state, 500, OPTIONS);
 
 		expect(state).toEqual(before);
+	});
+});
+
+describe("isBottleFull", () => {
+	function onePlay(): PlayState {
+		return createPlay([vaccine("a", [HA])], createMockData("filled")["vaccine-game"].settings, 60);
+	}
+
+	test("백신을 완성하기 전에는 가득 찬 병을 보여 주지 않는다", () => {
+		expect(isBottleFull(onePlay())).toBe(false);
+		expect(isBottleFull(tapFalling(withFalling(play(), HA), 1))).toBe(false);
+	});
+
+	test("백신을 완성하면 표시 시간 동안 가득 찬 병을 보여 준다", () => {
+		const completed = tapFalling(withFalling(onePlay(), HA), 1);
+		const kept = advancePlay(completed, FULL_BOTTLE_VISIBLE_MS - 1, OPTIONS);
+		const ended = advancePlay(kept, 1, OPTIONS);
+
+		expect(isBottleFull(completed)).toBe(true);
+		expect(isBottleFull(kept)).toBe(true);
+		expect(isBottleFull(ended)).toBe(false);
+	});
+
+	test("가득 찬 병을 보여 주는 동안 다른 구슬을 눌러도 표시 시간이 지나면 끝난다", () => {
+		const completed = tapFalling(withFalling(onePlay(), HA), 1);
+		const wrongTapped = tapFalling({ ...completed, falling: [createFallingAntigen(2, ND, 0)] }, 2);
+		const ended = advancePlay({ ...wrongTapped, falling: [] }, FULL_BOTTLE_VISIBLE_MS, OPTIONS);
+
+		expect(wrongTapped.lastTap?.outcome).toBe("wrong");
+		expect(isBottleFull(wrongTapped)).toBe(true);
+		expect(isBottleFull(ended)).toBe(false);
 	});
 });
