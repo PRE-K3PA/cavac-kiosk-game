@@ -7,7 +7,8 @@ import type { AntigenLabel } from "@/components/vaccine/antigen";
 import VaccineBottle from "@/components/vaccine/VaccineBottle";
 import { antigenKey, formatAntigenLabel } from "@/data/rules";
 import { getImageUrl } from "@/data/storage";
-import type { AntigenColors } from "@/features/vaccine-game/antigenColors";
+import { useVaccinePlay } from "@/features/vaccine-game/hooks/useVaccinePlay";
+import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
 import {
 	COMBO_START,
 	type GameResult,
@@ -16,10 +17,9 @@ import {
 	getNeededAntigens,
 	getRemainingMs,
 	isHintActive,
-} from "@/features/vaccine-game/game";
-import { useVaccinePlay } from "@/features/vaccine-game/hooks/useVaccinePlay";
-import { CORRECT_VISIBLE_MS, isBottleFull } from "@/features/vaccine-game/play";
-import type { FallingAntigen } from "@/features/vaccine-game/spawn";
+} from "@/features/vaccine-game/utils/game";
+import { CORRECT_VISIBLE_MS, isBottleFull } from "@/features/vaccine-game/utils/play";
+import type { FallingAntigen } from "@/features/vaccine-game/utils/spawn";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";

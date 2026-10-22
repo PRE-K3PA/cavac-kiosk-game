@@ -6,7 +6,7 @@ import {
 	tapAntigen,
 	tickGame,
 	type VaccineGame,
-} from "@/features/vaccine-game/game";
+} from "@/features/vaccine-game/utils/game";
 import {
 	createFallingAntigen,
 	type FallingAntigen,
@@ -17,7 +17,7 @@ import {
 	pickSpawnX,
 	shouldSpawn,
 	stepFalling,
-} from "@/features/vaccine-game/spawn";
+} from "@/features/vaccine-game/utils/spawn";
 import type { Antigen, Vaccine, VaccineGameSettings } from "@/types/data";
 
 export const CORRECT_VISIBLE_MS = 450;

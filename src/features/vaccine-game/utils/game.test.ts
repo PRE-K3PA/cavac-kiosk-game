@@ -14,7 +14,7 @@ import {
 	tapAntigen,
 	tickGame,
 	type VaccineGame,
-} from "@/features/vaccine-game/game";
+} from "@/features/vaccine-game/utils/game";
 import type { Antigen, Vaccine, VaccineGameSettings } from "@/types/data";
 
 function antigen(abbr: string, options: Partial<Antigen> = {}): Antigen {

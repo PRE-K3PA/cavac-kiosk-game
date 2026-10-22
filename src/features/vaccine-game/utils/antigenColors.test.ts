@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createMockData } from "@/data/mock/mock-platform";
 import { antigenKey } from "@/data/rules";
-import { assignAntigenColors } from "@/features/vaccine-game/antigenColors";
+import { assignAntigenColors } from "@/features/vaccine-game/utils/antigenColors";
 import { ANTIGEN_COLOR_KEYS, type Antigen, type Vaccine } from "@/types/data";
 
 function antigen(abbr: string, subtype: string | null = null): Antigen {

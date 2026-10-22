@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createMockData } from "@/data/mock/mock-platform";
-import { getRecipeSeconds, getRoundVaccines } from "@/features/vaccine-game/round";
+import { getRecipeSeconds, getRoundVaccines } from "@/features/vaccine-game/utils/round";
 import type { Vaccine } from "@/types/data";
 
 function mockVaccines(): Vaccine[] {

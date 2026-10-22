@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createMockData } from "@/data/mock/mock-platform";
-import { getNeededAntigens, isGameOver, SCORE } from "@/features/vaccine-game/game";
+import { getNeededAntigens, isGameOver, SCORE } from "@/features/vaccine-game/utils/game";
 import {
 	advancePlay,
 	CORRECT_VISIBLE_MS,
@@ -11,8 +11,8 @@ import {
 	type PlayOptions,
 	type PlayState,
 	tapFalling,
-} from "@/features/vaccine-game/play";
-import { createFallingAntigen } from "@/features/vaccine-game/spawn";
+} from "@/features/vaccine-game/utils/play";
+import { createFallingAntigen } from "@/features/vaccine-game/utils/spawn";
 import type { Antigen, Vaccine } from "@/types/data";
 
 function antigen(abbr: string): Antigen {

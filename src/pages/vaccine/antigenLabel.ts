@@ -1,6 +1,6 @@
 import type { AntigenLabel } from "@/components/vaccine/antigen";
 import { antigenKey } from "@/data/rules";
-import type { AntigenColors } from "@/features/vaccine-game/antigenColors";
+import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
 import { ANTIGEN_COLOR_KEYS, type Antigen } from "@/types/data";
 
 export function toAntigenLabel(antigen: Antigen, colors: AntigenColors): AntigenLabel {
