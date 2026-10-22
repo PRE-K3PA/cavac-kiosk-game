@@ -22,6 +22,7 @@ export default function HomeButton({ label, className, onClick, ...props }: Home
 				"typo-label-button flex h-37 w-150 cursor-pointer items-center justify-center",
 				"overflow-clip whitespace-nowrap rounded-full border-3 border-border-default",
 				"bg-background-surface text-text-primary shadow-md",
+				"active:bg-background-canvas active:shadow-sm",
 				className,
 			)}
 			onClick={handleClick}
