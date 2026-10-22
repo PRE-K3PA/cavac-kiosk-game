@@ -242,6 +242,27 @@ describe("언어와 제품 이미지", () => {
 		expect(container.querySelector("img[src^='file://images/en/']")).toBeTruthy();
 	});
 
+	test("영어 맞춘 쌍 수는 숫자와 문구 사이가 띄어진다", async () => {
+		useSessionStore.getState().setLanguage("en");
+		await renderGame();
+		startPlaying();
+
+		expect(screen.getByText(/pairs/).parentElement?.textContent).toStartWith("0 pairs");
+	});
+
+	test("결과 제품 캐러셀은 3초마다 다음 제품으로 넘어간다", async () => {
+		const { container } = await renderGame();
+		finishGame();
+		const centerImage = () =>
+			container.querySelector("[aria-hidden='false'] img[src^='file://']")?.getAttribute("src");
+		const first = centerImage();
+
+		advance(3000);
+
+		expect(centerImage()).toBeTruthy();
+		expect(centerImage()).not.toBe(first);
+	});
+
 	test("한국어 결과는 점수 뒤에 점이 붙는다", async () => {
 		await renderGame();
 		finishGame();

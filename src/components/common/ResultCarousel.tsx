@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import type { ComponentProps, PointerEvent, ReactNode } from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import CarouselArrow from "@/components/common/CarouselArrow";
 import CarouselDot from "@/components/common/CarouselDot";
 import { RESULT_CARD_SIZE } from "@/components/common/resultCardStyle";
@@ -9,6 +9,8 @@ import { cn } from "@/utils/cn";
 import { SOUND_NAMES } from "@/utils/soundEngine";
 
 const SWIPE_THRESHOLD = 80;
+// 결과 화면 캐러셀은 3초마다 다음 제품으로 넘어가는 것이 두 게임 공통 규칙입니다
+const AUTO_ADVANCE_MS = 3000;
 
 const SIZE = {
 	compact: {
@@ -37,6 +39,8 @@ type ResultCarouselProps = Omit<ComponentProps<"div">, "children" | "aria-label"
 	slides: Slide[];
 	index: number;
 	onIndexChange: (index: number) => void;
+	/** 3초마다 다음 슬라이드로 넘깁니다. 직접 넘기면 그때부터 다시 3초를 셉니다 */
+	autoAdvance?: boolean;
 } & (
 		| { size?: "compact"; arrowLabels: { prev: string; next: string } }
 		| { size: "large"; arrowLabels?: never }
@@ -52,6 +56,7 @@ export default function ResultCarousel({
 	slides,
 	index,
 	onIndexChange,
+	autoAdvance = false,
 	size = "compact",
 	arrowLabels,
 	className,
@@ -60,11 +65,18 @@ export default function ResultCarousel({
 	const swipeStartX = useRef<number | null>(null);
 	const play = useSound();
 	const count = slides.length;
+	const current = count > 0 ? ((index % count) + count) % count : 0;
+	const canMove = count > 1;
+
+	useEffect(() => {
+		if (!autoAdvance || !canMove) return;
+		const timer = setTimeout(() => onIndexChange((current + 1) % count), AUTO_ADVANCE_MS);
+		return () => clearTimeout(timer);
+	}, [autoAdvance, canMove, current, count, onIndexChange]);
+
 	if (count === 0) return null;
 
 	const { root, stage, slot, offset, sideScale } = SIZE[size];
-	const current = ((index % count) + count) % count;
-	const canMove = count > 1;
 	const move = (step: number) => {
 		play(SOUND_NAMES.button);
 		onIndexChange((current + step + count) % count);

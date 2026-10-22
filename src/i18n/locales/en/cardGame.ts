@@ -5,6 +5,7 @@ export default {
 		title: "Memorize\nthe cards!",
 		message: "The cards will flip soon,\nthen the game begins.",
 	},
+	// 숫자 바로 뒤에 붙어 나오므로 앞 공백이 띄어쓰기입니다. 지우면 "3pairs" 가 됩니다
 	matchedLabel: " pairs\nfound!",
 	score: "SCORE",
 	time: "{{seconds}}s",
