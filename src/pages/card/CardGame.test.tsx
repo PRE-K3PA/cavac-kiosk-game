@@ -270,6 +270,21 @@ describe("제품이 부족하거나 없을 때", () => {
 		await renderGame("portrait");
 		expect(cards()).toHaveLength(24);
 	});
+
+	test("자리표시 카드 앞면은 언어에 맞는 공용 로고다", async () => {
+		const faceSrcs = () =>
+			cards()
+				.map((card) => card.querySelector("img:not(.opacity-50)")?.getAttribute("src") ?? "")
+				.filter((src) => !src.startsWith("file://"));
+		stored = cardGameData(4, products(2));
+		await renderGame();
+		expect(faceSrcs()).toHaveLength(4);
+		expect(faceSrcs().every((src) => src.includes("imgLogoKo"))).toBe(true);
+
+		act(() => useSessionStore.getState().setLanguage("en"));
+
+		expect(faceSrcs().every((src) => src.includes("imgLogoEn"))).toBe(true);
+	});
 });
 
 function hasBackground(container: HTMLElement) {

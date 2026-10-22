@@ -75,7 +75,7 @@ describe("createDeck", () => {
 		expect(pairIds).toEqual(new Set(["product-1", "product-2", "product-3", "product-4"]));
 	});
 
-	test("켜진 제품이 모자라면 사진 있는 꺼진 제품으로 채운다", () => {
+	test("켜진 제품이 모자라도 꺼진 제품은 쓰지 않고 자리표시 쌍으로 채운다", () => {
 		const list = [
 			...products(2),
 			product(3, { isEnabled: false }),
@@ -84,20 +84,41 @@ describe("createDeck", () => {
 
 		const deck = createDeck(list, 4);
 
-		expect(new Set(deck.map((item) => item.pairId)).size).toBe(4);
-		expect(deck.every((item) => item.image !== null)).toBe(true);
+		expect(deck).toHaveLength(8);
+		expect(deck.some((item) => item.pairId === "product-3")).toBe(false);
+		expect(deck.some((item) => item.pairId === "product-4")).toBe(false);
+		expect(deck.filter((item) => item.image === null)).toHaveLength(4);
 	});
 
-	test("그래도 모자라면 사진 없는 자리표시 쌍으로 채워 pairCount 쌍을 지킨다", () => {
+	test("사진 없는 켜진 제품도 쓰지 않고 자리표시 쌍으로 채워 pairCount 쌍을 지킨다", () => {
 		const deck = createDeck([product(1), product(2, { image: null })], 4);
 
 		expect(deck).toHaveLength(8);
 		expect(deck.filter((item) => item.image === null)).toHaveLength(6);
-		expect(new Set(deck.map((item) => item.pairId)).size).toBe(4);
+		expect(new Set(deck.map((item) => item.id)).size).toBe(8);
+	});
+
+	test("자리표시 카드는 모두 같은 pairId 라 어느 두 장을 골라도 맞는다", () => {
+		const deck = createDeck([], 4);
+		expect(new Set(deck.map((item) => item.pairId)).size).toBe(1);
+
+		// 서로 다른 자리표시 쌍에서 나온 두 장을 고른다
+		const [first, second] = [
+			deck.find((item) => item.id.endsWith("-0-a")),
+			deck.find((item) => item.id.endsWith("-1-b")),
+		];
+		if (!first || !second) throw new Error("자리표시 카드를 찾지 못했습니다");
+		const state = judged(playState({ cards: deck }), SCORE_PENALTY, first.id, second.id);
+
+		expect(statusOf(state, first.id)).toBe("matched");
+		expect(statusOf(state, second.id)).toBe("matched");
+		expect(state.score).toBe(MATCH_SCORE);
 	});
 
 	test("제품이 하나도 없어도 자리표시 쌍으로 판이 만들어진다", () => {
-		expect(createDeck([], 8)).toHaveLength(16);
+		const deck = createDeck([], 8);
+		expect(deck).toHaveLength(16);
+		expect(new Set(deck.map((item) => item.id)).size).toBe(16);
 	});
 
 	test("주입한 난수가 같으면 같은 배치가 나온다", () => {
