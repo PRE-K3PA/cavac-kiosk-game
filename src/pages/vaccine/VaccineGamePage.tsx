@@ -1,45 +1,16 @@
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import bgmVaccineGame from "@/assets/sounds/bgmVaccineGame.mp3";
-import { createDefaultData } from "@/data/defaults";
-import { getData } from "@/data/storage";
-import {
-	type AntigenColors,
-	assignAntigenColors,
-} from "@/features/vaccine-game/utils/antigenColors";
 import type { GameResult } from "@/features/vaccine-game/utils/game";
-import { getRoundVaccines } from "@/features/vaccine-game/utils/round";
+import { type GameSetup, loadSetup } from "@/features/vaccine-game/utils/setup";
+import ScreenLayout from "@/layout/ScreenLayout";
 import { useBgm } from "@/pages/vaccine/useBgm";
+import VaccineBackground from "@/pages/vaccine/VaccineBackground";
 import VaccinePlay from "@/pages/vaccine/VaccinePlay";
 import VaccineRecipe from "@/pages/vaccine/VaccineRecipe";
 import VaccineResult from "@/pages/vaccine/VaccineResult";
 import { useSessionStore } from "@/store/sessionStore";
-import type { Vaccine, VaccineGameSettings } from "@/types/data";
-
-type GameSetup = {
-	round: Vaccine[];
-	allVaccines: Vaccine[];
-	settings: VaccineGameSettings;
-	playDurationSeconds: number;
-	colors: AntigenColors;
-};
 
 type Step = { type: "recipe" } | { type: "play" } | { type: "result"; result: GameResult };
-
-/** 게임을 시작할 때마다 저장된 설정을 읽어, 관리자 화면에서 저장한 값이 다음 판부터 반영된다 */
-async function loadSetup(): Promise<GameSetup> {
-	const [vaccineGame, common] = await Promise.all([
-		getData("vaccine-game").catch(() => createDefaultData("vaccine-game")),
-		getData("common").catch(() => createDefaultData("common")),
-	]);
-	const round = getRoundVaccines(vaccineGame.vaccines);
-	return {
-		round,
-		allVaccines: vaccineGame.vaccines,
-		settings: vaccineGame.settings,
-		playDurationSeconds: common.playDurationSeconds,
-		colors: assignAntigenColors(round, Math.random),
-	};
-}
 
 type VaccineGamePageProps = {
 	onHome: () => void;
@@ -72,7 +43,14 @@ export default function VaccineGamePage({ onHome, onAdminActivate }: VaccineGame
 	const handleRecipeDone = useCallback(() => setStep({ type: "play" }), []);
 	const handleFinish = useCallback((result: GameResult) => setStep({ type: "result", result }), []);
 
-	if (!setup) return null;
+	// 불러오는 동안에도 관리자 진입 영역은 살아 있어야 합니다
+	if (!setup) {
+		return (
+			<ScreenLayout onAdminActivate={onAdminActivate} background={<VaccineBackground />}>
+				{null}
+			</ScreenLayout>
+		);
+	}
 
 	if (step.type === "recipe") {
 		return (
