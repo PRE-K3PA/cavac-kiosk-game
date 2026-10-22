@@ -62,9 +62,10 @@ export function useCardGame(data: CardGameData, playDurationSeconds: number): Ca
 
 	useEffect(() => {
 		if (phase !== "playing") return;
-		let lastTickAt = Date.now();
+		// Date.now 는 부스 PC 의 시계 동기화나 수동 변경에 따라 튀므로, 시계와 무관한 performance.now 로 셉니다
+		let lastTickAt = performance.now();
 		const timer = setInterval(() => {
-			const now = Date.now();
+			const now = performance.now();
 			dispatch({ type: "tick", elapsedSeconds: (now - lastTickAt) / 1000 });
 			lastTickAt = now;
 		}, TICK_MS);
