@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import { createDefaultData } from "@/data/defaults";
 import { getData } from "@/data/storage";
 import { type AntigenColors, assignAntigenColors } from "@/features/vaccine-game/antigenColors";
@@ -46,18 +46,21 @@ export default function VaccineGamePage({ onHome, onAdminActivate }: VaccineGame
 	const [setup, setSetup] = useState<GameSetup | null>(null);
 	const [step, setStep] = useState<Step>({ type: "recipe" });
 
+	// onHome 이 바뀌어도 설정을 다시 읽지 않아야 판 도중에 항원 색이 바뀌지 않는다
+	const handleNoVaccine = useEffectEvent(() => onHome());
+
 	useEffect(() => {
 		let isActive = true;
 		loadSetup().then((loaded) => {
 			if (!isActive) return;
 			// 켜진 백신이 없으면 할 수 있는 게임이 없으니 대기 화면으로 돌아간다
-			if (loaded.round.length === 0) onHome();
+			if (loaded.round.length === 0) handleNoVaccine();
 			else setSetup(loaded);
 		});
 		return () => {
 			isActive = false;
 		};
-	}, [onHome]);
+	}, []);
 
 	const handleRecipeDone = useCallback(() => setStep({ type: "play" }), []);
 	const handleFinish = useCallback((result: GameResult) => setStep({ type: "result", result }), []);
