@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
+import bgmVaccineGame from "@/assets/sounds/bgmVaccineGame.mp3";
 import { createDefaultData } from "@/data/defaults";
 import { getData } from "@/data/storage";
 import {
@@ -7,6 +8,7 @@ import {
 } from "@/features/vaccine-game/utils/antigenColors";
 import type { GameResult } from "@/features/vaccine-game/utils/game";
 import { getRoundVaccines } from "@/features/vaccine-game/utils/round";
+import { useBgm } from "@/pages/vaccine/useBgm";
 import VaccinePlay from "@/pages/vaccine/VaccinePlay";
 import VaccineRecipe from "@/pages/vaccine/VaccineRecipe";
 import VaccineResult from "@/pages/vaccine/VaccineResult";
@@ -46,6 +48,8 @@ type VaccineGamePageProps = {
 
 export default function VaccineGamePage({ onHome, onAdminActivate }: VaccineGamePageProps) {
 	const language = useSessionStore((s) => s.language);
+	// 02~04 를 이 화면이 감싸므로 화면이 바뀌어도 배경음이 끊기지 않습니다
+	useBgm(bgmVaccineGame);
 	const [setup, setSetup] = useState<GameSetup | null>(null);
 	const [step, setStep] = useState<Step>({ type: "recipe" });
 
