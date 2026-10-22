@@ -5,6 +5,7 @@ import {
 	playSound,
 	SOUND_NAMES,
 	type SoundName,
+	startSound,
 	stopBgm,
 } from "@/utils/soundEngine";
 
@@ -114,5 +115,17 @@ describe("playBgm", () => {
 
 		expect(() => playBgm(BGM_NAMES.cardHome)).not.toThrow();
 		await Promise.resolve();
+	});
+});
+
+describe("startSound", () => {
+	test("돌려받은 함수로 소리를 멈춘다", () => {
+		const pauseSpy = spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+		const stop = startSound(SOUND_NAMES.countdown);
+		stop();
+
+		expect(played[0]).toContain("sfxCountdown");
+		expect(pauseSpy).toHaveBeenCalledTimes(1);
+		pauseSpy.mockRestore();
 	});
 });

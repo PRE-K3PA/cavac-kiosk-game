@@ -27,6 +27,9 @@ const DATA: CardGameData = {
 
 let played: engine.SoundName[] = [];
 let playSpy: ReturnType<typeof spyOn<typeof engine, "playSound">>;
+let started: engine.SoundName[] = [];
+let stopped: engine.SoundName[] = [];
+let startSpy: ReturnType<typeof spyOn<typeof engine, "startSound">>;
 
 function renderGame() {
 	return renderHook(() => {
@@ -44,12 +47,19 @@ beforeEach(() => {
 	playSpy = spyOn(engine, "playSound").mockImplementation((name) => {
 		played.push(name);
 	});
+	started = [];
+	stopped = [];
+	startSpy = spyOn(engine, "startSound").mockImplementation((name) => {
+		started.push(name);
+		return () => stopped.push(name);
+	});
 });
 
 afterEach(() => {
 	cleanup();
 	jest.useRealTimers();
 	playSpy.mockRestore();
+	startSpy.mockRestore();
 	useSessionStore.getState().reset();
 });
 
@@ -78,16 +88,25 @@ function pair(view: View, isMatch: boolean): [GameCard, GameCard] {
 }
 
 describe("useCardGameSounds", () => {
-	test("안내 카운트가 3 → 2 → 1 로 줄 때 tick, 카드가 모두 뒤집힐 때 pop 이 한 번만 난다", () => {
+	test("안내가 시작되면 countdown 을 한 번 틀고, 카드가 모두 뒤집힐 때 멈추며 pop 이 한 번 난다", () => {
 		renderGame();
-		advance(1000);
-		expect(played).toEqual(["tick"]);
+		expect(started).toEqual(["countdown"]);
+
+		advance(2000);
+		expect(played).toEqual([]);
+		expect(stopped).toEqual([]);
 
 		advance(1000);
-		expect(played).toEqual(["tick", "tick"]);
+		expect(played).toEqual(["pop"]);
+		expect(started).toEqual(["countdown"]);
+		expect(stopped).toEqual(["countdown"]);
+	});
 
-		advance(1000);
-		expect(played).toEqual(["tick", "tick", "pop"]);
+	test("안내 중에 화면을 떠나면 countdown 을 멈춘다", () => {
+		const view = renderGame();
+		view.unmount();
+
+		expect(stopped).toEqual(["countdown"]);
 	});
 
 	test("카드를 누르면 pop, 맞으면 400ms 뒤 match", () => {
@@ -157,6 +176,7 @@ describe("useCardGameSounds", () => {
 		advance(PLAY_SECONDS * 1000);
 
 		expect(played).toEqual([]);
+		expect(started).toEqual([]);
 	});
 
 	test("언마운트하면 이후 소리가 나지 않는다", () => {

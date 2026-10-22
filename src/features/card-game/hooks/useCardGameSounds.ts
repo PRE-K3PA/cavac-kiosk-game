@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { WARNING_RATIO } from "@/components/common/PlayTimer";
 import type { CardGameView } from "@/features/card-game/hooks/useCardGame";
 import type { GameCard } from "@/features/card-game/utils/cardRules";
-import { useSound } from "@/hooks/useSound";
+import { useSound, useSoundWhile } from "@/hooks/useSound";
 import { SOUND_NAMES, type SoundName } from "@/utils/soundEngine";
 
 function statusById(cards: GameCard[]): Map<string, GameCard["status"]> {
@@ -26,13 +26,6 @@ function hasWrong(view: CardGameView): boolean {
 	return view.cards.some((card) => card.status === "wrong");
 }
 
-// 안내 숫자가 바뀔 때. 마지막 1 → 0 은 카드가 뒤집히는 pop 이 대신합니다
-function isCountingDown(before: CardGameView, after: CardGameView): boolean {
-	return (
-		before.phase === "preview" && after.phase === "preview" && after.countdown !== before.countdown
-	);
-}
-
 function isTicking(before: CardGameView, after: CardGameView): boolean {
 	return (
 		before.phase === "playing" &&
@@ -47,7 +40,6 @@ export function getCardGameSounds(before: CardGameView, after: CardGameView): So
 	if (isCardFlipped(before, after)) sounds.push(SOUND_NAMES.pop);
 	if (after.matchedPairs > before.matchedPairs) sounds.push(SOUND_NAMES.match);
 	if (!hasWrong(before) && hasWrong(after)) sounds.push(SOUND_NAMES.wrong);
-	if (isCountingDown(before, after)) sounds.push(SOUND_NAMES.tick);
 	if (isTicking(before, after)) {
 		sounds.push(after.progress <= WARNING_RATIO ? SOUND_NAMES.tickUrgent : SOUND_NAMES.tick);
 	}
@@ -58,6 +50,8 @@ export function getCardGameSounds(before: CardGameView, after: CardGameView): So
 export function useCardGameSounds(game: CardGameView) {
 	const play = useSound();
 	const previous = useRef(game);
+	// 안내 카운트 소리는 한 곡이 3초보다 길어서, 카드가 뒤집히는 순간 끊습니다
+	useSoundWhile(SOUND_NAMES.countdown, game.phase === "preview");
 
 	useEffect(() => {
 		const before = previous.current;
