@@ -1,6 +1,7 @@
 import bgmCardGame from "@/assets/sounds/bgmCardGame.mp3";
 import bgmCardHome from "@/assets/sounds/bgmCardHome.mp3";
 import sfxButton from "@/assets/sounds/sfxButton.wav";
+import sfxCountdown from "@/assets/sounds/sfxCountdown.mp3";
 import sfxFanfare from "@/assets/sounds/sfxFanfare.wav";
 import sfxMatch from "@/assets/sounds/sfxMatch.wav";
 import sfxPop from "@/assets/sounds/sfxPop.wav";
@@ -13,6 +14,7 @@ import sfxWrong from "@/assets/sounds/sfxWrong.wav";
 
 export const SOUND_NAMES = {
 	pop: "pop",
+	countdown: "countdown",
 	button: "button",
 	match: "match",
 	wrong: "wrong",
@@ -25,6 +27,7 @@ export type SoundName = (typeof SOUND_NAMES)[keyof typeof SOUND_NAMES];
 
 const SOUNDS: Record<SoundName, string> = {
 	pop: sfxPop,
+	countdown: sfxCountdown,
 	button: sfxButton,
 	match: sfxMatch,
 	wrong: sfxWrong,
@@ -47,12 +50,19 @@ function getSource(name: SoundName): HTMLAudioElement | null {
 }
 
 export function playSound(name: SoundName) {
+	startSound(name);
+}
+
+/** 재생하고, 소리가 끝나기 전에 멈출 수 있는 함수를 돌려줍니다 */
+export function startSound(name: SoundName): () => void {
 	try {
 		const player = getSource(name)?.cloneNode() as HTMLAudioElement | undefined;
 		// 자동재생 정책이나 파일 문제로 거절돼도 게임은 계속됩니다
 		player?.play().catch(() => {});
+		return () => player?.pause();
 	} catch {
 		// 소리가 안 나도 게임은 계속됩니다
+		return () => {};
 	}
 }
 

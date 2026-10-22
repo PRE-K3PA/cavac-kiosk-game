@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
-import { cleanup, renderHook } from "@testing-library/react";
-import { useSound } from "@/hooks/useSound";
+import { act, cleanup, renderHook } from "@testing-library/react";
+import { useSound, useSoundWhile } from "@/hooks/useSound";
 import { useSessionStore } from "@/store/sessionStore";
 import * as engine from "@/utils/soundEngine";
 
@@ -34,5 +34,43 @@ describe("useSound", () => {
 		result.current("pop");
 
 		expect(played).toEqual([]);
+	});
+});
+
+describe("useSoundWhile", () => {
+	let started: engine.SoundName[] = [];
+	let stopped: engine.SoundName[] = [];
+	let startSpy: ReturnType<typeof spyOn<typeof engine, "startSound">>;
+
+	beforeEach(() => {
+		started = [];
+		stopped = [];
+		startSpy = spyOn(engine, "startSound").mockImplementation((name) => {
+			started.push(name);
+			return () => stopped.push(name);
+		});
+	});
+
+	afterEach(() => {
+		startSpy.mockRestore();
+	});
+
+	test("켜지면 한 번 틀고, 꺼지면 멈춘다", () => {
+		const { rerender } = renderHook(({ isActive }) => useSoundWhile("countdown", isActive), {
+			initialProps: { isActive: true },
+		});
+		rerender({ isActive: true });
+		expect(started).toEqual(["countdown"]);
+
+		rerender({ isActive: false });
+		expect(stopped).toEqual(["countdown"]);
+	});
+
+	test("음소거면 틀지 않고, 도중에 음소거하면 멈춘다", () => {
+		renderHook(() => useSoundWhile("countdown", true));
+		act(() => useSessionStore.getState().toggleMute());
+
+		expect(started).toEqual(["countdown"]);
+		expect(stopped).toEqual(["countdown"]);
 	});
 });
