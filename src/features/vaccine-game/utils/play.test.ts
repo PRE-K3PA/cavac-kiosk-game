@@ -106,6 +106,25 @@ describe("tapFalling", () => {
 		expect(state.feedback?.missing.abbr).toBe("HA");
 	});
 
+	test("오답 안내가 떠 있을 때 정답을 누르면 안내를 지운다", () => {
+		const wrong = tapFalling(withFalling(play(), ND), 1);
+		const correct = tapFalling({ ...wrong, falling: [createFallingAntigen(2, HA, 0)] }, 2);
+
+		expect(wrong.feedback).not.toBeNull();
+		expect(correct.feedback).toBeNull();
+	});
+
+	test("백신을 완성해 다음 백신으로 넘어가면 오답 안내가 남지 않는다", () => {
+		const round = [vaccine("a", [HA]), vaccine("b", [ND])];
+		const start = createPlay(round, createMockData("filled")["vaccine-game"].settings, 60);
+		const wrong = tapFalling(withFalling(start, ND), 1);
+		const completed = tapFalling({ ...wrong, falling: [createFallingAntigen(2, HA, 0)] }, 2);
+
+		expect(wrong.feedback?.missing.abbr).toBe("HA");
+		expect(completed.lastTap?.isVaccineCompleted).toBe(true);
+		expect(completed.feedback).toBeNull();
+	});
+
 	test("안내는 표시 시간이 지나면 사라진다", () => {
 		const tapped = tapFalling(withFalling(play(), ND), 1);
 		const later = advancePlay({ ...tapped, falling: [] }, FEEDBACK_VISIBLE_MS, OPTIONS);
