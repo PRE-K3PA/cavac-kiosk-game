@@ -19,10 +19,10 @@ export default function TipBubble({
 		<div className={cn("relative h-21.75 w-max min-w-112.75", className)} {...props}>
 			<div
 				className={cn(
-					"absolute inset-x-0 flex h-18 items-center justify-center gap-2",
+					"relative flex h-18 items-center justify-center gap-2",
 					"rounded-3xl border-3 border-accent-yellow bg-accent-yellow-subtle px-6",
 					"shadow-lg",
-					isUp ? "top-3.75" : "top-0",
+					isUp && "mt-3.75",
 				)}>
 				<span
 					className={cn(

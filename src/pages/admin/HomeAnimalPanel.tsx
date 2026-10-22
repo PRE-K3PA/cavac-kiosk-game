@@ -12,6 +12,7 @@ import {
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { toSpeciesOptions } from "@/features/admin/speciesForm";
 import { useOrientation } from "@/layout/OrientationContext";
+import HomePreviewOverlay from "@/pages/admin/HomePreviewOverlay";
 import SpeciesManagerFlow from "@/pages/admin/SpeciesManagerFlow";
 import type { HomeAnimal, HomeSlot } from "@/types/data";
 import { cn } from "@/utils/cn";
@@ -29,6 +30,7 @@ const SLOT_GROUPS = [
 export default function HomeAnimalPanel() {
 	const [selectedSlot, setSelectedSlot] = useState<HomeSlot | null>(null);
 	const [isSpeciesManagerOpen, setIsSpeciesManagerOpen] = useState(false);
+	const [isHomePreviewOpen, setIsHomePreviewOpen] = useState(false);
 	const layout = LAYOUT[useOrientation()];
 
 	const common = useSettingsDraft((state) => state.draft.common);
@@ -72,6 +74,15 @@ export default function HomeAnimalPanel() {
 		setIsSpeciesManagerOpen(false);
 	}
 
+	function handleHomePreviewOpen() {
+		setSelectedSlot(null);
+		setIsHomePreviewOpen(true);
+	}
+
+	function handleHomePreviewClose() {
+		setIsHomePreviewOpen(false);
+	}
+
 	return (
 		<section
 			className={cn(
@@ -80,6 +91,13 @@ export default function HomeAnimalPanel() {
 			)}>
 			<div className="flex items-center gap-3">
 				<SectionHeader title="축종 설정" className="flex-1" />
+				<Button
+					variant="secondary"
+					label="미리보기"
+					disabled={common.homeAnimals.length === 0}
+					onClick={handleHomePreviewOpen}
+					className="h-16 w-40"
+				/>
 				<Button
 					variant="secondary"
 					label="축종 관리"
@@ -114,6 +132,7 @@ export default function HomeAnimalPanel() {
 				onClearClick={handleSlotClearClick}
 			/>
 			{isSpeciesManagerOpen && <SpeciesManagerFlow onClose={handleSpeciesManagerClose} />}
+			{isHomePreviewOpen && <HomePreviewOverlay onClose={handleHomePreviewClose} />}
 		</section>
 	);
 }
