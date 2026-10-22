@@ -1,12 +1,12 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import { type GameResult, getGameResult, isGameOver } from "@/features/vaccine-game/game";
+import { type GameResult, getGameResult, isGameOver } from "@/features/vaccine-game/utils/game";
 import {
 	advancePlay,
 	createPlay,
 	type PlayOptions,
 	type PlayState,
 	tapFalling,
-} from "@/features/vaccine-game/play";
+} from "@/features/vaccine-game/utils/play";
 import type { Vaccine, VaccineGameSettings } from "@/types/data";
 
 // 탭이 백그라운드였다 돌아오면 한 프레임 간격이 크게 벌어진다. 구슬이 한 번에 사라지지 않게 자른다

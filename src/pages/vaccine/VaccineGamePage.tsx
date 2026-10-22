@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import { createDefaultData } from "@/data/defaults";
 import { getData } from "@/data/storage";
-import { type AntigenColors, assignAntigenColors } from "@/features/vaccine-game/antigenColors";
-import type { GameResult } from "@/features/vaccine-game/game";
-import { getRoundVaccines } from "@/features/vaccine-game/round";
+import {
+	type AntigenColors,
+	assignAntigenColors,
+} from "@/features/vaccine-game/utils/antigenColors";
+import type { GameResult } from "@/features/vaccine-game/utils/game";
+import { getRoundVaccines } from "@/features/vaccine-game/utils/round";
 import VaccinePlay from "@/pages/vaccine/VaccinePlay";
 import VaccineRecipe from "@/pages/vaccine/VaccineRecipe";
 import VaccineResult from "@/pages/vaccine/VaccineResult";

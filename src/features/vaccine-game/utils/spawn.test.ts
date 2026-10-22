@@ -11,7 +11,7 @@ import {
 	shouldSpawn,
 	stepFalling,
 	WRONG_FALL_MULTIPLIER,
-} from "@/features/vaccine-game/spawn";
+} from "@/features/vaccine-game/utils/spawn";
 import type { Antigen, Vaccine } from "@/types/data";
 
 function antigen(abbr: string, subtype: string | null = null): Antigen {
