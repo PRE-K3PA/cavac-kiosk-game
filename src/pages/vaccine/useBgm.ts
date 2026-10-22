@@ -28,14 +28,21 @@ export function useBgm(src: string) {
 			return;
 		}
 
+		// 거절 처리는 비동기라 이 effect 가 정리된 뒤에 올 수 있습니다. 그때는 버려진 오디오를 다시 틀지 않습니다
+		let isActive = true;
+
 		// 자동 재생 정책 등으로 거절되면 첫 터치 때 한 번 더 시도합니다. 소리가 안 나도 게임은 계속됩니다
 		function handleFirstPointerDown() {
-			audio?.play().catch(() => undefined);
+			if (isActive) audio?.play().catch(() => undefined);
 		}
 
 		audio.play().catch(() => {
-			document.addEventListener("pointerdown", handleFirstPointerDown, { once: true });
+			if (isActive)
+				document.addEventListener("pointerdown", handleFirstPointerDown, { once: true });
 		});
-		return () => document.removeEventListener("pointerdown", handleFirstPointerDown);
+		return () => {
+			isActive = false;
+			document.removeEventListener("pointerdown", handleFirstPointerDown);
+		};
 	}, [isMuted]);
 }

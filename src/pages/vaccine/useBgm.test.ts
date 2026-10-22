@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { act, cleanup, renderHook } from "@testing-library/react";
+import { StrictMode } from "react";
 import { useBgm } from "@/pages/vaccine/useBgm";
 import { useSessionStore } from "@/store/sessionStore";
 
@@ -19,15 +20,26 @@ class FakeAudio {
 		FakeAudio.instances.push(this);
 	}
 
+	isPlayPending = false;
+	isPausedWhilePending = false;
+
+	// 실제 브라우저처럼 재생이 시작되기 전에 pause 되면 play() 는 거부됩니다
 	play(): Promise<void> {
 		this.playCount += 1;
+		this.isPlayPending = true;
 		const result = FakeAudio.playResults.shift() ?? Promise.resolve();
 		return result.then(() => {
+			this.isPlayPending = false;
+			if (this.isPausedWhilePending) {
+				this.isPausedWhilePending = false;
+				throw new Error("AbortError");
+			}
 			this.paused = false;
 		});
 	}
 
 	pause() {
+		if (this.isPlayPending) this.isPausedWhilePending = true;
 		this.paused = true;
 	}
 }
@@ -112,5 +124,33 @@ describe("useBgm", () => {
 
 		expect(audio.playCount).toBe(2);
 		expect(audio.paused).toBe(false);
+	});
+
+	test("화면이 사라진 뒤에 재생 거부가 와도 터치했을 때 다시 재생하지 않는다", async () => {
+		FakeAudio.playResults = [Promise.reject(new Error("autoplay"))];
+		const { unmount } = renderHook(() => useBgm("bgm.mp3"));
+		unmount();
+		await flushPromises();
+
+		act(() => {
+			document.dispatchEvent(new Event("pointerdown"));
+		});
+		await flushPromises();
+
+		expect(lastAudio().playCount).toBe(1);
+		expect(lastAudio().paused).toBe(true);
+	});
+
+	test("StrictMode 에서 두 번 실행돼도 터치했을 때 한 곡만 재생한다", async () => {
+		renderHook(() => useBgm("bgm.mp3"), { wrapper: StrictMode });
+		await flushPromises();
+
+		act(() => {
+			document.dispatchEvent(new Event("pointerdown"));
+		});
+		await flushPromises();
+
+		const playing = FakeAudio.instances.filter((audio) => !audio.paused);
+		expect(playing).toHaveLength(1);
 	});
 });
