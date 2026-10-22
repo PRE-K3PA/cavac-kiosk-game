@@ -20,9 +20,11 @@
 	"dependencies": {
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"i18next": "^26.5.3",
 		"motion": "^13.4.0",
 		"react": "^19.3.0",
 		"react-dom": "^19.3.0",
+		"react-i18next": "^17.1.0",
 		"tailwind-merge": "^3.7.0",
 		"zod": "^4.6.5",
 		"zustand": "^5.0.15"

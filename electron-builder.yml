@@ -7,11 +7,17 @@ files:
   - dist/**
   - dist-electron/**
   - package.json
+extraResources:
+  - from: resources/default-species
+    to: default-species
 win:
   target:
     - nsis
+    - portable
   icon: resources/icon.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: true
+portable:
+  artifactName: ${productName} Portable ${version}.${ext}

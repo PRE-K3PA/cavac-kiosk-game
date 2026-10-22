@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import imgHomeBackground from "@/assets/images/common/imgHomeBackground.png";
 import imgLogoEn from "@/assets/images/common/imgLogoEn.png";
 import imgLogoKo from "@/assets/images/common/imgLogoKo.png";
@@ -19,15 +20,12 @@ export type HomeScreenProps = {
 	onAdminActivate: () => void;
 };
 
-type HomeStep = {
-	description: Localized<string>;
-	media: { src: string; fit: "contain" | "cover" };
-};
+type HomeStepMedia = { src: string; fit: "contain" | "cover" };
 
+/** 문구는 네임스페이스 사전에 있고, 여기에는 사전을 고르는 이름과 번역 대상이 아닌 그림만 둡니다 */
 export type HomeContent = {
-	title: Localized<{ accent: string; rest: string }>;
-	subtitle: Localized<string>;
-	steps: readonly [HomeStep, HomeStep, HomeStep];
+	namespace: "vaccineHome" | "cardHome";
+	stepMedia: readonly [HomeStepMedia, HomeStepMedia, HomeStepMedia];
 };
 
 type HomeTemplateProps = HomeScreenProps & {
@@ -38,20 +36,13 @@ type HomeTemplateProps = HomeScreenProps & {
 	animals?: HomeAnimals;
 };
 
-const HOME_COMMON_COPY = {
-	howToPlay: { ko: "게임 방법", en: "How to Play" },
-	tip: { ko: "틀리면 패널티! 신중하게 선택하세요.", en: "Wrong picks cost points!" },
-	start: { ko: "시작하기", en: "Start" },
-	soundLabel: { ko: "소리", en: "Sound" },
-	languageLabel: { ko: "언어 변경", en: "Change language" },
-} satisfies Record<string, Localized<string>>;
-
 const HOME_LOGO = {
-	ko: { src: imgLogoKo, alt: "중앙백신연구소" },
-	en: { src: imgLogoEn, alt: "CAVAC ChoongAng Vaccine Lab." },
-} satisfies Localized<{ src: string; alt: string }>;
+	ko: imgLogoKo,
+	en: imgLogoEn,
+} satisfies Localized<string>;
 
 const STEP_ACCENTS = ["yellow", "green", "blue"] as const;
+const STEP_KEYS = ["step1", "step2", "step3"] as const;
 
 // -webkit-text-stroke 는 글자 경계 중앙에 그려지므로 Figma 외곽선 폭의 2배를 주고 fill 을 위에 칠한다
 const TITLE_OUTLINE = cn(
@@ -103,6 +94,8 @@ export default function HomeTemplate({
 	onAdminActivate,
 	animals: previewAnimals,
 }: HomeTemplateProps) {
+	const { t } = useTranslation();
+	const { t: tContent } = useTranslation(content.namespace);
 	const language = useSessionStore((s) => s.language);
 	const toggleLanguage = useSessionStore((s) => s.toggleLanguage);
 	const isMuted = useSessionStore((s) => s.isMuted);
@@ -119,8 +112,6 @@ export default function HomeTemplate({
 
 	const layout = LAYOUT[orientation];
 	const isCentered = orientation === "landscape" || portraitAlign === "center";
-	const logo = HOME_LOGO[language];
-	const title = content.title[language];
 
 	return (
 		<ScreenLayout
@@ -138,22 +129,14 @@ export default function HomeTemplate({
 			}>
 			<header className={cn("relative flex shrink-0 items-center justify-between", layout.header)}>
 				<img
-					src={logo.src}
-					alt={logo.alt}
+					src={HOME_LOGO[language]}
+					alt={t("logoAlt")}
 					draggable={false}
 					className={cn("object-contain", layout.logo)}
 				/>
 				<div className={cn("flex", layout.actions)}>
-					<SoundButton
-						label={HOME_COMMON_COPY.soundLabel[language]}
-						muted={isMuted}
-						onClick={toggleMute}
-					/>
-					<LanguageButton
-						label={HOME_COMMON_COPY.languageLabel[language]}
-						language={language}
-						onClick={toggleLanguage}
-					/>
+					<SoundButton label={t("soundLabel")} muted={isMuted} onClick={toggleMute} />
+					<LanguageButton label={t("languageLabel")} language={language} onClick={toggleLanguage} />
 				</div>
 			</header>
 
@@ -165,35 +148,31 @@ export default function HomeTemplate({
 				)}>
 				<div className={cn("flex w-full flex-col items-center text-center", layout.hero)}>
 					<h1 className={cn("typo-display-xl whitespace-nowrap font-display", TITLE_OUTLINE)}>
-						<span className="text-brand-primary">{title.accent}</span>{" "}
-						<span className="text-text-primary">{title.rest}</span>
+						<span className="text-brand-primary">{tContent("title.accent")}</span>{" "}
+						<span className="text-text-primary">{tContent("title.rest")}</span>
 					</h1>
-					<p className="typo-label-l w-full text-text-secondary">{content.subtitle[language]}</p>
+					<p className="typo-label-l w-full text-text-secondary">{tContent("subtitle")}</p>
 				</div>
 
 				<section className={cn("flex w-full flex-col items-center", layout.howToPlay)}>
-					<h2 className="typo-title-m whitespace-nowrap text-text-primary">
-						{HOME_COMMON_COPY.howToPlay[language]}
-					</h2>
+					<h2 className="typo-title-m whitespace-nowrap text-text-primary">{t("howToPlay")}</h2>
 					<div className={cn("flex w-full items-center", layout.steps)}>
-						{content.steps.map((step, index) => (
+						{content.stepMedia.map((media, index) => (
 							<HowToPlayCard
-								key={step.description.ko}
+								key={STEP_KEYS[index]}
 								step={String(index + 1)}
-								description={step.description[language]}
+								description={tContent(STEP_KEYS[index])}
 								accent={STEP_ACCENTS[index]}
 								direction={layout.cardDirection}
-								tip={
-									index === content.steps.length - 1 ? HOME_COMMON_COPY.tip[language] : undefined
-								}
+								tip={index === content.stepMedia.length - 1 ? t("tip") : undefined}
 								media={
 									<img
-										src={step.media.src}
+										src={media.src}
 										alt=""
 										draggable={false}
 										className={cn(
 											"size-full",
-											step.media.fit === "cover" ? "object-cover" : "object-contain",
+											media.fit === "cover" ? "object-cover" : "object-contain",
 										)}
 									/>
 								}
@@ -202,7 +181,7 @@ export default function HomeTemplate({
 					</div>
 				</section>
 
-				<StartButton label={HOME_COMMON_COPY.start[language]} onClick={onStart} />
+				<StartButton label={t("start")} onClick={onStart} />
 			</main>
 
 			{HOME_SLOTS.map((slot) => {
