@@ -53,7 +53,7 @@ describe("getDistractors", () => {
 		const current = vaccine("a", [HA, NA]);
 		const round = [current, vaccine("b", [NA, ND]), vaccine("c", [ND, IB])];
 
-		const keys = getDistractors(current, round, round).map(antigenKey);
+		const keys = getDistractors(current, round, round, []).map(antigenKey);
 
 		expect(keys).toEqual([ND, IB].map(antigenKey));
 	});
@@ -62,13 +62,30 @@ describe("getDistractors", () => {
 		const current = vaccine("a", [HA]);
 		const all = [current, vaccine("off", [IB])];
 
-		expect(getDistractors(current, [current], all).map(antigenKey)).toEqual([antigenKey(IB)]);
+		expect(getDistractors(current, [current], all, []).map(antigenKey)).toEqual([antigenKey(IB)]);
 	});
 
 	test("어디에도 다른 항원이 없으면 빈 목록이다", () => {
 		const current = vaccine("a", [HA]);
 
-		expect(getDistractors(current, [current], [current])).toEqual([]);
+		expect(getDistractors(current, [current], [current], [])).toEqual([]);
+	});
+
+	test("지금 백신에서 이미 모은 항원도 오답 후보로 고른다", () => {
+		const current = vaccine("a", [HA, NA]);
+		const round = [current, vaccine("b", [ND])];
+
+		const keys = getDistractors(current, round, round, [antigenKey(HA)]).map(antigenKey);
+
+		expect(keys).toEqual([ND, HA].map(antigenKey));
+	});
+
+	test("아직 모으지 않은 항원은 오답 후보에 넣지 않는다", () => {
+		const current = vaccine("a", [HA, NA]);
+
+		const keys = getDistractors(current, [current], [current], [antigenKey(HA)]).map(antigenKey);
+
+		expect(keys).not.toContain(antigenKey(NA));
 	});
 });
 

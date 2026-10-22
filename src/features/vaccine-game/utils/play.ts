@@ -98,7 +98,12 @@ function spawn(state: PlayState, options: PlayOptions): PlayState {
 
 	const current = getCurrentVaccine(state.game);
 	if (!current) return state;
-	const distractors = getDistractors(current, state.game.vaccines, options.allVaccines);
+	const distractors = getDistractors(
+		current,
+		state.game.vaccines,
+		options.allVaccines,
+		state.game.collectedKeys,
+	);
 	const antigen = pickSpawnAntigen(
 		getNeededAntigens(state.game),
 		distractors,

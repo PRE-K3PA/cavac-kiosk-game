@@ -58,6 +58,22 @@ describe("advancePlay", () => {
 		expect(getNeededAntigens(state.game)).toContainEqual(state.falling[0].antigen);
 	});
 
+	test("고정 항원도 오답 구슬로 떨어뜨린다", () => {
+		const pinnedHa = { ...HA, isPinned: true };
+		const round = [vaccine("p", [pinnedHa, antigen("NA")])];
+		const data = createMockData("filled")["vaccine-game"];
+		const start = createPlay(round, data.settings, 60);
+		const withNeeded = {
+			...start,
+			falling: [{ ...createFallingAntigen(1, antigen("NA"), 0), y: 500 }],
+			nextId: 2,
+		};
+
+		const state = advancePlay(withNeeded, 1000, { ...OPTIONS, allVaccines: round });
+
+		expect(state.falling.map((item) => item.antigen.abbr)).toEqual(["NA", "HA"]);
+	});
+
 	test("정답 구슬은 표시 시간이 지나면 지운다", () => {
 		const tapped = tapFalling(withFalling(play(), HA), 1);
 		const kept = advancePlay(tapped, CORRECT_VISIBLE_MS - 1, OPTIONS);
