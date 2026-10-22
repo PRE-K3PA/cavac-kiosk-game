@@ -236,8 +236,9 @@ describe("언어와 제품 이미지", () => {
 		finishGame();
 
 		expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Results");
-		expect(screen.getByText("pts")).toBeTruthy();
-		expect(screen.getByText("pts").className).toContain("text-accent-sky-blue");
+		const unit = screen.getByText("pts");
+		expect(unit.className).toContain("text-accent-sky-blue");
+		expect(unit.parentElement?.textContent).toMatch(/^[\d,]+ pts$/);
 		expect(screen.getByRole("button", { name: "Home" })).toBeTruthy();
 		expect(container.querySelector("img[src^='file://images/en/']")).toBeTruthy();
 	});
