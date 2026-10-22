@@ -309,7 +309,8 @@ export default function VaccinePlay({
 							animate={{ y: 0, scale: 1, opacity: 1 }}
 							transition={{ type: "spring", stiffness: 500, damping: 16 }}
 							className={cn(
-								"typo-body-l absolute flex h-20 items-center whitespace-nowrap rounded-3xl px-10",
+								"typo-body-l pointer-events-none absolute flex h-20 items-center whitespace-nowrap",
+								"rounded-3xl px-10",
 								"border-2 border-border-error bg-state-error-subtle text-text-primary",
 								layout.feedback,
 							)}>
