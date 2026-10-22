@@ -53,6 +53,7 @@ export default function CardResult({ score, products, onExit, onAdminActivate }:
 		slides,
 		index,
 		onIndexChange: setIndex,
+		autoAdvance: true,
 	};
 
 	return (
