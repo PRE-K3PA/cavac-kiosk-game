@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { WARNING_RATIO } from "@/components/common/PlayTimer";
 import type { CardGameView } from "@/features/card-game/hooks/useCardGame";
-import type { GameCard } from "@/features/card-game/utils/cardRules";
+import { type GameCard, hasWrongCards } from "@/features/card-game/utils/cardRules";
 import { useSound, useSoundWhile } from "@/hooks/useSound";
 import { SOUND_NAMES, type SoundName } from "@/utils/soundEngine";
 
@@ -22,10 +22,6 @@ function isCardFlipped(before: CardGameView, after: CardGameView): boolean {
 	});
 }
 
-function hasWrong(view: CardGameView): boolean {
-	return view.cards.some((card) => card.status === "wrong");
-}
-
 function isTicking(before: CardGameView, after: CardGameView): boolean {
 	return (
 		before.phase === "playing" &&
@@ -39,7 +35,7 @@ export function getCardGameSounds(before: CardGameView, after: CardGameView): So
 	const sounds: SoundName[] = [];
 	if (isCardFlipped(before, after)) sounds.push(SOUND_NAMES.pop);
 	if (after.matchedPairs > before.matchedPairs) sounds.push(SOUND_NAMES.match);
-	if (!hasWrong(before) && hasWrong(after)) sounds.push(SOUND_NAMES.wrong);
+	if (!hasWrongCards(before.cards) && hasWrongCards(after.cards)) sounds.push(SOUND_NAMES.wrong);
 	if (isTicking(before, after)) {
 		sounds.push(after.progress <= WARNING_RATIO ? SOUND_NAMES.tickUrgent : SOUND_NAMES.tick);
 	}

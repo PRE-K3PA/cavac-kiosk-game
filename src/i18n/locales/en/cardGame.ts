@@ -12,6 +12,7 @@ export default {
 	cardLabel: "Card {{n}}",
 	result: {
 		title: "Results",
+		// 점수 바로 뒤에 붙어 나오므로 앞 공백이 띄어쓰기입니다. 지우면 "1,234pts" 가 됩니다
 		unit: " pts",
 		subtitle: "Take another look at the products in the game!",
 		carouselLabel: "Products in the game",
