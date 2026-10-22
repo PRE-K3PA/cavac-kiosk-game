@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
 import imgMemoryLogo from "@/assets/images/card/imgMemoryLogo.png";
 import imgMemoryLogoEn from "@/assets/images/card/imgMemoryLogoEn.png";
+import imgLogoEn from "@/assets/images/common/imgLogoEn.png";
+import imgLogoKo from "@/assets/images/common/imgLogoKo.png";
 import MemoryCard from "@/components/card/MemoryCard";
 import { getImageUrl } from "@/data/storage";
 import type { CardStatus, GameCard } from "@/features/card-game/utils/cardRules";
@@ -13,6 +15,12 @@ import { cn } from "@/utils/cn";
 const CARD_LOGO = {
 	ko: imgMemoryLogo,
 	en: imgMemoryLogoEn,
+} satisfies Localized<string>;
+
+// 사진 없는 자리표시 쌍의 앞면. 뒷면 로고(CARD_LOGO)와 헷갈리지 않게 공용 로고를 씁니다
+const PLACEHOLDER_FACE = {
+	ko: imgLogoKo,
+	en: imgLogoEn,
 } satisfies Localized<string>;
 
 const CARD_STATE = {
@@ -44,7 +52,9 @@ export default function CardBoard({ cards, pairCount, onCardClick, className }: 
 						logo={CARD_LOGO[language]}
 						label={t("cardLabel", { n: index + 1 })}
 						state={CARD_STATE[gameCard.status]}
-						productImage={gameCard.image ? getImageUrl(gameCard.image[language]) : undefined}
+						productImage={
+							gameCard.image ? getImageUrl(gameCard.image[language]) : PLACEHOLDER_FACE[language]
+						}
 						onClick={() => onCardClick(gameCard.id)}
 					/>
 				))}

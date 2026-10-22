@@ -36,32 +36,25 @@ function shuffle<T>(items: T[], random: Random): T[] {
 
 type PairSource = { pairId: string; image: Localized<ImagePath> | null };
 
-// 설정한 쌍 수만큼 제품이 없어도 게임이 멈추지 않게, 항상 pairCount 쌍을 만듭니다.
-// 제품이 모자라는 경우: 관리자가 쌍 수보다 적게 켰거나, 등록한 제품 자체가 적거나,
-// 저장 데이터를 못 읽어 기본값(제품 없음)이 된 경우입니다.
-// 채우는 순서: 1) 켜진 제품 2) 꺼져 있어도 사진이 있는 제품 3) 사진 없는 자리표시 쌍("IMG" 칸)
-// TODO: 2) 는 관리자가 끈 제품이 게임에 나올 수 있어 의도와 다를 수 있다.
-//       이 동작을 확인한 뒤 꺼진 제품을 쓰지 않고 바로 자리표시로 채울지 결정하고 추가 작업할 예정
+// 자리표시 쌍은 앞면이 모두 같은 로고라 관람객이 서로 구분할 수 없습니다.
+// 그래서 모두 같은 pairId 를 주어, 자리표시 카드끼리는 어느 두 장을 골라도 정답이 되게 합니다
+const PLACEHOLDER_PAIR_ID = "placeholder";
+
+// 켜진 제품 중에서만 pairCount 쌍을 고르고, 모자라면 사진 없는 자리표시 쌍으로 채웁니다.
+// 관리자 저장과 시작 버튼이 켜진 제품 수를 보장하지만, 저장 데이터를 못 읽어 기본값(제품 없음)이
+// 되어도 판이 깨지지 않게 하기 위해서입니다. 꺼진 제품은 모자라도 쓰지 않습니다
 function pickPairSources(
 	products: ProductSlot[],
 	pairCount: PairCount,
 	random: Random,
 ): PairSource[] {
-	const withImage = products.filter((product) => product.image !== null);
-	const enabled = shuffle(
-		withImage.filter((product) => product.isEnabled),
-		random,
-	);
-	const disabled = shuffle(
-		withImage.filter((product) => !product.isEnabled),
-		random,
-	);
-	const picked: PairSource[] = [...enabled, ...disabled]
+	const enabled = products.filter((product) => product.isEnabled && product.image !== null);
+	const picked: PairSource[] = shuffle(enabled, random)
 		.slice(0, pairCount)
 		.map((product) => ({ pairId: `product-${product.slot}`, image: product.image }));
 
 	for (let index = picked.length; index < pairCount; index += 1) {
-		picked.push({ pairId: `placeholder-${index}`, image: null });
+		picked.push({ pairId: PLACEHOLDER_PAIR_ID, image: null });
 	}
 	return picked;
 }
@@ -71,10 +64,12 @@ export function createDeck(
 	pairCount: PairCount,
 	random: Random = Math.random,
 ): GameCard[] {
-	const cards = pickPairSources(products, pairCount, random).flatMap(({ pairId, image }) =>
+	// 자리표시 쌍끼리는 pairId 가 같으므로, 카드 id 는 쌍의 순번으로 구분합니다
+	const sources = pickPairSources(products, pairCount, random);
+	const cards = sources.flatMap(({ pairId, image }, pairIndex) =>
 		["a", "b"].map(
 			(side): GameCard => ({
-				id: `${pairId}-${side}`,
+				id: `${pairId}-${pairIndex}-${side}`,
 				pairId,
 				image,
 				status: "hidden",
