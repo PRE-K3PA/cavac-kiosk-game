@@ -82,7 +82,10 @@ function pickLeastFalling(
 	counts: Map<string, number>,
 	random: () => number,
 ): Antigen {
-	const countOf = (antigen: Antigen) => counts.get(antigenKey(antigen)) ?? 0;
+	function countOf(antigen: Antigen): number {
+		return counts.get(antigenKey(antigen)) ?? 0;
+	}
+
 	const fewest = Math.min(...candidates.map(countOf));
 	return pickOne(
 		candidates.filter((antigen) => countOf(antigen) === fewest),
