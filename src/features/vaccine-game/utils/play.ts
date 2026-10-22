@@ -143,6 +143,17 @@ export function advancePlay(state: PlayState, deltaMs: number, options: PlayOpti
 	);
 }
 
+/** 정답이면 안내를 지우고, 오답이면 아직 모으지 않은 항원으로 새로 띄웁니다 */
+function getNextFeedback(
+	current: PlayFeedback | null,
+	outcome: "correct" | "wrong",
+	game: VaccineGame,
+): PlayFeedback | null {
+	if (outcome === "correct") return null;
+	const [missing] = getNeededAntigens(game);
+	return missing ? { missing, shownAtMs: game.elapsedMs } : current;
+}
+
 export function tapFalling(state: PlayState, id: number): PlayState {
 	const target = state.falling.find((item) => item.id === id);
 	if (!target || target.judgement) return state;
@@ -151,14 +162,12 @@ export function tapFalling(state: PlayState, id: number): PlayState {
 	if (outcome === "ignored") return state;
 
 	const judged: FallingAntigen = { ...target, judgement: outcome, judgedAtMs: game.elapsedMs };
-	const [missing] = getNeededAntigens(game);
 	const isVaccineCompleted = game.completedCount > state.game.completedCount;
 	return {
 		...state,
 		game,
 		falling: state.falling.map((item) => (item.id === id ? judged : item)),
-		feedback:
-			outcome === "wrong" && missing ? { missing, shownAtMs: game.elapsedMs } : state.feedback,
+		feedback: getNextFeedback(state.feedback, outcome, game),
 		lastTap: {
 			seq: (state.lastTap?.seq ?? 0) + 1,
 			outcome,
