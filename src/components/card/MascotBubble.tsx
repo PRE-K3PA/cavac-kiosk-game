@@ -93,7 +93,7 @@ function CountdownContent({
 				<p
 					className={cn(
 						"font-display typo-display-m text-accent-sky-blue text-shadow-hard-sm",
-						"outlined-text [--text-outline-width:0.75rem]",
+						"outlined-text [--text-outline-width:12px]",
 					)}>
 					{firstLine}
 					{restLines.map((line) => (
@@ -114,7 +114,7 @@ function CountdownContent({
 			<p
 				className={cn(
 					"typo-number-xl relative w-22.5 text-center text-accent-yellow text-shadow-hard-md",
-					"outlined-text [--text-outline-width:1.75rem]",
+					"outlined-text [--text-outline-width:28px]",
 				)}>
 				{count}
 			</p>
@@ -128,7 +128,7 @@ function MatchedContent({ count, label }: MatchedProps) {
 			className={cn(
 				"relative font-display whitespace-pre-line text-center",
 				"text-accent-sky-blue text-shadow-hard-sm",
-				"outlined-text [--text-outline-width:1rem]",
+				"outlined-text [--text-outline-width:16px]",
 			)}>
 			<span className="typo-display-xl leading-[1.15]! text-accent-yellow">{count}</span>
 			<span className="typo-title-l leading-[1.15]!">{label}</span>
