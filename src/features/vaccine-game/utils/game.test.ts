@@ -85,14 +85,20 @@ describe("판정", () => {
 		expect(tapAntigen(game, antigen("AI")).outcome).toBe("wrong");
 	});
 
-	test("이미 모은 항원을 또 누르면 무시하고 점수와 콤보가 그대로다", () => {
-		const collected = tapAntigen(twoVaccineGame(), HA).game;
+	test("이미 모은 항원을 또 누르면 오답이고 패널티를 받는다", () => {
+		const penalty = {
+			time: { isEnabled: true, seconds: 3 },
+			score: { isEnabled: true, points: 50 },
+		};
+		const collected = tapAntigen(twoVaccineGame(settings({ penalty })), HA).game;
 
 		const { game, outcome } = tapAntigen(collected, HA);
 
-		expect(outcome).toBe("ignored");
-		expect(game.score).toBe(collected.score);
-		expect(game.combo).toBe(collected.combo);
+		expect(outcome).toBe("wrong");
+		expect(game.score).toBe(collected.score - 50);
+		expect(game.combo).toBe(0);
+		expect(getRemainingMs(game)).toBe(getRemainingMs(collected) - 3000);
+		expect(getNeededAntigens(game)).toEqual(getNeededAntigens(collected));
 	});
 
 	test("게임이 끝난 뒤에 누르면 무시한다", () => {
@@ -216,10 +222,10 @@ describe("고정 항원", () => {
 		expect(getBottleFill(game)).toBe(50);
 	});
 
-	test("고정 항원을 누르면 이미 담긴 항원이라 무시한다", () => {
+	test("고정 항원을 누르면 이미 담긴 항원이라 오답이다", () => {
 		const game = createGame([vaccine("a", [pinnedHa, NA])], settings(), 60);
 
-		expect(tapAntigen(game, HA).outcome).toBe("ignored");
+		expect(tapAntigen(game, HA).outcome).toBe("wrong");
 	});
 
 	test("다음 백신으로 넘어가도 그 백신의 고정 항원이 담긴 상태로 시작한다", () => {
@@ -238,11 +244,12 @@ describe("고정 항원", () => {
 		expect(getCurrentVaccine(game).id).toBe("b");
 	});
 
-	test("모든 백신의 항원이 고정이면 필요한 항원이 없고 누르는 항원은 모두 오답이나 무시다", () => {
+	test("모든 백신의 항원이 고정이면 필요한 항원이 없고 누르는 항원은 모두 오답이다", () => {
 		const game = createGame([vaccine("a", [pinnedHa])], settings(), 60);
 
 		expect(getNeededAntigens(game)).toEqual([]);
 		expect(tapAntigen(game, ND).outcome).toBe("wrong");
+		expect(tapAntigen(game, HA).outcome).toBe("wrong");
 	});
 });
 

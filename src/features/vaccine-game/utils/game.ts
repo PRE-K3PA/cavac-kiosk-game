@@ -111,7 +111,8 @@ function judge(game: VaccineGame, antigen: AntigenRef): TapOutcome {
 	const key = antigenKey(antigen);
 	const isInVaccine = getCurrentVaccine(game)?.antigens.some((item) => antigenKey(item) === key);
 	if (!isInVaccine) return "wrong";
-	return game.collectedKeys.includes(key) ? "ignored" : "correct";
+	// 팀 결정(10-06): 이미 모은 항원(고정 항원 포함)을 다시 고르면 오답
+	return game.collectedKeys.includes(key) ? "wrong" : "correct";
 }
 
 function applyCorrect(game: VaccineGame, antigen: AntigenRef): VaccineGame {
