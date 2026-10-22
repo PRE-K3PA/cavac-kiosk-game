@@ -1,3 +1,5 @@
+import bgmCardGame from "@/assets/sounds/bgmCardGame.mp3";
+import bgmCardHome from "@/assets/sounds/bgmCardHome.mp3";
 import sfxButton from "@/assets/sounds/sfxButton.wav";
 import sfxFanfare from "@/assets/sounds/sfxFanfare.wav";
 import sfxMatch from "@/assets/sounds/sfxMatch.wav";
@@ -52,4 +54,50 @@ export function playSound(name: SoundName) {
 	} catch {
 		// 소리가 안 나도 게임은 계속됩니다
 	}
+}
+
+export const BGM_NAMES = {
+	cardHome: "cardHome",
+	cardGame: "cardGame",
+} as const;
+
+export type BgmName = (typeof BGM_NAMES)[keyof typeof BGM_NAMES];
+
+const BGMS: Record<BgmName, string> = {
+	cardHome: bgmCardHome,
+	cardGame: bgmCardGame,
+};
+
+// 효과음이 배경음에 묻히지 않게 낮춥니다. 게임 중에는 효과음이 잦아 더 낮춥니다
+const BGM_VOLUME: Record<BgmName, number> = {
+	cardHome: 0.5,
+	cardGame: 0.4,
+};
+
+let bgm: { name: BgmName; player: HTMLAudioElement } | null = null;
+
+/** 배경음은 한 곡만 반복합니다. 이미 그 곡이 나오고 있으면 처음부터 다시 틀지 않습니다 */
+export function playBgm(name: BgmName) {
+	if (bgm?.name === name) return;
+	stopBgm();
+	try {
+		if (typeof Audio === "undefined") return;
+		const player = new Audio(BGMS[name]);
+		player.loop = true;
+		player.volume = BGM_VOLUME[name];
+		bgm = { name, player };
+		player.play().catch(() => {});
+	} catch {
+		// 배경음이 안 나도 게임은 계속됩니다
+	}
+}
+
+export function stopBgm() {
+	if (!bgm) return;
+	try {
+		bgm.player.pause();
+	} catch {
+		// 멈추지 못해도 다음 곡은 새 Audio 로 틉니다
+	}
+	bgm = null;
 }

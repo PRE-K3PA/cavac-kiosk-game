@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
-import { playSound, SOUND_NAMES, type SoundName } from "@/utils/soundEngine";
+import {
+	BGM_NAMES,
+	playBgm,
+	playSound,
+	SOUND_NAMES,
+	type SoundName,
+	stopBgm,
+} from "@/utils/soundEngine";
 
 let played: string[] = [];
 let playSpy: ReturnType<typeof spyOn<HTMLMediaElement, "play">>;
@@ -62,5 +69,50 @@ describe("playSound", () => {
 		} finally {
 			Object.assign(globalThis, { Audio: original });
 		}
+	});
+});
+
+describe("playBgm", () => {
+	afterEach(() => {
+		stopBgm();
+	});
+
+	test("배경음은 반복 재생한다", () => {
+		playBgm(BGM_NAMES.cardHome);
+
+		expect(played).toHaveLength(1);
+		expect(played[0]).toContain("bgmCardHome");
+	});
+
+	test("이미 나오는 곡을 다시 요청하면 새로 틀지 않는다", () => {
+		playBgm(BGM_NAMES.cardGame);
+		playBgm(BGM_NAMES.cardGame);
+
+		expect(played).toHaveLength(1);
+	});
+
+	test("다른 곡을 요청하면 앞 곡을 멈추고 바꾼다", () => {
+		const pauseSpy = spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+		playBgm(BGM_NAMES.cardHome);
+		playBgm(BGM_NAMES.cardGame);
+
+		expect(pauseSpy).toHaveBeenCalledTimes(1);
+		expect(played[1]).toContain("bgmCardGame");
+		pauseSpy.mockRestore();
+	});
+
+	test("멈춘 뒤 같은 곡을 요청하면 다시 튼다", () => {
+		playBgm(BGM_NAMES.cardHome);
+		stopBgm();
+		playBgm(BGM_NAMES.cardHome);
+
+		expect(played).toHaveLength(2);
+	});
+
+	test("재생이 거절돼도 예외가 올라오지 않는다", async () => {
+		playSpy.mockImplementation(() => Promise.reject(new Error("NotAllowedError")));
+
+		expect(() => playBgm(BGM_NAMES.cardHome)).not.toThrow();
+		await Promise.resolve();
 	});
 });
