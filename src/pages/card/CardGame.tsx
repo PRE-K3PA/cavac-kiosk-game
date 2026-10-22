@@ -6,12 +6,14 @@ import StatBox from "@/components/common/StatBox";
 import { useCardGame } from "@/features/card-game/hooks/useCardGame";
 import { useCardGameData } from "@/features/card-game/hooks/useCardGameData";
 import { useCardGameSounds } from "@/features/card-game/hooks/useCardGameSounds";
+import { useBgm } from "@/hooks/useBgm";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import CardBoard from "@/pages/card/CardBoard";
 import CardResult from "@/pages/card/CardResult";
 import { CARD_BOARD_AREA } from "@/pages/card/cardBoardLayout";
 import type { CardGameData } from "@/types/data";
+import { BGM_NAMES } from "@/utils/soundEngine";
 
 export type CardGameProps = {
 	onExit: () => void;
@@ -53,6 +55,8 @@ function CardGameSession({
 	const { t } = useTranslation("cardGame");
 	const game = useCardGame(data, playDurationSeconds);
 	useCardGameSounds(game);
+	// 결과 화면에서는 팡파레가 들리도록 배경음을 끕니다
+	useBgm(game.phase === "finished" ? null : BGM_NAMES.cardGame);
 	const orientation = useOrientation();
 	const layout = LAYOUT[orientation];
 
