@@ -4,6 +4,9 @@ export type EnableProductResult =
 	| { isSuccess: true; data: CardGameData }
 	| { isSuccess: false; reason: "empty" | "limit" };
 
+/** 등록·수정 모달에서 고르는 중인 사진. 한쪽 언어만 골랐을 수 있습니다 */
+export type ProductImageDraft = Partial<Localized<ImagePath>>;
+
 export function countEnabledProducts(products: ProductSlot[]): number {
 	return products.filter((product) => product.isEnabled).length;
 }
@@ -54,20 +57,32 @@ export function setShownInResult(
 	return updateProduct(data, slot, (product) => ({ ...product, isShownInResult }));
 }
 
+/** KR·EN 사진이 모두 있어야 제품 사진이 됩니다 (Figma Q48). 하나라도 없으면 undefined */
+export function toProductImage(draft: ProductImageDraft): Localized<ImagePath> | undefined {
+	if (!draft.ko || !draft.en) return undefined;
+	return { ko: draft.ko, en: draft.en };
+}
+
+/** 다음에 등록할 칸 번호입니다. 칸 번호가 가장 작은 빈 칸이고, 빈 칸이 없으면 undefined */
+export function findRegisterSlot(products: ProductSlot[]): number | undefined {
+	return products
+		.filter((product) => product.image === null)
+		.map((product) => product.slot)
+		.sort((a, b) => a - b)[0];
+}
+
 /**
- * 칸 번호가 가장 작은 빈 칸에 등록해 빈 칸이 늘 목록 아래에 모이게 합니다.
+ * findRegisterSlot 의 칸에 등록해 빈 칸이 늘 목록 아래에 모이게 합니다.
  * 사용 제품이 모자랄 때만 켜고, 결과 화면 표시는 기본값(켬)으로 둡니다
  */
 export function registerProduct(data: CardGameData, image: Localized<ImagePath>): CardGameData {
-	const target = data.products
-		.filter((product) => product.image === null)
-		.sort((a, b) => a.slot - b.slot)[0];
-	if (target === undefined) return data;
+	const slot = findRegisterSlot(data.products);
+	if (slot === undefined) return data;
 
-	const others = data.products.filter((product) => product.slot !== target.slot);
+	const others = data.products.filter((product) => product.slot !== slot);
 	const hasRoom = countEnabledProducts(others) < data.settings.pairCount;
-	return updateProduct(data, target.slot, () => ({
-		...emptySlot(target.slot),
+	return updateProduct(data, slot, () => ({
+		...emptySlot(slot),
 		image,
 		isEnabled: hasRoom,
 	}));
