@@ -44,10 +44,22 @@ function antigensOutside(current: Vaccine, vaccines: Vaccine[]): Antigen[] {
 	);
 }
 
-/** 오답으로 떨어뜨릴 항원. 이번 판 다른 백신에서 고르고, 없으면 전체 백신에서 고른다 */
-export function getDistractors(current: Vaccine, round: Vaccine[], all: Vaccine[]): Antigen[] {
+/**
+ * 오답으로 떨어뜨릴 항원. 이번 판 다른 백신에서 고르고, 없으면 전체 백신에서 고른다.
+ * 지금 백신에서 이미 모은 항원(고정 항원 포함)도 다시 고르면 오답이라 함께 넣는다
+ */
+export function getDistractors(
+	current: Vaccine,
+	round: Vaccine[],
+	all: Vaccine[],
+	collectedKeys: string[],
+): Antigen[] {
 	const fromRound = antigensOutside(current, round);
-	return fromRound.length > 0 ? fromRound : antigensOutside(current, all);
+	const outside = fromRound.length > 0 ? fromRound : antigensOutside(current, all);
+	const collected = current.antigens.filter((antigen) =>
+		collectedKeys.includes(antigenKey(antigen)),
+	);
+	return [...outside, ...collected];
 }
 
 function pickOne<T>(items: T[], random: () => number): T {
