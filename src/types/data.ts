@@ -43,6 +43,10 @@ export type CommonData = {
 	};
 	species: Species[];
 	homeAnimals: HomeAnimal[];
+	volume: {
+		bgmPercent: number;
+		sfxPercent: number;
+	};
 };
 
 // ---------------------------------------------------------- vaccine-game.json
