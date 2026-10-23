@@ -74,16 +74,6 @@ const shapeVariants = cva("absolute top-0 left-0", {
 	],
 });
 
-// -webkit-text-stroke 는 글자 경계 중앙에 그려지므로
-// Figma 외곽선 폭의 2배를 주고 fill 을 위에 칠한다.
-const outlinedText = cn(
-	"[paint-order:stroke_fill] [stroke-linejoin:round]",
-	"[-webkit-text-stroke-color:var(--color-text-primary)]",
-);
-const titleOutline = "[-webkit-text-stroke-width:0.75rem]";
-const countOutline = "[-webkit-text-stroke-width:1.75rem]";
-const matchedOutline = "[-webkit-text-stroke-width:1rem]";
-
 function CountdownContent({
 	direction,
 	title,
@@ -103,8 +93,7 @@ function CountdownContent({
 				<p
 					className={cn(
 						"font-display typo-display-m text-accent-sky-blue text-shadow-hard-sm",
-						outlinedText,
-						titleOutline,
+						"outlined-text [--text-outline-width:12px]",
 					)}>
 					{firstLine}
 					{restLines.map((line) => (
@@ -125,8 +114,7 @@ function CountdownContent({
 			<p
 				className={cn(
 					"typo-number-xl relative w-22.5 text-center text-accent-yellow text-shadow-hard-md",
-					outlinedText,
-					countOutline,
+					"outlined-text [--text-outline-width:28px]",
 				)}>
 				{count}
 			</p>
@@ -140,8 +128,7 @@ function MatchedContent({ count, label }: MatchedProps) {
 			className={cn(
 				"relative font-display whitespace-pre-line text-center",
 				"text-accent-sky-blue text-shadow-hard-sm",
-				outlinedText,
-				matchedOutline,
+				"outlined-text [--text-outline-width:16px]",
 			)}>
 			<span className="typo-display-xl leading-[1.15]! text-accent-yellow">{count}</span>
 			<span className="typo-title-l leading-[1.15]!">{label}</span>
