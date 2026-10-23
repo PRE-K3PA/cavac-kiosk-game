@@ -27,16 +27,21 @@ afterEach(() => {
 });
 
 describe("playSound", () => {
-	test.each(["pop", "match", "wrong", "tick", "tickUrgent", "fanfare"] satisfies SoundName[])(
-		"%s 은 같은 이름의 wav 파일을 재생한다",
-		(name) => {
-			playSound(name);
+	test.each([
+		"pop",
+		"match",
+		"wrong",
+		"tick",
+		"tickUrgent",
+		"fanfare",
+		"start",
+	] satisfies SoundName[])("%s 은 같은 이름의 wav 파일을 재생한다", (name) => {
+		playSound(name);
 
-			const file = `sfx${name[0].toUpperCase()}${name.slice(1)}.wav`;
-			expect(played).toHaveLength(1);
-			expect(played[0]).toContain(file.replace(".wav", ""));
-		},
-	);
+		const file = `sfx${name[0].toUpperCase()}${name.slice(1)}.wav`;
+		expect(played).toHaveLength(1);
+		expect(played[0]).toContain(file.replace(".wav", ""));
+	});
 
 	test("같은 소리를 연속으로 재생해도 예외가 없고 매번 재생된다", () => {
 		expect(() => {
