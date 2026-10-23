@@ -5,6 +5,7 @@ import sfxCountdown from "@/assets/sounds/sfxCountdown.mp3";
 import sfxFanfare from "@/assets/sounds/sfxFanfare.wav";
 import sfxMatch from "@/assets/sounds/sfxMatch.wav";
 import sfxPop from "@/assets/sounds/sfxPop.wav";
+import sfxStart from "@/assets/sounds/sfxStart.wav";
 import sfxTick from "@/assets/sounds/sfxTick.wav";
 import sfxTickUrgent from "@/assets/sounds/sfxTickUrgent.wav";
 import sfxWrong from "@/assets/sounds/sfxWrong.wav";
@@ -21,6 +22,7 @@ export const SOUND_NAMES = {
 	tick: "tick",
 	tickUrgent: "tickUrgent",
 	fanfare: "fanfare",
+	start: "start",
 } as const;
 
 export type SoundName = (typeof SOUND_NAMES)[keyof typeof SOUND_NAMES];
@@ -34,6 +36,7 @@ const SOUNDS: Record<SoundName, string> = {
 	tick: sfxTick,
 	tickUrgent: sfxTickUrgent,
 	fanfare: sfxFanfare,
+	start: sfxStart,
 };
 
 const loaded = new Map<SoundName, HTMLAudioElement>();
