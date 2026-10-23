@@ -6,7 +6,8 @@ import type { ReactNode } from "react";
 import { OrientationProvider } from "@/layout/OrientationContext";
 import type { Orientation } from "@/layout/stage";
 import CardHome from "@/pages/card/CardHome";
-import type { HomeScreenProps } from "@/pages/home/HomeTemplate";
+import { CARD_HOME } from "@/pages/card/cardHomeContent";
+import HomeTemplate, { type HomeScreenProps } from "@/pages/home/HomeTemplate";
 import VaccineHome from "@/pages/vaccine/VaccineHome";
 import { useSessionStore } from "@/store/sessionStore";
 
@@ -62,10 +63,15 @@ describe.each(HOMES)("$name", ({ Home, koTitle, enTitle }) => {
 		expect(screen.queryByRole("button", { name: "시작하기" })).toBeNull();
 	});
 
-	test("시작 버튼을 누르면 onStart 가 한 번 불린다", () => {
+	test("게임 데이터를 확인하지 못하면 시작 버튼이 눌리지 않는다", async () => {
 		const { onStart } = renderHome(Home);
-		fireEvent.click(screen.getByRole("button", { name: "시작하기" }));
-		expect(onStart).toHaveBeenCalledTimes(1);
+		const start = screen.getByRole("button", { name: "시작하기" }) as HTMLButtonElement;
+
+		await act(() => Promise.resolve());
+		fireEvent.click(start);
+
+		expect(start.disabled).toBe(true);
+		expect(onStart).not.toHaveBeenCalled();
 	});
 
 	test("방향을 정해 주지 않으면 가로로 그린다", () => {
@@ -87,6 +93,35 @@ describe.each(HOMES)("$name", ({ Home, koTitle, enTitle }) => {
 	] as const)("%s 방향이면 헤더 높이가 %s 이다", (orientation, headerHeight) => {
 		const { container } = renderHome(Home, orientation);
 		expect(container.querySelector("header")?.className).toContain(headerHeight);
+	});
+});
+
+describe("HomeTemplate 시작 버튼", () => {
+	test("시작할 수 있으면 누를 때 onStart 가 한 번 불린다", () => {
+		const onStart = mock(() => {});
+		render(<HomeTemplate content={CARD_HOME} onStart={onStart} onAdminActivate={() => {}} />);
+
+		fireEvent.click(screen.getByRole("button", { name: "시작하기" }));
+
+		expect(onStart).toHaveBeenCalledTimes(1);
+	});
+
+	test("isStartDisabled 면 눌러도 onStart 가 불리지 않는다", () => {
+		const onStart = mock(() => {});
+		render(
+			<HomeTemplate
+				content={CARD_HOME}
+				isStartDisabled
+				onStart={onStart}
+				onAdminActivate={() => {}}
+			/>,
+		);
+		const start = screen.getByRole("button", { name: "시작하기" }) as HTMLButtonElement;
+
+		fireEvent.click(start);
+
+		expect(start.disabled).toBe(true);
+		expect(onStart).not.toHaveBeenCalled();
 	});
 });
 
