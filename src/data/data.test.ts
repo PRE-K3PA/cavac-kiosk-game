@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { createDefaultData } from "@/data/defaults";
 import { createMockData, createMockPlatform } from "@/data/mock/mock-platform";
 import { antigenKey, formatAntigenLabel, isHintDelayTooLong, validateForSave } from "@/data/rules";
-import { dataSchemas } from "@/data/schema";
+import { DEFAULT_VOLUME, dataSchemas } from "@/data/schema";
 import { ANTIGEN_COLOR_KEYS, DATA_FILES } from "@/types/data";
 
 describe("목데이터", () => {
@@ -71,6 +71,27 @@ describe("기본값 (첫 실행)", () => {
 	});
 });
 
+describe("소리 크기", () => {
+	test("기본값은 배경음 50%, 효과음 100% 이다", () => {
+		expect(createDefaultData("common").volume).toEqual({ bgmPercent: 50, sfxPercent: 100 });
+	});
+
+	test("소리 크기가 없는 예전 파일도 통과하고, 다른 설정은 그대로 둔 채 기본값으로 채운다", () => {
+		const { volume: _, ...legacy } = createMockData("filled").common;
+		const parsed = dataSchemas.common.safeParse(legacy);
+		expect(parsed.success).toBe(true);
+		if (!parsed.success) return;
+		expect(parsed.data).toEqual({ ...legacy, volume: DEFAULT_VOLUME });
+	});
+
+	test("빠진 값을 채울 때마다 새 객체를 만들어 기본값이 바뀌지 않는다", () => {
+		const { volume: _, ...legacy } = createMockData("filled").common;
+		const first = dataSchemas.common.safeParse(legacy);
+		if (first.success) first.data.volume.bgmPercent = 0;
+		expect(DEFAULT_VOLUME.bgmPercent).toBe(50);
+	});
+});
+
 describe("저장 규칙", () => {
 	test("앞뒤 공백을 지우고 공백만 있는 세부 타입은 null 로 저장한다", () => {
 		const data = createMockData("filled")["vaccine-game"];
@@ -131,6 +152,20 @@ describe("저장 규칙", () => {
 		const data = createMockData("filled").common;
 		data.playDurationSeconds = 42;
 		expect(validateForSave("common", data).isValid).toBe(false);
+	});
+
+	test("소리 크기는 0~100 사이 10 단위만 통과한다", () => {
+		const data = createMockData("filled").common;
+		for (const [percent, isValid] of [
+			[0, true],
+			[100, true],
+			[55, false],
+			[110, false],
+			[-10, false],
+		] as const) {
+			data.volume = { bgmPercent: percent, sfxPercent: 100 };
+			expect(validateForSave("common", data).isValid).toBe(isValid);
+		}
 	});
 
 	test("힌트 시간이 제한 시간 이상이면 경고한다", () => {

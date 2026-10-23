@@ -71,7 +71,7 @@ export function createMockPlatform(options: MockPlatformOptions = {}): Platform 
 			await wait();
 			const parsed = dataSchemas[file].safeParse(store[file]);
 			// 실제 main 처럼 깨진 값이면 기본값으로 복구합니다
-			return structuredClone(parsed.success ? store[file] : createDefaultData(file));
+			return structuredClone(parsed.success ? parsed.data : createDefaultData(file));
 		},
 
 		async updateData(file, data) {
