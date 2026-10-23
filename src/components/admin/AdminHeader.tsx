@@ -15,6 +15,8 @@ const toneLabelVariants = cva("typo-admin-label whitespace-nowrap", {
 
 type AdminHeaderProps = VariantProps<typeof toneLabelVariants> & {
 	isUnsaved?: boolean;
+	/** 넘기면 "관리자 종료" 왼쪽에 "PIN 변경" 버튼을 보여 줍니다 */
+	onPinChangeClick?: () => void;
 	onExitClick?: () => void;
 	className?: string;
 };
@@ -22,6 +24,7 @@ type AdminHeaderProps = VariantProps<typeof toneLabelVariants> & {
 export default function AdminHeader({
 	tone,
 	isUnsaved = false,
+	onPinChangeClick,
 	onExitClick,
 	className,
 }: AdminHeaderProps) {
@@ -35,10 +38,18 @@ export default function AdminHeader({
 			<h1 className="typo-admin-title whitespace-nowrap text-text-primary">관리자 설정</h1>
 			<p className={toneLabelVariants({ tone })}>{ADMIN_TONE_LABEL[tone ?? "common"]}</p>
 			{isUnsaved && <InlineNotice tone="info" message="저장되지 않은 변경이 있습니다" />}
+			{onPinChangeClick && (
+				<Button
+					variant="secondary"
+					label="PIN 변경"
+					className="ml-auto h-20 w-50"
+					onClick={onPinChangeClick}
+				/>
+			)}
 			<Button
 				variant="secondary"
 				label="관리자 종료"
-				className="ml-auto h-20 w-70"
+				className={cn("h-20 w-70", !onPinChangeClick && "ml-auto")}
 				onClick={onExitClick}
 			/>
 		</header>
