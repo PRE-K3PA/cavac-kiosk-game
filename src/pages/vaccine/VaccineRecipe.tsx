@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import GameBackground from "@/components/common/GameBackground";
 import RecipeCard from "@/components/vaccine/RecipeCard";
 import RecipeTimeBar from "@/components/vaccine/RecipeTimeBar";
 import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
@@ -7,7 +8,6 @@ import { getRecipeSeconds } from "@/features/vaccine-game/utils/round";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
-import VaccineBackground from "@/pages/vaccine/VaccineBackground";
 import { VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
 import type { Language, Vaccine } from "@/types/data";
 import { cn } from "@/utils/cn";
@@ -90,7 +90,7 @@ export default function VaccineRecipe({
 	return (
 		<ScreenLayout
 			onAdminActivate={onAdminActivate}
-			background={<VaccineBackground />}
+			background={<GameBackground />}
 			className={cn("items-center justify-center", layout.main)}>
 			<h1
 				className={cn(

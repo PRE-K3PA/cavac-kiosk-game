@@ -1,5 +1,6 @@
 import { motion, useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+import GameBackground from "@/components/common/GameBackground";
 import PlayTimer from "@/components/common/PlayTimer";
 import StatBox from "@/components/common/StatBox";
 import AntigenBall from "@/components/vaccine/AntigenBall";
@@ -24,7 +25,6 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import { useTweenedNumber } from "@/pages/vaccine/useTweenedNumber";
-import VaccineBackground from "@/pages/vaccine/VaccineBackground";
 import {
 	formatCombo,
 	formatCount,
@@ -190,7 +190,7 @@ export default function VaccinePlay({
 	const collectedFalling = play.falling.filter((item) => item.judgement === "correct");
 
 	return (
-		<ScreenLayout onAdminActivate={onAdminActivate} background={<VaccineBackground />}>
+		<ScreenLayout onAdminActivate={onAdminActivate} background={<GameBackground />}>
 			<div ref={screenScope} className="absolute inset-0">
 				<PlayTimer
 					time={formatSeconds(Math.ceil(remainingMs / 1000), language)}
