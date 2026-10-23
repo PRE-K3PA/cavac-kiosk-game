@@ -1,29 +1,35 @@
 import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
+import { DEFAULT_VOLUME } from "@/data/schema";
 import {
 	BGM_NAMES,
 	playBgm,
 	playSound,
 	SOUND_NAMES,
 	type SoundName,
+	setVolume,
 	startSound,
 	stopBgm,
 } from "@/utils/soundEngine";
 
 let played: string[] = [];
+let playedVolumes: number[] = [];
 let playSpy: ReturnType<typeof spyOn<HTMLMediaElement, "play">>;
 
 beforeEach(() => {
 	played = [];
+	playedVolumes = [];
 	playSpy = spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (
 		this: HTMLMediaElement,
 	) {
 		played.push(this.src);
+		playedVolumes.push(this.volume);
 		return Promise.resolve();
 	});
 });
 
 afterEach(() => {
 	playSpy.mockRestore();
+	setVolume(DEFAULT_VOLUME);
 });
 
 describe("playSound", () => {
@@ -132,5 +138,51 @@ describe("startSound", () => {
 		expect(played[0]).toContain("sfxCountdown");
 		expect(pauseSpy).toHaveBeenCalledTimes(1);
 		pauseSpy.mockRestore();
+	});
+});
+
+describe("setVolume", () => {
+	afterEach(() => {
+		stopBgm();
+	});
+
+	test("효과음은 저장한 효과음 크기로 재생한다", () => {
+		setVolume({ bgmPercent: 50, sfxPercent: 30 });
+		playSound(SOUND_NAMES.pop);
+
+		expect(playedVolumes[0]).toBeCloseTo(0.3);
+	});
+
+	test("배경음은 곡마다 정한 크기에 저장한 배경음 크기를 곱한다", () => {
+		setVolume({ bgmPercent: 100, sfxPercent: 100 });
+		playBgm(BGM_NAMES.cardHome);
+		stopBgm();
+		setVolume({ bgmPercent: 50, sfxPercent: 100 });
+		playBgm(BGM_NAMES.cardHome);
+
+		expect(playedVolumes[1]).toBeCloseTo(playedVolumes[0] * 0.5);
+	});
+
+	test("0% 이면 소리 크기가 0 이다", () => {
+		setVolume({ bgmPercent: 0, sfxPercent: 0 });
+		playSound(SOUND_NAMES.pop);
+		playBgm(BGM_NAMES.cardGame);
+
+		expect(playedVolumes).toEqual([0, 0]);
+	});
+
+	test("나오고 있는 배경음의 크기도 바로 바꾼다", () => {
+		let player: HTMLMediaElement | undefined;
+		playSpy.mockImplementation(function (this: HTMLMediaElement) {
+			player = this;
+			return Promise.resolve();
+		});
+		setVolume({ bgmPercent: 100, sfxPercent: 100 });
+		playBgm(BGM_NAMES.cardGame);
+		const fullVolume = player?.volume ?? 0;
+		setVolume({ bgmPercent: 0, sfxPercent: 100 });
+
+		expect(fullVolume).toBeGreaterThan(0);
+		expect(player?.volume).toBe(0);
 	});
 });
