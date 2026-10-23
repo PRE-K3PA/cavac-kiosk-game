@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { createDefaultData } from "@/data/defaults";
 import { LIMITS } from "@/data/schema";
 import {
-	FALL_SPEED_STEP,
 	getHintDelayOptions,
 	getHintWarning,
 	HINT_DELAY_PRESETS,
@@ -13,16 +12,6 @@ function vaccineGameWithHint(hint: VaccineGameData["settings"]["hint"]): Vaccine
 	const data = createDefaultData("vaccine-game");
 	return { ...data, settings: { ...data.settings, hint } };
 }
-
-describe("FALL_SPEED_STEP", () => {
-	test("낙하 속도 범위의 양 끝과 기본값이 모두 단위에 맞는다", () => {
-		const { min, max } = LIMITS.fallSpeedPercent;
-		const { fallSpeedPercent } = createDefaultData("vaccine-game").settings;
-
-		expect((max - min) % FALL_SPEED_STEP).toBe(0);
-		expect((fallSpeedPercent - min) % FALL_SPEED_STEP).toBe(0);
-	});
-});
 
 describe("getHintDelayOptions", () => {
 	test("미리 정한 값은 모두 저장 가능한 범위 안에 있고 기본값을 포함한다", () => {

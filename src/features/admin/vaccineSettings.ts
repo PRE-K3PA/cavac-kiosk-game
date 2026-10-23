@@ -1,10 +1,7 @@
 import { isHintDelayTooLong } from "@/data/rules";
 import type { VaccineGameData } from "@/types/data";
 
-// 백신 설정 게임 설정 섹션(낙하 속도, 정답 항원 힌트)의 화면 규칙
-
-/** 터치로 맞추기 쉽게 10% 단위로 움직입니다. 저장 규칙에는 단위가 없습니다 */
-export const FALL_SPEED_STEP = 10;
+// 백신 설정 게임 설정 섹션의 정답 항원 힌트 화면 규칙
 
 export const HINT_DELAY_PRESETS = [5, 10, 15, 20, 25, 30] as const;
 
