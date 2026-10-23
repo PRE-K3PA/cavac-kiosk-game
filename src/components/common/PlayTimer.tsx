@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/utils/cn";
 
-const WARNING_RATIO = 1 / 6;
+export const WARNING_RATIO = 1 / 6;
 
 type PlayTimerProps = Omit<ComponentProps<"div">, "children"> & {
 	time: string;

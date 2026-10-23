@@ -1,4 +1,4 @@
-import { LIMITS } from "@/data/schema";
+import { DEFAULT_VOLUME, LIMITS } from "@/data/schema";
 import type { CardGameData, CommonData, DataFile, DataMap, Penalty } from "@/types/data";
 
 // 첫 실행 기본값. 파일이 없거나 깨졌을 때 main 이 이 값으로 복구합니다
@@ -29,6 +29,7 @@ export function createDefaultData<F extends DataFile>(file: F): DataMap[F] {
 			autoReset: { isEnabled: true, idleSeconds: 60 },
 			species: [],
 			homeAnimals: [],
+			volume: { ...DEFAULT_VOLUME },
 		}),
 		"vaccine-game": () => ({
 			settings: {

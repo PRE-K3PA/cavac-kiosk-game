@@ -22,10 +22,13 @@ import {
 	countEnabledProducts,
 	disableProduct,
 	enableProduct,
+	findRegisterSlot,
 	setShownInResult,
 } from "@/features/admin/productSlots";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useOrientation } from "@/layout/OrientationContext";
+import ProductDeleteOverlay from "@/pages/admin/ProductDeleteOverlay";
+import ProductFormOverlay from "@/pages/admin/ProductFormOverlay";
 import { type CardGameData, PAIR_COUNTS, type PairCount, type Penalty } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -47,9 +50,12 @@ const SECTION_CARD_CLASS =
 
 const LIMIT_NOTICE_MS = 3000;
 
+type ProductOverlay = { type: "add" } | { type: "edit" | "delete"; slot: number };
+
 export default function CardSettingsPanel() {
 	// 더 켜려 할 때마다 값을 바꿔 안내 줄의 표시 시간을 처음부터 다시 셉니다
 	const [limitNoticeId, setLimitNoticeId] = useState<number | null>(null);
+	const [productOverlay, setProductOverlay] = useState<ProductOverlay | null>(null);
 	const layout = LAYOUT[useOrientation()];
 
 	const card = useSettingsDraft((state) => state.draft["card-game"]);
@@ -74,6 +80,11 @@ export default function CardSettingsPanel() {
 
 	const notice =
 		getUsageNotice(card) ?? (limitNoticeId === null ? null : getLimitNotice(pairCount));
+	const registerSlot = findRegisterSlot(card.products);
+	const editingProduct =
+		productOverlay?.type === "edit"
+			? card.products.find((product) => product.slot === productOverlay.slot)
+			: undefined;
 
 	function updateCard(next: CardGameData) {
 		setDraft("card-game", next);
@@ -113,6 +124,22 @@ export default function CardSettingsPanel() {
 
 	function handleProductShownInResultChange(slot: number, isShownInResult: boolean) {
 		updateCard(setShownInResult(card, slot, isShownInResult));
+	}
+
+	function handleProductAddOpen() {
+		setProductOverlay({ type: "add" });
+	}
+
+	function handleProductEditOpen(slot: number) {
+		setProductOverlay({ type: "edit", slot });
+	}
+
+	function handleProductDeleteOpen(slot: number) {
+		setProductOverlay({ type: "delete", slot });
+	}
+
+	function handleProductOverlayClose() {
+		setProductOverlay(null);
 	}
 
 	return (
@@ -196,11 +223,28 @@ export default function CardSettingsPanel() {
 							onShownInResultChange={(isShown) =>
 								handleProductShownInResultChange(product.slot, isShown)
 							}
+							onRegisterClick={product.slot === registerSlot ? handleProductAddOpen : undefined}
+							onEditClick={() => handleProductEditOpen(product.slot)}
+							onDeleteClick={() => handleProductDeleteOpen(product.slot)}
 							className="shrink-0"
 						/>
 					))}
 				</div>
 			</section>
+			{(productOverlay?.type === "add" || editingProduct) && (
+				<ProductFormOverlay
+					product={editingProduct}
+					onCancel={handleProductOverlayClose}
+					onDone={handleProductOverlayClose}
+				/>
+			)}
+			{productOverlay?.type === "delete" && (
+				<ProductDeleteOverlay
+					slot={productOverlay.slot}
+					onCancel={handleProductOverlayClose}
+					onDeleted={handleProductOverlayClose}
+				/>
+			)}
 		</div>
 	);
 }

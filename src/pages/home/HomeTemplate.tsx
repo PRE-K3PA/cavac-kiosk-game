@@ -44,11 +44,8 @@ const HOME_LOGO = {
 const STEP_ACCENTS = ["yellow", "green", "blue"] as const;
 const STEP_KEYS = ["step1", "step2", "step3"] as const;
 
-// -webkit-text-stroke 는 글자 경계 중앙에 그려지므로 Figma 외곽선 폭의 2배를 주고 fill 을 위에 칠한다
-const TITLE_OUTLINE = cn(
-	"[paint-order:stroke_fill] [stroke-linejoin:round]",
-	"[-webkit-text-stroke-color:var(--color-text-inverse)] [-webkit-text-stroke-width:24px]",
-);
+const TITLE_OUTLINE =
+	"outlined-text [--text-outline-color:var(--color-text-inverse)] [--text-outline-width:24px]";
 
 const LAYOUT = {
 	landscape: {

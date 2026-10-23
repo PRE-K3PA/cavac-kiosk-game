@@ -34,7 +34,11 @@ export const LIMITS = {
 	productSlots: 12,
 	pinLength: 4,
 	imageMaxBytes: 10 * 1024 * 1024,
+	volumePercent: { min: 0, max: 100, step: 10 },
 } as const;
+
+// 소리 크기가 생기기 전에 저장된 common.json 도 통과해야 하므로, 스키마가 빠진 값을 이 값으로 채웁니다
+export const DEFAULT_VOLUME: CommonData["volume"] = { bgmPercent: 50, sfxPercent: 100 };
 
 export const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg"] as const;
 const IMAGE_FILE_NAME = `[0-9a-f-]{36}\\.(?:${IMAGE_EXTENSIONS.join("|")})`;
@@ -63,6 +67,8 @@ function intInRange(range: { min: number; max: number }) {
 }
 
 const idSchema = z.uuid();
+
+const volumePercentSchema = intInRange(LIMITS.volumePercent).multipleOf(LIMITS.volumePercent.step);
 
 export const penaltySchema: z.ZodType<Penalty> = z.object({
 	time: z.object({
@@ -97,6 +103,12 @@ export const commonDataSchema: z.ZodType<CommonData> = z.object({
 			slot: z.enum(HOME_SLOTS),
 		}),
 	),
+	volume: z
+		.object({
+			bgmPercent: volumePercentSchema,
+			sfxPercent: volumePercentSchema,
+		})
+		.default(() => ({ ...DEFAULT_VOLUME })),
 });
 
 export const vaccineGameDataSchema: z.ZodType<VaccineGameData> = z.object({
