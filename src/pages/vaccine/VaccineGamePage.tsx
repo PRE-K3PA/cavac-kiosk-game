@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import bgmVaccineGame from "@/assets/sounds/bgmVaccineGame.mp3";
+import GameBackground from "@/components/common/GameBackground";
 import type { GameResult } from "@/features/vaccine-game/utils/game";
 import { type GameSetup, loadSetup } from "@/features/vaccine-game/utils/setup";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { useBgm } from "@/pages/vaccine/useBgm";
-import VaccineBackground from "@/pages/vaccine/VaccineBackground";
 import VaccinePlay from "@/pages/vaccine/VaccinePlay";
 import VaccineRecipe from "@/pages/vaccine/VaccineRecipe";
 import VaccineResult from "@/pages/vaccine/VaccineResult";
@@ -46,7 +46,7 @@ export default function VaccineGamePage({ onHome, onAdminActivate }: VaccineGame
 	// 불러오는 동안에도 관리자 진입 영역은 살아 있어야 합니다
 	if (!setup) {
 		return (
-			<ScreenLayout onAdminActivate={onAdminActivate} background={<VaccineBackground />}>
+			<ScreenLayout onAdminActivate={onAdminActivate} background={<GameBackground />}>
 				{null}
 			</ScreenLayout>
 		);

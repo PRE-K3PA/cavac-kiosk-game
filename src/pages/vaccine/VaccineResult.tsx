@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
 import VaccineResultCard from "@/components/vaccine/VaccineResultCard";
@@ -10,7 +11,6 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import { useTweenedNumber } from "@/pages/vaccine/useTweenedNumber";
-import VaccineBackground from "@/pages/vaccine/VaccineBackground";
 import { formatScore, VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
 import type { Language } from "@/types/data";
 import { cn } from "@/utils/cn";
@@ -88,7 +88,7 @@ export default function VaccineResult({
 	return (
 		<ScreenLayout
 			onAdminActivate={onAdminActivate}
-			background={<VaccineBackground />}
+			background={<GameBackground />}
 			className={cn("items-center justify-center", layout.main)}>
 			<motion.h1
 				initial={shouldReduceMotion ? false : { y: -40, opacity: 0 }}
