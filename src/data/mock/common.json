@@ -74,5 +74,9 @@
 			"speciesId": "18464b36-3b23-4b72-b0bb-fe48caa699c7",
 			"slot": "right-2"
 		}
-	]
+	],
+	"volume": {
+		"bgmPercent": 50,
+		"sfxPercent": 100
+	}
 }

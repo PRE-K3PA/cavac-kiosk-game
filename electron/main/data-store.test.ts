@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { createDefaultData } from "@/data/defaults";
 import { createMockData } from "@/data/mock/mock-platform";
+import { DEFAULT_VOLUME } from "@/data/schema";
 import { createDataStore } from "./data-store";
 
 let dataDir: string;
@@ -34,6 +35,15 @@ describe("읽기", () => {
 		const data = await createDataStore(dataDir).read("card-game");
 		expect(data).toEqual(createDefaultData("card-game"));
 		expect(await readJson("card-game.json")).toEqual(data);
+	});
+
+	test("소리 크기가 없는 예전 common.json 도 그대로 읽고 소리만 기본값으로 채운다", async () => {
+		const { volume: _, ...legacy } = createMockData("filled").common;
+		await writeFile(filePath("common.json"), JSON.stringify(legacy));
+
+		const data = await createDataStore(dataDir).read("common");
+		expect(data).toEqual({ ...legacy, volume: DEFAULT_VOLUME });
+		expect(await findCorruptFiles("common")).toEqual([]);
 	});
 
 	test("원본이 깨지면 .bak 으로 복구하고 원본을 다시 쓴다", async () => {
