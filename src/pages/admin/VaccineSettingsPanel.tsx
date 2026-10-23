@@ -5,11 +5,7 @@ import Select from "@/components/admin/Select";
 import Slider from "@/components/admin/Slider";
 import { LIMITS } from "@/data/schema";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
-import {
-	FALL_SPEED_STEP,
-	getHintDelayOptions,
-	getHintWarning,
-} from "@/features/admin/vaccineSettings";
+import { getHintDelayOptions, getHintWarning } from "@/features/admin/vaccineSettings";
 import { useOrientation } from "@/layout/OrientationContext";
 import PenaltySection from "@/pages/admin/PenaltySection";
 import type { Penalty, VaccineGameSettings } from "@/types/data";
@@ -39,12 +35,11 @@ export default function VaccineSettingsPanel() {
 
 	const vaccine = useSettingsDraft((state) => state.draft["vaccine-game"]);
 	const originalSettings = useSettingsDraft((state) => state.original["vaccine-game"].settings);
-	const savedPlayDurationSeconds = useSettingsDraft(
-		(state) => state.original.common.playDurationSeconds,
-	);
+	// 저장하기 전에 경고를 보여 주려고 공통 설정 초안의 제한 시간과 비교합니다
+	const playDurationSeconds = useSettingsDraft((state) => state.draft.common.playDurationSeconds);
 	const setDraft = useSettingsDraft((state) => state.setDraft);
 	const { settings } = vaccine;
-	const hintWarning = getHintWarning(vaccine, savedPlayDurationSeconds);
+	const hintWarning = getHintWarning(vaccine, playDurationSeconds);
 
 	function updateSettings(next: VaccineGameSettings) {
 		setDraft("vaccine-game", { ...vaccine, settings: next });
@@ -78,7 +73,6 @@ export default function VaccineSettingsPanel() {
 					<Slider
 						min={LIMITS.fallSpeedPercent.min}
 						max={LIMITS.fallSpeedPercent.max}
-						step={FALL_SPEED_STEP}
 						value={settings.fallSpeedPercent}
 						unit="%"
 						label="항원 낙하 속도"
