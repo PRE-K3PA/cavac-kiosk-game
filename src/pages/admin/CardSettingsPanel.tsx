@@ -1,22 +1,11 @@
-import { Fragment, useEffect, useState } from "react";
-import FieldMessage from "@/components/admin/FieldMessage";
+import { useEffect, useState } from "react";
 import InlineNotice from "@/components/admin/InlineNotice";
 import OptionButton from "@/components/admin/OptionButton";
-import PenaltyRow from "@/components/admin/PenaltyRow";
 import ProductRow from "@/components/admin/ProductRow";
 import SectionHeader from "@/components/admin/SectionHeader";
 import { LIMITS } from "@/data/schema";
 import { getImageUrl } from "@/data/storage";
 import { getLimitNotice, getUsageNotice } from "@/features/admin/cardSettings";
-import {
-	getPenaltyErrorMessage,
-	getPenaltyInputValue,
-	PENALTY_LIMITS,
-	PENALTY_ROWS,
-	type PenaltyKey,
-	setPenaltyEnabled,
-	setPenaltyValue,
-} from "@/features/admin/penaltySettings";
 import {
 	changePairCount,
 	countEnabledProducts,
@@ -27,6 +16,7 @@ import {
 } from "@/features/admin/productSlots";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useOrientation } from "@/layout/OrientationContext";
+import PenaltySection from "@/pages/admin/PenaltySection";
 import ProductDeleteOverlay from "@/pages/admin/ProductDeleteOverlay";
 import ProductFormOverlay from "@/pages/admin/ProductFormOverlay";
 import { type CardGameData, PAIR_COUNTS, type PairCount, type Penalty } from "@/types/data";
@@ -99,14 +89,6 @@ export default function CardSettingsPanel() {
 		updateCard(changePairCount(card, count));
 	}
 
-	function handlePenaltyCheckedChange(key: PenaltyKey, isEnabled: boolean) {
-		updatePenalty(setPenaltyEnabled(penalty, originalPenalty, key, isEnabled));
-	}
-
-	function handlePenaltyValueChange(key: PenaltyKey, value: number | null) {
-		updatePenalty(setPenaltyValue(penalty, key, value));
-	}
-
 	function handleProductEnabledChange(slot: number, isEnabled: boolean) {
 		if (!isEnabled) {
 			setLimitNoticeId(null);
@@ -165,33 +147,12 @@ export default function CardSettingsPanel() {
 					</div>
 				</section>
 
-				<section className={cn(SECTION_CARD_CLASS, "flex-col gap-3")}>
-					<SectionHeader
-						tone="card"
-						title="오답 패널티"
-						description="시간 차감과 점수 차감을 따로 켜고 끌 수 있습니다."
-					/>
-					{PENALTY_ROWS.map(({ key, label, unit }) => {
-						const isChecked = penalty[key].isEnabled;
-						const errorMessage = getPenaltyErrorMessage(penalty, key);
-						return (
-							<Fragment key={key}>
-								<PenaltyRow
-									label={label}
-									unit={unit}
-									isChecked={isChecked}
-									value={getPenaltyInputValue(penalty, key)}
-									maxLength={String(PENALTY_LIMITS[key].max).length}
-									isError={errorMessage !== null}
-									onCheckedChange={(next) => handlePenaltyCheckedChange(key, next)}
-									onValueChange={(next) => handlePenaltyValueChange(key, next)}
-									className="w-full"
-								/>
-								{isChecked && errorMessage && <FieldMessage message={errorMessage} />}
-							</Fragment>
-						);
-					})}
-				</section>
+				<PenaltySection
+					tone="card"
+					penalty={penalty}
+					originalPenalty={originalPenalty}
+					onChange={updatePenalty}
+				/>
 			</div>
 
 			<section className={cn(SECTION_CARD_CLASS, "min-h-0 min-w-0 flex-1 flex-col gap-3")}>
