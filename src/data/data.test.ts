@@ -87,8 +87,12 @@ describe("소리 크기", () => {
 	test("빠진 값을 채울 때마다 새 객체를 만들어 기본값이 바뀌지 않는다", () => {
 		const { volume: _, ...legacy } = createMockData("filled").common;
 		const first = dataSchemas.common.safeParse(legacy);
-		if (first.success) first.data.volume.bgmPercent = 0;
-		expect(DEFAULT_VOLUME.bgmPercent).toBe(50);
+		expect(first.success).toBe(true);
+		if (!first.success) return;
+		first.data.volume.bgmPercent = 0;
+
+		const second = dataSchemas.common.safeParse(legacy);
+		expect(second.success && second.data.volume.bgmPercent).toBe(50);
 	});
 });
 
