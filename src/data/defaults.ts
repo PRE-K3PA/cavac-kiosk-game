@@ -3,7 +3,7 @@ import type { CardGameData, CommonData, DataFile, DataMap, Penalty } from "@/typ
 
 // 첫 실행 기본값. 파일이 없거나 깨졌을 때 main 이 이 값으로 복구합니다
 // 수치는 Figma 화면 값을 따릅니다
-// 축종 18종은 main 이 첫 실행 때 앱에 포함된 캐릭터 이미지를 복사하면서 채웁니다
+// 기본 축종은 main 이 첫 실행 때 앱에 포함된 캐릭터 이미지를 복사하면서 채웁니다 (electron/main/seed.ts)
 
 function createDefaultPenalty(): Penalty {
 	return {
