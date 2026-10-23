@@ -1,31 +1,24 @@
-import { Fragment, useEffect, useState } from "react";
-import FieldMessage from "@/components/admin/FieldMessage";
+import { useEffect, useState } from "react";
 import InlineNotice from "@/components/admin/InlineNotice";
 import OptionButton from "@/components/admin/OptionButton";
-import PenaltyRow from "@/components/admin/PenaltyRow";
 import ProductRow from "@/components/admin/ProductRow";
 import SectionHeader from "@/components/admin/SectionHeader";
 import { LIMITS } from "@/data/schema";
 import { getImageUrl } from "@/data/storage";
 import { getLimitNotice, getUsageNotice } from "@/features/admin/cardSettings";
 import {
-	getPenaltyErrorMessage,
-	getPenaltyInputValue,
-	PENALTY_LIMITS,
-	PENALTY_ROWS,
-	type PenaltyKey,
-	setPenaltyEnabled,
-	setPenaltyValue,
-} from "@/features/admin/penaltySettings";
-import {
 	changePairCount,
 	countEnabledProducts,
 	disableProduct,
 	enableProduct,
+	findRegisterSlot,
 	setShownInResult,
 } from "@/features/admin/productSlots";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useOrientation } from "@/layout/OrientationContext";
+import PenaltySection from "@/pages/admin/PenaltySection";
+import ProductDeleteOverlay from "@/pages/admin/ProductDeleteOverlay";
+import ProductFormOverlay from "@/pages/admin/ProductFormOverlay";
 import { type CardGameData, PAIR_COUNTS, type PairCount, type Penalty } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -47,9 +40,12 @@ const SECTION_CARD_CLASS =
 
 const LIMIT_NOTICE_MS = 3000;
 
+type ProductOverlay = { type: "add" } | { type: "edit" | "delete"; slot: number };
+
 export default function CardSettingsPanel() {
 	// 더 켜려 할 때마다 값을 바꿔 안내 줄의 표시 시간을 처음부터 다시 셉니다
 	const [limitNoticeId, setLimitNoticeId] = useState<number | null>(null);
+	const [productOverlay, setProductOverlay] = useState<ProductOverlay | null>(null);
 	const layout = LAYOUT[useOrientation()];
 
 	const card = useSettingsDraft((state) => state.draft["card-game"]);
@@ -74,6 +70,11 @@ export default function CardSettingsPanel() {
 
 	const notice =
 		getUsageNotice(card) ?? (limitNoticeId === null ? null : getLimitNotice(pairCount));
+	const registerSlot = findRegisterSlot(card.products);
+	const editingProduct =
+		productOverlay?.type === "edit"
+			? card.products.find((product) => product.slot === productOverlay.slot)
+			: undefined;
 
 	function updateCard(next: CardGameData) {
 		setDraft("card-game", next);
@@ -86,14 +87,6 @@ export default function CardSettingsPanel() {
 	function handlePairCountClick(count: PairCount) {
 		setLimitNoticeId(null);
 		updateCard(changePairCount(card, count));
-	}
-
-	function handlePenaltyCheckedChange(key: PenaltyKey, isEnabled: boolean) {
-		updatePenalty(setPenaltyEnabled(penalty, originalPenalty, key, isEnabled));
-	}
-
-	function handlePenaltyValueChange(key: PenaltyKey, value: number | null) {
-		updatePenalty(setPenaltyValue(penalty, key, value));
 	}
 
 	function handleProductEnabledChange(slot: number, isEnabled: boolean) {
@@ -113,6 +106,22 @@ export default function CardSettingsPanel() {
 
 	function handleProductShownInResultChange(slot: number, isShownInResult: boolean) {
 		updateCard(setShownInResult(card, slot, isShownInResult));
+	}
+
+	function handleProductAddOpen() {
+		setProductOverlay({ type: "add" });
+	}
+
+	function handleProductEditOpen(slot: number) {
+		setProductOverlay({ type: "edit", slot });
+	}
+
+	function handleProductDeleteOpen(slot: number) {
+		setProductOverlay({ type: "delete", slot });
+	}
+
+	function handleProductOverlayClose() {
+		setProductOverlay(null);
 	}
 
 	return (
@@ -138,33 +147,12 @@ export default function CardSettingsPanel() {
 					</div>
 				</section>
 
-				<section className={cn(SECTION_CARD_CLASS, "flex-col gap-3")}>
-					<SectionHeader
-						tone="card"
-						title="오답 패널티"
-						description="시간 차감과 점수 차감을 따로 켜고 끌 수 있습니다."
-					/>
-					{PENALTY_ROWS.map(({ key, label, unit }) => {
-						const isChecked = penalty[key].isEnabled;
-						const errorMessage = getPenaltyErrorMessage(penalty, key);
-						return (
-							<Fragment key={key}>
-								<PenaltyRow
-									label={label}
-									unit={unit}
-									isChecked={isChecked}
-									value={getPenaltyInputValue(penalty, key)}
-									maxLength={String(PENALTY_LIMITS[key].max).length}
-									isError={errorMessage !== null}
-									onCheckedChange={(next) => handlePenaltyCheckedChange(key, next)}
-									onValueChange={(next) => handlePenaltyValueChange(key, next)}
-									className="w-full"
-								/>
-								{isChecked && errorMessage && <FieldMessage message={errorMessage} />}
-							</Fragment>
-						);
-					})}
-				</section>
+				<PenaltySection
+					tone="card"
+					penalty={penalty}
+					originalPenalty={originalPenalty}
+					onChange={updatePenalty}
+				/>
 			</div>
 
 			<section className={cn(SECTION_CARD_CLASS, "min-h-0 min-w-0 flex-1 flex-col gap-3")}>
@@ -196,11 +184,28 @@ export default function CardSettingsPanel() {
 							onShownInResultChange={(isShown) =>
 								handleProductShownInResultChange(product.slot, isShown)
 							}
+							onRegisterClick={product.slot === registerSlot ? handleProductAddOpen : undefined}
+							onEditClick={() => handleProductEditOpen(product.slot)}
+							onDeleteClick={() => handleProductDeleteOpen(product.slot)}
 							className="shrink-0"
 						/>
 					))}
 				</div>
 			</section>
+			{(productOverlay?.type === "add" || editingProduct) && (
+				<ProductFormOverlay
+					product={editingProduct}
+					onCancel={handleProductOverlayClose}
+					onDone={handleProductOverlayClose}
+				/>
+			)}
+			{productOverlay?.type === "delete" && (
+				<ProductDeleteOverlay
+					slot={productOverlay.slot}
+					onCancel={handleProductOverlayClose}
+					onDeleted={handleProductOverlayClose}
+				/>
+			)}
 		</div>
 	);
 }

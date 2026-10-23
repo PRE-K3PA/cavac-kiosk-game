@@ -37,6 +37,7 @@ type ProductRowProps = Pick<ProductSlot, "slot" | "isEnabled" | "isShownInResult
 	imageSrc?: string;
 	onEnabledChange?: (isEnabled: boolean) => void;
 	onShownInResultChange?: (isShownInResult: boolean) => void;
+	/** 넘긴 빈 칸에만 "등록" 버튼을 그립니다. 등록은 늘 첫 빈 칸에 들어가므로 그 칸에만 넘깁니다 */
 	onRegisterClick?: () => void;
 	onEditClick?: () => void;
 	onDeleteClick?: () => void;
@@ -84,13 +85,15 @@ export default function ProductRow({
 				)}
 			</div>
 			{state === "empty" ? (
-				<Button
-					variant="secondary"
-					label="등록"
-					size="row"
-					className="ml-auto shrink-0"
-					onClick={onRegisterClick}
-				/>
+				onRegisterClick && (
+					<Button
+						variant="secondary"
+						label="등록"
+						size="row"
+						className="ml-auto shrink-0"
+						onClick={onRegisterClick}
+					/>
+				)
 			) : (
 				<>
 					<label htmlFor={resultCheckboxId} className="ml-auto flex shrink-0 items-center gap-2">
