@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
@@ -15,8 +15,7 @@ import { formatScore, VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameConte
 import type { Language } from "@/types/data";
 import { cn } from "@/utils/cn";
 
-// Figma 에 간격이 없어 이번에 정했다
-const AUTO_SLIDE_MS = 3000;
+// Figma 에 없어 이번에 정했다
 const SCORE_COUNT_SECONDS = 1.2;
 
 const LAYOUT = {
@@ -53,16 +52,8 @@ export default function VaccineResult({
 	const layout = LAYOUT[orientation];
 	const [slideIndex, setSlideIndex] = useState(0);
 	const copy = VACCINE_GAME_COPY;
-	const canSlide = result.vaccines.length > 1;
 	const shouldReduceMotion = useReducedMotion();
 	const shownScore = useTweenedNumber(result.score, SCORE_COUNT_SECONDS, 0);
-
-	// 직접 넘겨도 index 가 바뀌므로 그때부터 다시 센다
-	useEffect(() => {
-		if (!canSlide) return;
-		const timerId = setTimeout(() => setSlideIndex(slideIndex + 1), AUTO_SLIDE_MS);
-		return () => clearTimeout(timerId);
-	}, [slideIndex, canSlide]);
 
 	const slides = result.vaccines.map((vaccine) => ({
 		id: vaccine.id,
@@ -118,6 +109,7 @@ export default function VaccineResult({
 					slides={slides}
 					index={slideIndex}
 					onIndexChange={setSlideIndex}
+					autoAdvance
 					className={layout.carouselGap}
 					{...carouselProps}
 				/>
