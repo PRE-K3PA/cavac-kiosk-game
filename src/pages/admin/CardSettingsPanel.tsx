@@ -231,13 +231,7 @@ export default function CardSettingsPanel() {
 					))}
 				</div>
 			</section>
-			{productOverlay?.type === "add" && (
-				<ProductFormOverlay
-					onCancel={handleProductOverlayClose}
-					onDone={handleProductOverlayClose}
-				/>
-			)}
-			{productOverlay?.type === "edit" && editingProduct && (
+			{(productOverlay?.type === "add" || editingProduct) && (
 				<ProductFormOverlay
 					product={editingProduct}
 					onCancel={handleProductOverlayClose}
