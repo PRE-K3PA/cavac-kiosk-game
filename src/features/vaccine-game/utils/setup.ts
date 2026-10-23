@@ -1,4 +1,5 @@
 import { createDefaultData } from "@/data/defaults";
+import { readWithDefault } from "@/data/load";
 import { getData } from "@/data/storage";
 import {
 	type AntigenColors,
@@ -16,15 +17,6 @@ export type GameSetup = {
 	playDurationSeconds: number;
 	colors: AntigenColors;
 };
-
-// getData 는 async 가 아니라 Promise 를 돌려주기 전에 바로 던질 수 있어서 await 로 감싸 받습니다
-async function readOrDefault<F extends DataFile>(read: DataReader, file: F): Promise<DataMap[F]> {
-	try {
-		return await read(file);
-	} catch {
-		return createDefaultData(file);
-	}
-}
 
 function toSetup(vaccines: Vaccine[], settings: VaccineGameSettings, playDurationSeconds: number) {
 	const round = getRoundVaccines(vaccines);
@@ -44,8 +36,8 @@ function toSetup(vaccines: Vaccine[], settings: VaccineGameSettings, playDuratio
 export async function loadSetup(read: DataReader = getData): Promise<GameSetup> {
 	try {
 		const [vaccineGame, common] = await Promise.all([
-			readOrDefault(read, "vaccine-game"),
-			readOrDefault(read, "common"),
+			readWithDefault("vaccine-game", read),
+			readWithDefault("common", read),
 		]);
 		return toSetup(vaccineGame.vaccines, vaccineGame.settings, common.playDurationSeconds);
 	} catch {
