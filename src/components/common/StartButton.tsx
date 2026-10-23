@@ -1,6 +1,8 @@
 import { cva } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import type { ComponentProps, MouseEvent } from "react";
+import { useSound } from "@/hooks/useSound";
 import { cn } from "@/utils/cn";
+import { SOUND_NAMES } from "@/utils/soundEngine";
 
 const startButton = cva(
 	[
@@ -31,13 +33,22 @@ export default function StartButton({
 	label,
 	state = "default",
 	className,
+	onClick,
 	...props
 }: StartButtonProps) {
+	const play = useSound();
+
+	function handleClick(event: MouseEvent<HTMLButtonElement>) {
+		play(SOUND_NAMES.start);
+		onClick?.(event);
+	}
+
 	return (
 		<button
 			type="button"
 			disabled={state === "disabled"}
 			className={cn(startButton({ state }), className)}
+			onClick={handleClick}
 			{...props}>
 			{label}
 		</button>

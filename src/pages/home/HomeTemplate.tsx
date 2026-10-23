@@ -34,6 +34,7 @@ type HomeTemplateProps = HomeScreenProps & {
 	portraitAlign?: "start" | "center";
 	/** 넘기면 저장된 동물 대신 이 동물을 놓습니다. 관리자 화면의 캐릭터 미리보기가 씁니다 */
 	animals?: HomeAnimals;
+	isStartDisabled?: boolean;
 };
 
 const HOME_LOGO = {
@@ -90,6 +91,7 @@ export default function HomeTemplate({
 	onStart,
 	onAdminActivate,
 	animals: previewAnimals,
+	isStartDisabled = false,
 }: HomeTemplateProps) {
 	const { t } = useTranslation();
 	const { t: tContent } = useTranslation(content.namespace);
@@ -178,7 +180,11 @@ export default function HomeTemplate({
 					</div>
 				</section>
 
-				<StartButton label={t("start")} onClick={onStart} />
+				<StartButton
+					label={t("start")}
+					state={isStartDisabled ? "disabled" : "default"}
+					onClick={onStart}
+				/>
 			</main>
 
 			{HOME_SLOTS.map((slot) => {

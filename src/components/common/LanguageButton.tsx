@@ -1,6 +1,8 @@
-import type { ComponentProps } from "react";
+import type { ComponentProps, MouseEvent } from "react";
+import { useSound } from "@/hooks/useSound";
 import type { Language } from "@/types/data";
 import { cn } from "@/utils/cn";
+import { SOUND_NAMES } from "@/utils/soundEngine";
 
 type LanguageButtonProps = Omit<ComponentProps<"button">, "children" | "aria-label"> & {
 	label: string;
@@ -11,8 +13,16 @@ export default function LanguageButton({
 	label,
 	language = "ko",
 	className,
+	onClick,
 	...props
 }: LanguageButtonProps) {
+	const play = useSound();
+
+	function handleClick(event: MouseEvent<HTMLButtonElement>) {
+		play(SOUND_NAMES.button);
+		onClick?.(event);
+	}
+
 	return (
 		<button
 			type="button"
@@ -23,6 +33,7 @@ export default function LanguageButton({
 				"shadow-md",
 				className,
 			)}
+			onClick={handleClick}
 			{...props}>
 			{language === "en" ? "EN/한" : "한/EN"}
 		</button>
