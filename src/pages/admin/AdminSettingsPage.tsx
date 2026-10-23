@@ -13,6 +13,7 @@ import {
 	useSettingsDraft,
 } from "@/features/admin/settingsDraft";
 import { useOrientation } from "@/layout/OrientationContext";
+import PinChangeOverlay from "@/pages/admin/PinChangeOverlay";
 import { cn } from "@/utils/cn";
 
 const TONES = ["common", "vaccine", "card"] as const satisfies readonly AdminTone[];
@@ -47,6 +48,7 @@ type AdminSettingsPageProps = {
 export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPageProps) {
 	const [activeTone, setActiveTone] = useState<AdminTone>("common");
 	const [overlay, setOverlay] = useState<Overlay | null>(null);
+	const [isPinChangeOpen, setIsPinChangeOpen] = useState(false);
 	const layout = LAYOUT[useOrientation()];
 
 	const isLoaded = useSettingsDraft((state) => state.isLoaded);
@@ -109,11 +111,20 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 		setOverlay(null);
 	}
 
+	function handlePinChangeClick() {
+		setIsPinChangeOpen(true);
+	}
+
+	function handlePinChangeClose() {
+		setIsPinChangeOpen(false);
+	}
+
 	return (
 		<div className="flex h-full w-full flex-col bg-background-surface-subtle">
 			<AdminHeader
 				tone={activeTone}
 				isUnsaved={isDirty}
+				onPinChangeClick={handlePinChangeClick}
 				onExitClick={handleExitClick}
 				className={layout.header}
 			/>
@@ -173,6 +184,9 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 						/>
 					)}
 				</ModalOverlay>
+			)}
+			{isPinChangeOpen && (
+				<PinChangeOverlay onCancel={handlePinChangeClose} onChanged={handlePinChangeClose} />
 			)}
 		</div>
 	);
