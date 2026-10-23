@@ -1,6 +1,7 @@
 import { motion, useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
-import PlayTimer from "@/components/common/PlayTimer";
+import GameBackground from "@/components/common/GameBackground";
+import PlayTimer, { WARNING_RATIO } from "@/components/common/PlayTimer";
 import StatBox from "@/components/common/StatBox";
 import AntigenBall from "@/components/vaccine/AntigenBall";
 import type { AntigenLabel } from "@/components/vaccine/antigen";
@@ -24,7 +25,6 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import { useTweenedNumber } from "@/pages/vaccine/useTweenedNumber";
-import VaccineBackground from "@/pages/vaccine/VaccineBackground";
 import {
 	formatCombo,
 	formatCount,
@@ -40,8 +40,6 @@ import { cn } from "@/utils/cn";
 const ANTIGEN_BALL_SIZE = 164;
 const FALLING_BALL_SIZE = 176;
 const HALF_BALL = FALLING_BALL_SIZE / 2;
-// PlayTimer 의 경고 기준(남은 시간 1/6)과 같게 화면 가장자리도 깜박인다
-const WARNING_RATIO = 1 / 6;
 const BOTTLE_FILL_SECONDS = 0.5;
 
 const PANEL =
@@ -190,7 +188,7 @@ export default function VaccinePlay({
 	const collectedFalling = play.falling.filter((item) => item.judgement === "correct");
 
 	return (
-		<ScreenLayout onAdminActivate={onAdminActivate} background={<VaccineBackground />}>
+		<ScreenLayout onAdminActivate={onAdminActivate} background={<GameBackground />}>
 			<div ref={screenScope} className="absolute inset-0">
 				<PlayTimer
 					time={formatSeconds(Math.ceil(remainingMs / 1000), language)}
