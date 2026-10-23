@@ -8,6 +8,7 @@ import HowToPlayCard from "@/components/common/HowToPlayCard";
 import LanguageButton from "@/components/common/LanguageButton";
 import SoundButton from "@/components/common/SoundButton";
 import StartButton from "@/components/common/StartButton";
+import { useSoundVolume } from "@/hooks/useSoundVolume";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { type HomeAnimals, useHomeAnimals } from "@/pages/home/useHomeAnimals";
@@ -103,6 +104,8 @@ export default function HomeTemplate({
 	const savedAnimals = useHomeAnimals();
 	const animals = previewAnimals ?? savedAnimals;
 	const orientation = useOrientation();
+	// 관리자에서 저장하고 홈으로 돌아오면 다시 그려지면서 새 크기를 읽습니다
+	useSoundVolume();
 
 	// 홈은 다음 관람객이 처음 만나는 화면입니다. 앞 사람의 언어와 음소거를 여기서 지웁니다
 	useEffect(() => {
