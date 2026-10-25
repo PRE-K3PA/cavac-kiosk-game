@@ -1,5 +1,5 @@
 import { LIMITS } from "@/data/schema";
-import type { UsageNotice } from "@/features/admin/cardSettings";
+import type { UsageNotice } from "@/features/admin/usageNotice";
 import type { Vaccine, VaccineGameData } from "@/types/data";
 
 const MIN_ENABLED = LIMITS.enabledVaccines.min;
