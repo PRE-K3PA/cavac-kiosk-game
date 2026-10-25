@@ -32,6 +32,7 @@ import {
 } from "@/features/admin/vaccineList";
 import AntigenDeleteOverlay from "@/pages/admin/AntigenDeleteOverlay";
 import VaccineDeleteOverlay from "@/pages/admin/VaccineDeleteOverlay";
+import VaccineFormOverlay from "@/pages/admin/VaccineFormOverlay";
 import type { Antigen } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -48,6 +49,8 @@ type DeleteTarget =
 	| { type: "vaccine"; vaccineId: string }
 	| { type: "antigen"; vaccineId: string; antigenId: string };
 
+type FormTarget = { type: "add" } | { type: "edit"; vaccineId: string };
+
 /** 검색 결과 없음 안내는 한 줄이라, 긴 검색어는 잘라서 보여 줍니다 */
 function formatShownQuery(query: string) {
 	const trimmed = query.trim();
@@ -55,10 +58,18 @@ function formatShownQuery(query: string) {
 	return `${trimmed.slice(0, SHOWN_QUERY_MAX_LENGTH)}…`;
 }
 
+// 렌더마다 새 함수가 되면 행이 다시 그려질 때마다 스크롤되므로 모듈에 둡니다
+function scrollRowIntoView(row: HTMLDivElement | null) {
+	row?.scrollIntoView({ block: "nearest" });
+}
+
 export default function VaccineListSection() {
 	const [query, setQuery] = useState("");
 	const [expandedVaccineId, setExpandedVaccineId] = useState<string | null>(null);
 	const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+	const [formTarget, setFormTarget] = useState<FormTarget | null>(null);
+	// 추가한 백신 행이 목록 끝에 그려질 때 그 행까지 스크롤합니다
+	const [addedVaccineId, setAddedVaccineId] = useState<string | null>(null);
 	// 더 켜려 할 때마다 값을 바꿔 안내 줄의 표시 시간을 처음부터 다시 셉니다
 	const [limitNoticeId, setLimitNoticeId] = useState<number | null>(null);
 
@@ -90,6 +101,10 @@ export default function VaccineListSection() {
 	// 수정 중인 항원의 백신은 늘 펼쳐 둡니다. 패널이 다시 그려져도 수정 중인 행이 접힌 채 숨지 않게 합니다
 	const shownExpandedVaccineId = currentEditing?.vaccineId ?? expandedVaccineId;
 	const visibleVaccines = filterVaccines(vaccines, query);
+	const editingVaccine =
+		formTarget?.type === "edit"
+			? vaccines.find((vaccine) => vaccine.id === formTarget.vaccineId)
+			: undefined;
 	const notice =
 		getVaccineUsageNotice(vaccines) ?? (limitNoticeId === null ? null : VACCINE_LIMIT_NOTICE);
 
@@ -154,6 +169,32 @@ export default function VaccineListSection() {
 		setDeleteTarget(null);
 	}
 
+	function handleAddVaccineClick() {
+		setFormTarget({ type: "add" });
+	}
+
+	function handleVaccineEditClick(vaccineId: string) {
+		setFormTarget({ type: "edit", vaccineId });
+	}
+
+	function handleFormClose() {
+		setFormTarget(null);
+	}
+
+	function handleVaccineAdded(vaccineId: string) {
+		setFormTarget(null);
+		// 새 백신은 항원이 없어 저장이 막히므로, 검색을 풀고 펼쳐서 "+ 항원 추가" 가 바로 보이게 합니다
+		setQuery("");
+		setExpandedVaccineId(vaccineId);
+		setAddedVaccineId(vaccineId);
+	}
+
+	function handleQueryChange(nextQuery: string) {
+		setQuery(nextQuery);
+		// 검색으로 빠졌던 새 백신 행이 다시 그려질 때 또 스크롤하지 않게 합니다
+		setAddedVaccineId(null);
+	}
+
 	function getAntigenErrorMessage(vaccineId: string, antigenId: string) {
 		const error = getAntigenError(vaccineGame, vaccineId, antigenId);
 		// 항원 추가로 생긴 행은 입력 전부터 빨간 문구를 띄우지 않습니다. 완료는 그대로 막힙니다
@@ -206,6 +247,7 @@ export default function VaccineListSection() {
 			return (
 				<VaccineRow
 					key={vaccine.id}
+					ref={vaccine.id === addedVaccineId ? scrollRowIntoView : undefined}
 					productName={vaccine.productName}
 					imageSrc={getImageUrl(vaccine.bottleImage.ko)}
 					antigenCount={vaccine.antigens.length}
@@ -214,6 +256,7 @@ export default function VaccineListSection() {
 					isExpanded={isExpanded}
 					onEnabledChange={(isEnabled) => handleEnabledChange(vaccine.id, isEnabled)}
 					onAntigenToggleClick={() => handleAntigenToggleClick(vaccine.id)}
+					onEditClick={() => handleVaccineEditClick(vaccine.id)}
 					onDeleteClick={() => handleVaccineDeleteOpen(vaccine.id)}
 					onAddAntigenClick={() => handleAddAntigenClick(vaccine.id)}
 					className="w-full shrink-0">
@@ -236,7 +279,7 @@ export default function VaccineListSection() {
 				aria-label="백신 검색"
 				isSearchIconVisible
 				disabled={isEditing}
-				onChange={setQuery}
+				onChange={handleQueryChange}
 				className="w-full shrink-0"
 			/>
 			{/* 안내 줄이 나타나고 사라질 때 목록이 움직이지 않게 줄 높이를 안내 줄(44)에 맞춰 둡니다 */}
@@ -253,9 +296,21 @@ export default function VaccineListSection() {
 				)}>
 				{renderList()}
 			</div>
-			{/* 백신 추가·수정 모달은 다음 이슈에서 연결합니다 */}
-			<AddButton label="새 백신 추가" disabled={isEditing} className="w-full shrink-0" />
+			<AddButton
+				label="새 백신 추가"
+				disabled={isEditing}
+				onClick={handleAddVaccineClick}
+				className="w-full shrink-0"
+			/>
 
+			{(formTarget?.type === "add" || editingVaccine) && (
+				<VaccineFormOverlay
+					vaccine={editingVaccine}
+					onCancel={handleFormClose}
+					onDone={handleFormClose}
+					onAdded={handleVaccineAdded}
+				/>
+			)}
 			{deleteTarget?.type === "vaccine" && (
 				<VaccineDeleteOverlay
 					vaccineId={deleteTarget.vaccineId}
