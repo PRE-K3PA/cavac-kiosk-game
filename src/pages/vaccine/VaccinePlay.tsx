@@ -8,6 +8,7 @@ import type { AntigenLabel } from "@/components/vaccine/antigen";
 import VaccineBottle from "@/components/vaccine/VaccineBottle";
 import { antigenKey, formatAntigenLabel } from "@/data/rules";
 import { getImageUrl } from "@/data/storage";
+import { useVaccineGameSounds } from "@/features/vaccine-game/hooks/useVaccineGameSounds";
 import { useVaccinePlay } from "@/features/vaccine-game/hooks/useVaccinePlay";
 import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
 import {
@@ -140,6 +141,7 @@ export default function VaccinePlay({
 		random,
 		onFinish,
 	});
+	useVaccineGameSounds(play);
 	const { game, lastTap } = play;
 
 	const [screenScope, animateScreen] = useAnimate<HTMLDivElement>();
