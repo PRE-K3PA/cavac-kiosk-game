@@ -1,3 +1,4 @@
+import { LANGUAGE_LABEL } from "@/components/admin/languageLabel";
 import type { VaccineInfo } from "@/features/admin/vaccineList";
 import type { ImageKind, ImagePath, Language, Localized, Vaccine } from "@/types/data";
 
@@ -10,8 +11,6 @@ export type VaccineImageDraft = Record<VaccineImageKey, Partial<Localized<ImageP
 
 /** 사진 4장을 useImageSelect 하나로 고르려고 이미지 종류와 언어를 합친 칸 키입니다 */
 export type VaccineImageField = `${VaccineImageKey}.${Language}`;
-
-export const LANGUAGE_LABELS = { ko: "KR", en: "EN" } satisfies Record<Language, string>;
 
 export const VACCINE_IMAGE_KINDS = {
 	bottleImage: "vaccine-bottle",
@@ -68,7 +67,7 @@ function getBlankMessage(
 ): string | undefined {
 	const text = name[key][language];
 	if (text === "" || text.trim() !== "") return undefined;
-	return `${LANGUAGE_LABELS[language]} ${NAME_LABELS[key]}: 공백만 입력할 수 없습니다.`;
+	return `${LANGUAGE_LABEL[language]} ${NAME_LABELS[key]}: 공백만 입력할 수 없습니다.`;
 }
 
 function trimLocalized({ ko, en }: Localized<string>): Localized<string> {
