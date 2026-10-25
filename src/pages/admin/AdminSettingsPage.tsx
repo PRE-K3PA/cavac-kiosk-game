@@ -41,10 +41,6 @@ const LAYOUT = {
 // Figma _AntigenEditingSave 의 저장 막대 문구
 const ANTIGEN_EDITING_SUMMARY = "항원 수정 중입니다 · '완료'를 누른 뒤 저장해 주세요";
 
-// 항원 수정 중에 막힌 탭. SettingsTab 에 비활성 모양이 없어 여기서 흐리게 합니다
-const LOCKED_TAB_CLASS =
-	"disabled:border-border-muted disabled:bg-background-muted disabled:text-text-placeholder";
-
 type Overlay = "saved" | "saveFailed" | "saveAndExitFailed" | "exitConfirm" | "discardConfirm";
 
 function getSaveSummary(isAntigenEditing: boolean, issueCount: number): string | undefined {
@@ -154,7 +150,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 							// 항원 수정은 완료·삭제로만 빠져나오므로(#74) 수정 중에는 다른 탭으로도 못 갑니다
 							disabled={isAntigenEditing && tone !== activeTone}
 							onClick={() => setActiveTone(tone)}
-							className={cn(layout.tab, LOCKED_TAB_CLASS)}
+							className={layout.tab}
 						/>
 					))}
 				</nav>
