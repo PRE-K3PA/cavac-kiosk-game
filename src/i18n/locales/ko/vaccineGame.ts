@@ -9,7 +9,7 @@ export default {
 	play: {
 		score: "SCORE",
 		completed: "완성된 백신",
-		completedCount: "{{count}}개",
+		completedCount: "{{n}}개",
 		bottleLabel: "백신 병",
 		time: "{{seconds}}초",
 		combo: "{{combo}} 콤보!",
