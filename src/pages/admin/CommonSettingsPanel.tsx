@@ -1,6 +1,4 @@
-import { useState } from "react";
 import { ADMIN_TONE_LABEL } from "@/components/admin/adminToneLabel";
-import Button from "@/components/admin/Button";
 import OptionButton from "@/components/admin/OptionButton";
 import SectionHeader from "@/components/admin/SectionHeader";
 import Select from "@/components/admin/Select";
@@ -9,8 +7,7 @@ import { LIMITS } from "@/data/schema";
 import { getIdleSecondsOptions } from "@/features/admin/commonSettings";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useOrientation } from "@/layout/OrientationContext";
-import PinChangeOverlay from "@/pages/admin/PinChangeOverlay";
-import { GAME_TYPES, type GameType } from "@/types/data";
+import { type CommonData, GAME_TYPES, type GameType } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 const LAYOUT = {
@@ -27,21 +24,29 @@ const LAYOUT = {
 const SECTION_CARD_CLASS =
 	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
 
+const VOLUME_ROWS = [
+	{ key: "bgmPercent", label: "배경음" },
+	{ key: "sfxPercent", label: "효과음" },
+] as const satisfies readonly { key: keyof CommonData["volume"]; label: string }[];
+
 const AUTO_RESET_OPTIONS = [
 	{ isEnabled: true, label: "ON", tone: "success" },
 	{ isEnabled: false, label: "OFF", tone: "neutral" },
 ] as const;
 
 export default function CommonSettingsPanel() {
-	const [isPinChangeOpen, setIsPinChangeOpen] = useState(false);
 	const layout = LAYOUT[useOrientation()];
 
 	const common = useSettingsDraft((state) => state.draft.common);
 	const setDraft = useSettingsDraft((state) => state.setDraft);
-	const { activeGame, playDurationSeconds, autoReset } = common;
+	const { activeGame, volume, playDurationSeconds, autoReset } = common;
 
 	function handleActiveGameClick(game: GameType) {
 		setDraft("common", { ...common, activeGame: game });
+	}
+
+	function handleVolumeChange(key: keyof CommonData["volume"], percent: number) {
+		setDraft("common", { ...common, volume: { ...volume, [key]: percent } });
 	}
 
 	function handlePlayDurationChange(seconds: number) {
@@ -54,14 +59,6 @@ export default function CommonSettingsPanel() {
 
 	function handleIdleSecondsChange(idleSeconds: number) {
 		setDraft("common", { ...common, autoReset: { ...autoReset, idleSeconds } });
-	}
-
-	function handlePinChangeClick() {
-		setIsPinChangeOpen(true);
-	}
-
-	function handlePinChangeClose() {
-		setIsPinChangeOpen(false);
 	}
 
 	return (
@@ -82,6 +79,28 @@ export default function CommonSettingsPanel() {
 				</div>
 			</section>
 
+			<section className={cn(SECTION_CARD_CLASS, "flex-col gap-3")}>
+				<SectionHeader
+					title="소리"
+					description={`배경음·효과음 크기 · ${LIMITS.volumePercent.step}% 단위`}
+				/>
+				{VOLUME_ROWS.map(({ key, label }) => (
+					<div key={key} className="flex w-full items-center gap-3">
+						<p className="typo-admin-label min-w-0 flex-1 text-text-primary">{label}</p>
+						<Slider
+							min={LIMITS.volumePercent.min}
+							max={LIMITS.volumePercent.max}
+							step={LIMITS.volumePercent.step}
+							value={volume[key]}
+							unit="%"
+							tone="accent"
+							label={label}
+							onChange={(percent) => handleVolumeChange(key, percent)}
+						/>
+					</div>
+				))}
+			</section>
+
 			<section className={cn(SECTION_CARD_CLASS, "items-center gap-3")}>
 				<SectionHeader
 					title="제한 시간"
@@ -97,16 +116,6 @@ export default function CommonSettingsPanel() {
 					tone="accent"
 					label="제한 시간"
 					onChange={handlePlayDurationChange}
-				/>
-			</section>
-
-			<section className={cn(SECTION_CARD_CLASS, "items-center justify-between gap-3")}>
-				<SectionHeader title="관리자 PIN" />
-				<Button
-					label="PIN 변경"
-					variant="secondary"
-					className="h-16 w-50"
-					onClick={handlePinChangeClick}
 				/>
 			</section>
 
@@ -136,10 +145,6 @@ export default function CommonSettingsPanel() {
 					)}
 				</div>
 			</section>
-
-			{isPinChangeOpen && (
-				<PinChangeOverlay onCancel={handlePinChangeClose} onChanged={handlePinChangeClose} />
-			)}
 		</div>
 	);
 }

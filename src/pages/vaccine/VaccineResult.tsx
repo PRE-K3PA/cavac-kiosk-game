@@ -1,8 +1,10 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
+import { RESULT_SCORE_BACKDROP, RESULT_SCORE_GRADIENT } from "@/components/common/resultScoreStyle";
 import VaccineResultCard from "@/components/vaccine/VaccineResultCard";
 import { getImageUrl } from "@/data/storage";
 import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
@@ -11,7 +13,7 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import { useTweenedNumber } from "@/pages/vaccine/useTweenedNumber";
-import { formatScore, VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
+import { formatScore } from "@/pages/vaccine/vaccineGameContent";
 import type { Language } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -51,9 +53,10 @@ export default function VaccineResult({
 	const orientation = useOrientation();
 	const layout = LAYOUT[orientation];
 	const [slideIndex, setSlideIndex] = useState(0);
-	const copy = VACCINE_GAME_COPY;
+	const { t } = useTranslation("vaccineGame", { keyPrefix: "result" });
 	const shouldReduceMotion = useReducedMotion();
 	const shownScore = useTweenedNumber(result.score, SCORE_COUNT_SECONDS, 0);
+	const scoreText = formatScore(Math.round(shownScore));
 
 	const slides = result.vaccines.map((vaccine) => ({
 		id: vaccine.id,
@@ -72,7 +75,7 @@ export default function VaccineResult({
 		orientation === "landscape"
 			? ({
 					size: "compact",
-					arrowLabels: { prev: copy.previousVaccine[language], next: copy.nextVaccine[language] },
+					arrowLabels: { prev: t("prev"), next: t("next") },
 				} as const)
 			: ({ size: "large" } as const);
 
@@ -86,26 +89,30 @@ export default function VaccineResult({
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 300, damping: 18 }}
 				className="typo-display-m font-display text-text-primary">
-				{result.isAllWrong ? copy.resultEncourage[language] : copy.resultTitle[language]}
+				{result.isAllWrong ? t("encourage") : t("title")}
 			</motion.h1>
 			<motion.p
 				initial={shouldReduceMotion ? false : { scale: 0.3, opacity: 0 }}
 				animate={{ scale: 1, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.15 }}
-				className="typo-display-l whitespace-nowrap font-display">
-				<span className="bg-linear-to-b from-accent-yellow to-accent-amber bg-clip-text text-transparent">
-					{formatScore(Math.round(shownScore))}
+				className="typo-display-l relative whitespace-nowrap font-display">
+				<span aria-hidden="true" className={RESULT_SCORE_BACKDROP}>
+					{scoreText}
+					{t("unit")}
 				</span>
-				<span className="text-accent-sky-blue">{copy.scoreUnit[language]}</span>
+				<span className="relative">
+					<span className={RESULT_SCORE_GRADIENT}>{scoreText}</span>
+					<span className="text-accent-sky-blue">{t("unit")}</span>
+				</span>
 			</motion.p>
-			<p className="typo-title-m text-text-secondary">{copy.resultSubtitle[language]}</p>
+			<p className="typo-title-m text-text-secondary">{t("subtitle")}</p>
 
 			<motion.div
 				initial={shouldReduceMotion ? false : { y: 60, opacity: 0 }}
 				animate={{ y: 0, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 220, damping: 20, delay: 0.35 }}>
 				<ResultCarousel
-					label={copy.carouselLabel[language]}
+					label={t("carouselLabel")}
 					slides={slides}
 					index={slideIndex}
 					onIndexChange={setSlideIndex}
@@ -115,7 +122,7 @@ export default function VaccineResult({
 				/>
 			</motion.div>
 
-			<HomeButton label={copy.home[language]} onClick={onHome} className={layout.homeButton} />
+			<HomeButton label={t("home")} onClick={onHome} className={layout.homeButton} />
 		</ScreenLayout>
 	);
 }
