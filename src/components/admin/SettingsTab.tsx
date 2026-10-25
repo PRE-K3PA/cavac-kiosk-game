@@ -7,6 +7,8 @@ const settingsTabVariants = cva(
 	[
 		"flex h-24 w-71.5 items-center justify-center rounded-2xl px-5",
 		"typo-admin-label whitespace-nowrap",
+		"disabled:border-2 disabled:border-border-muted disabled:bg-background-muted",
+		"disabled:text-text-placeholder",
 	],
 	{
 		variants: {

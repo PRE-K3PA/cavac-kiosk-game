@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { getDataOrDefault } from "@/data/load";
-import type { CardGameData } from "@/types/data";
+import type { CardGameData, CommonData } from "@/types/data";
 
-export type CardGameSource = { cardGame: CardGameData; playDurationSeconds: number };
+export type CardGameSource = {
+	cardGame: CardGameData;
+	playDurationSeconds: number;
+	autoReset: CommonData["autoReset"];
+};
 
 // 저장 데이터를 못 읽어도 게임은 기본값으로 계속 진행합니다
 async function loadCardGameSource(): Promise<CardGameSource> {
@@ -10,7 +14,11 @@ async function loadCardGameSource(): Promise<CardGameSource> {
 		getDataOrDefault("card-game"),
 		getDataOrDefault("common"),
 	]);
-	return { cardGame, playDurationSeconds: common.playDurationSeconds };
+	return {
+		cardGame,
+		playDurationSeconds: common.playDurationSeconds,
+		autoReset: common.autoReset,
+	};
 }
 
 export function useCardGameData(): CardGameSource | null {
