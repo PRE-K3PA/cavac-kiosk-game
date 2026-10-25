@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import InlineNotice from "@/components/admin/InlineNotice";
 import OptionButton from "@/components/admin/OptionButton";
 import ProductRow from "@/components/admin/ProductRow";
@@ -15,6 +15,7 @@ import {
 	setShownInResult,
 } from "@/features/admin/productSlots";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
+import { useLimitNotice } from "@/features/admin/useLimitNotice";
 import { useOrientation } from "@/layout/OrientationContext";
 import PenaltySection from "@/pages/admin/PenaltySection";
 import ProductDeleteOverlay from "@/pages/admin/ProductDeleteOverlay";
@@ -38,38 +39,19 @@ const LAYOUT = {
 const SECTION_CARD_CLASS =
 	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
 
-const LIMIT_NOTICE_MS = 3000;
-
 type ProductOverlay = { type: "add" } | { type: "edit" | "delete"; slot: number };
 
 export default function CardSettingsPanel() {
-	// 더 켜려 할 때마다 값을 바꿔 안내 줄의 표시 시간을 처음부터 다시 셉니다
-	const [limitNoticeId, setLimitNoticeId] = useState<number | null>(null);
 	const [productOverlay, setProductOverlay] = useState<ProductOverlay | null>(null);
 	const layout = LAYOUT[useOrientation()];
+	const { isLimitNoticeShown, showLimitNotice, hideLimitNotice } = useLimitNotice();
 
 	const card = useSettingsDraft((state) => state.draft["card-game"]);
 	const originalPenalty = useSettingsDraft((state) => state.original["card-game"].settings.penalty);
 	const setDraft = useSettingsDraft((state) => state.setDraft);
 	const { pairCount, penalty } = card.settings;
 
-	function hideLimitNoticeLater() {
-		if (limitNoticeId === null) return;
-
-		function hideLimitNotice() {
-			setLimitNoticeId(null);
-		}
-
-		const timer = setTimeout(hideLimitNotice, LIMIT_NOTICE_MS);
-		return function cancelHide() {
-			clearTimeout(timer);
-		};
-	}
-
-	useEffect(hideLimitNoticeLater, [limitNoticeId]);
-
-	const notice =
-		getUsageNotice(card) ?? (limitNoticeId === null ? null : getLimitNotice(pairCount));
+	const notice = getUsageNotice(card) ?? (isLimitNoticeShown ? getLimitNotice(pairCount) : null);
 	const registerSlot = findRegisterSlot(card.products);
 	const editingProduct =
 		productOverlay?.type === "edit"
@@ -85,13 +67,13 @@ export default function CardSettingsPanel() {
 	}
 
 	function handlePairCountClick(count: PairCount) {
-		setLimitNoticeId(null);
+		hideLimitNotice();
 		updateCard(changePairCount(card, count));
 	}
 
 	function handleProductEnabledChange(slot: number, isEnabled: boolean) {
 		if (!isEnabled) {
-			setLimitNoticeId(null);
+			hideLimitNotice();
 			updateCard(disableProduct(card, slot));
 			return;
 		}
@@ -101,7 +83,7 @@ export default function CardSettingsPanel() {
 			updateCard(result.data);
 			return;
 		}
-		if (result.reason === "limit") setLimitNoticeId((id) => (id ?? 0) + 1);
+		if (result.reason === "limit") showLimitNotice();
 	}
 
 	function handleProductShownInResultChange(slot: number, isShownInResult: boolean) {
