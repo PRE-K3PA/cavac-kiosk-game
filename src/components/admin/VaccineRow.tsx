@@ -28,8 +28,8 @@ type VaccineRowProps = {
 	imageSrc: string;
 	antigenCount: number;
 	isEnabled: boolean;
-	isCheckboxDisabled?: boolean;
-	isAddAntigenDisabled?: boolean;
+	/** 항원을 수정하는 동안 사용 체크·펼치기·수정·삭제·항원 추가를 모두 막습니다. 항원 행은 막지 않습니다 */
+	disabled?: boolean;
 	isExpanded: boolean;
 	/** 펼쳤을 때 "항원 구성" 아래에 놓을 AntigenRow 들 */
 	children?: ReactNode;
@@ -46,8 +46,7 @@ export default function VaccineRow({
 	imageSrc,
 	antigenCount,
 	isEnabled,
-	isCheckboxDisabled,
-	isAddAntigenDisabled,
+	disabled,
 	isExpanded,
 	children,
 	onEnabledChange,
@@ -63,7 +62,7 @@ export default function VaccineRow({
 				<Checkbox
 					aria-label={`${productName.ko} 사용`}
 					isChecked={isEnabled}
-					disabled={isCheckboxDisabled}
+					disabled={disabled}
 					onChange={onEnabledChange}
 				/>
 				<div
@@ -80,11 +79,14 @@ export default function VaccineRow({
 				<button
 					type="button"
 					aria-expanded={isExpanded}
+					disabled={disabled}
 					onClick={onAntigenToggleClick}
 					className={cn(
 						"flex h-14 shrink-0 items-center gap-2 rounded-xl border-2 border-border-default px-4",
 						"typo-admin-label whitespace-nowrap text-text-primary active:bg-background-canvas",
 						isExpanded ? "bg-background-canvas" : "bg-background-surface",
+						"disabled:border-border-muted disabled:bg-background-muted",
+						"disabled:text-text-placeholder",
 					)}>
 					항원 {antigenCount}개
 					<Icon
@@ -96,6 +98,7 @@ export default function VaccineRow({
 					variant="secondary"
 					label="수정"
 					size="row"
+					disabled={disabled}
 					className="shrink-0"
 					onClick={onEditClick}
 				/>
@@ -103,6 +106,7 @@ export default function VaccineRow({
 					variant="danger"
 					label="삭제"
 					size="row"
+					disabled={disabled}
 					className="shrink-0"
 					onClick={onDeleteClick}
 				/>
@@ -118,7 +122,7 @@ export default function VaccineRow({
 					{children}
 					<AddButton
 						label="항원 추가"
-						disabled={isAddAntigenDisabled || antigenCount >= MAX_ANTIGENS}
+						disabled={disabled || antigenCount >= MAX_ANTIGENS}
 						onClick={onAddAntigenClick}
 						className="w-full"
 					/>

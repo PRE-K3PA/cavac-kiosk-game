@@ -27,9 +27,14 @@ mock.module("@/data/storage", () => ({
 	updatePin: mock(),
 }));
 
-const { selectIsDirty, selectIsFileDirty, selectSaveIssueCount, useSettingsDraft } = await import(
-	"@/features/admin/settingsDraft"
-);
+const {
+	selectAntigenEditing,
+	selectIsAntigenEditing,
+	selectIsDirty,
+	selectIsFileDirty,
+	selectSaveIssueCount,
+	useSettingsDraft,
+} = await import("@/features/admin/settingsDraft");
 
 function draft() {
 	return useSettingsDraft.getState().draft;
@@ -99,6 +104,53 @@ describe("초안 수정", () => {
 		expect(selectSaveIssueCount(useSettingsDraft.getState())).toBe(0);
 		changePairCount();
 		expect(selectSaveIssueCount(useSettingsDraft.getState())).toBeGreaterThan(0);
+	});
+});
+
+describe("항원 수정 상태", () => {
+	function editFirstAntigen() {
+		const [vaccine] = draft()["vaccine-game"].vaccines;
+		const [antigen] = vaccine?.antigens ?? [];
+		if (vaccine === undefined || antigen === undefined)
+			throw new Error("목데이터에 항원이 없습니다");
+
+		const editing = { vaccineId: vaccine.id, antigenId: antigen.id, isNew: false };
+		useSettingsDraft.getState().setAntigenEditing(editing);
+		return editing;
+	}
+
+	test("처음에는 수정 중인 항원이 없다", () => {
+		expect(selectIsAntigenEditing(useSettingsDraft.getState())).toBe(false);
+	});
+
+	test("수정 중인 항원을 두면 수정 중이 된다", () => {
+		const editing = editFirstAntigen();
+
+		expect(selectAntigenEditing(useSettingsDraft.getState())).toBe(editing);
+		expect(selectIsAntigenEditing(useSettingsDraft.getState())).toBe(true);
+	});
+
+	test("수정 중이던 항원이 초안에 없으면 수정 중이 아니다", () => {
+		useSettingsDraft
+			.getState()
+			.setAntigenEditing({ vaccineId: "없는 백신", antigenId: "없는 항원", isNew: true });
+
+		expect(selectAntigenEditing(useSettingsDraft.getState())).toBeNull();
+		expect(selectIsAntigenEditing(useSettingsDraft.getState())).toBe(false);
+	});
+
+	test("되돌리면 항원 수정도 끝난다", () => {
+		editFirstAntigen();
+		useSettingsDraft.getState().revert();
+
+		expect(useSettingsDraft.getState().antigenEditing).toBeNull();
+	});
+
+	test("다시 불러오면 항원 수정도 끝난다", async () => {
+		editFirstAntigen();
+		await useSettingsDraft.getState().load();
+
+		expect(useSettingsDraft.getState().antigenEditing).toBeNull();
 	});
 });
 
