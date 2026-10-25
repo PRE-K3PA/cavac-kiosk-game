@@ -6,9 +6,10 @@ import * as storage from "@/data/storage";
 import { CARD_FLIP_MS } from "@/features/card-game/utils/cardRules";
 import type { Orientation } from "@/layout/stage";
 import { useSessionStore } from "@/store/sessionStore";
-import type { CardGameData, PairCount, ProductSlot } from "@/types/data";
+import type { CardGameData, CommonData, PairCount, ProductSlot } from "@/types/data";
 
 const PLAY_SECONDS = 10;
+const IDLE_SECONDS = 30;
 
 function products(count: number): ProductSlot[] {
 	return Array.from({ length: count }, (_, index) => ({
@@ -33,10 +34,11 @@ function cardGameData(pairCount: PairCount, slots: ProductSlot[]): CardGameData 
 }
 
 let stored = cardGameData(8, products(12));
+let autoReset: CommonData["autoReset"] = { isEnabled: true, idleSeconds: IDLE_SECONDS };
 
 const getData = mock(async (file: string) => {
 	if (file === "card-game") return stored;
-	return { playDurationSeconds: PLAY_SECONDS };
+	return { playDurationSeconds: PLAY_SECONDS, autoReset };
 });
 
 // Bun 의 mock.module 은 같이 실행되는 다른 테스트 파일에도 적용되므로 나머지 export 를 보존합니다
@@ -90,6 +92,7 @@ function board(container: HTMLElement) {
 beforeEach(() => {
 	jest.useFakeTimers();
 	stored = cardGameData(8, products(12));
+	autoReset = { isEnabled: true, idleSeconds: IDLE_SECONDS };
 });
 
 afterEach(() => {
@@ -175,6 +178,61 @@ describe("흐름", () => {
 
 		expect(screen.getByText("100")).toBeTruthy();
 		expect(screen.getByText("1")).toBeTruthy();
+	});
+});
+
+describe("자동 복귀", () => {
+	test("설정한 시간 동안 터치가 없으면 onExit 가 불린다", async () => {
+		const { onExit } = await renderGame();
+
+		advance(IDLE_SECONDS * 1000 - 1);
+		expect(onExit).not.toHaveBeenCalled();
+
+		advance(1);
+		expect(onExit).toHaveBeenCalledTimes(1);
+	});
+
+	test("카드를 누르면 처음부터 다시 센다", async () => {
+		const { onExit } = await renderGame();
+		startPlaying();
+
+		advance(5000);
+		fireEvent.pointerDown(cards()[0]);
+		advance(IDLE_SECONDS * 1000 - 1);
+		expect(onExit).not.toHaveBeenCalled();
+
+		advance(1);
+		expect(onExit).toHaveBeenCalledTimes(1);
+	});
+
+	test("결과 화면에 머물러 있어도 시간이 지나면 onExit 가 불린다", async () => {
+		const { onExit } = await renderGame();
+		finishGame();
+		expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("게임 결과");
+
+		advance(IDLE_SECONDS * 1000);
+		expect(onExit).toHaveBeenCalledTimes(1);
+	});
+
+	test("관리자 화면에서 끄면 불리지 않는다", async () => {
+		autoReset = { isEnabled: false, idleSeconds: IDLE_SECONDS };
+		const { onExit } = await renderGame();
+
+		advance(600_000);
+		expect(onExit).not.toHaveBeenCalled();
+	});
+
+	test("돌아간 뒤 다시 시작하면 앞 판의 결과가 남아 있지 않다", async () => {
+		const first = await renderGame();
+		finishGame();
+		advance(IDLE_SECONDS * 1000);
+		expect(first.onExit).toHaveBeenCalledTimes(1);
+		first.unmount();
+
+		await renderGame();
+		expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
+		expect(screen.getByText(/카드 위치를/)).toBeTruthy();
+		expect(cards().every((card) => card.getAttribute("aria-pressed") === "true")).toBe(true);
 	});
 });
 
