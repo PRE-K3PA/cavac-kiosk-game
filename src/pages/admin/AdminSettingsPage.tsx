@@ -71,20 +71,10 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 	const load = useSettingsDraft((state) => state.load);
 	const save = useSettingsDraft((state) => state.save);
 	const revert = useSettingsDraft((state) => state.revert);
-	const setAntigenEditing = useSettingsDraft((state) => state.setAntigenEditing);
 
 	useEffect(() => {
 		void load();
 	}, [load]);
-
-	// 어느 경로로 나가든 다음 진입 첫 화면에 항원 수정 상태가 남지 않게, 관리자 틀이 사라질 때 비웁니다
-	function clearAntigenEditingOnLeave() {
-		return function clearAntigenEditing() {
-			setAntigenEditing(null);
-		};
-	}
-
-	useEffect(clearAntigenEditingOnLeave, [setAntigenEditing]);
 
 	// 저장 규칙에 걸리거나 항원을 수정하는 중이면 저장하지 않고 SaveBar 의 요약으로 이유를 보여 줍니다
 	const isSaveBlocked = issueCount > 0 || isAntigenEditing;
