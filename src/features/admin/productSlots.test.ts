@@ -9,9 +9,11 @@ import {
 	deleteProduct,
 	disableProduct,
 	enableProduct,
+	findRegisterSlot,
 	registerProduct,
 	replaceProductImage,
 	setShownInResult,
+	toProductImage,
 } from "@/features/admin/productSlots";
 import type { CardGameData, ImagePath, Localized, PairCount } from "@/types/data";
 
@@ -202,6 +204,61 @@ describe("제품 등록", () => {
 		expect(registerProduct(data, NEW_IMAGE).products[0].isShownInResult).toBe(
 			createDefaultData("card-game").products[0].isShownInResult,
 		);
+	});
+});
+
+describe("고르는 중인 사진", () => {
+	test("KR·EN 사진이 모두 있으면 제품 사진이 된다", () => {
+		expect(toProductImage({ ko: NEW_IMAGE.ko, en: NEW_IMAGE.en })).toEqual(NEW_IMAGE);
+	});
+
+	test("한쪽 언어만 있으면 제품 사진이 아니다", () => {
+		expect(toProductImage({ ko: NEW_IMAGE.ko })).toBeUndefined();
+		expect(toProductImage({ en: NEW_IMAGE.en })).toBeUndefined();
+	});
+
+	test("빈 경로는 사진이 없는 것으로 본다", () => {
+		expect(toProductImage({ ko: NEW_IMAGE.ko, en: "" })).toBeUndefined();
+		expect(toProductImage({})).toBeUndefined();
+	});
+});
+
+describe("등록할 칸", () => {
+	test("칸 번호가 가장 작은 빈 칸이다", () => {
+		const data = filledCardGame();
+		expect(findRegisterSlot(data.products)).toBe(11);
+
+		data.products[1].image = null;
+		expect(findRegisterSlot(data.products)).toBe(2);
+	});
+
+	test("제품 목록이 칸 번호 순서가 아니어도 가장 작은 번호의 빈 칸이다", () => {
+		expect(findRegisterSlot(filledCardGame().products.reverse())).toBe(11);
+	});
+
+	test("빈 칸이 없으면 없다", () => {
+		const data = filledCardGame();
+		data.products[10].image = productImage(11);
+		data.products[11].image = productImage(12);
+
+		expect(findRegisterSlot(data.products)).toBeUndefined();
+	});
+
+	// 화면은 이 칸에만 "등록" 버튼을 그리므로, 누른 칸과 실제로 등록되는 칸이 같아야 합니다
+	test("registerProduct 는 이 칸에 등록한다", () => {
+		const middleEmpty = filledCardGame();
+		middleEmpty.products[4].image = null;
+		const reversed = filledCardGame();
+		reversed.products.reverse();
+
+		for (const data of [filledCardGame(), emptyCardGame(), middleEmpty, reversed]) {
+			const slot = findRegisterSlot(data.products);
+			const registered = registerProduct(data, NEW_IMAGE);
+
+			expect(registered.products.find((product) => product.slot === slot)?.image).toEqual(
+				NEW_IMAGE,
+			);
+		}
 	});
 });
 
