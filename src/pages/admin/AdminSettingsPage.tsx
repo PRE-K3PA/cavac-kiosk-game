@@ -8,6 +8,7 @@ import SavedModal from "@/components/admin/SavedModal";
 import SaveFailedModal from "@/components/admin/SaveFailedModal";
 import SettingsTab from "@/components/admin/SettingsTab";
 import {
+	selectIsAntigenEditing,
 	selectIsDirty,
 	selectSaveIssueCount,
 	useSettingsDraft,
@@ -36,7 +37,20 @@ const LAYOUT = {
 	},
 } as const;
 
+// Figma _AntigenEditingSave 의 저장 막대 문구
+const ANTIGEN_EDITING_SUMMARY = "항원 수정 중입니다 · '완료'를 누른 뒤 저장해 주세요";
+
+// 항원 수정 중에 막힌 탭. SettingsTab 에 비활성 모양이 없어 여기서 흐리게 합니다
+const LOCKED_TAB_CLASS =
+	"disabled:border-border-muted disabled:bg-background-muted disabled:text-text-placeholder";
+
 type Overlay = "saved" | "saveFailed" | "saveAndExitFailed" | "exitConfirm" | "discardConfirm";
+
+function getSaveSummary(isAntigenEditing: boolean, issueCount: number): string | undefined {
+	if (isAntigenEditing) return ANTIGEN_EDITING_SUMMARY;
+	if (issueCount > 0) return `저장할 수 없습니다 · ${issueCount}곳을 확인해 주세요`;
+	return undefined;
+}
 
 type AdminSettingsPageProps = {
 	/** 탭마다 보여 줄 설정 영역. 10 공통, 11 백신, 12 카드 화면이 들어옵니다 */
@@ -53,28 +67,39 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 	const isSaving = useSettingsDraft((state) => state.isSaving);
 	const isDirty = useSettingsDraft(selectIsDirty);
 	const issueCount = useSettingsDraft(selectSaveIssueCount);
+	const isAntigenEditing = useSettingsDraft(selectIsAntigenEditing);
 	const load = useSettingsDraft((state) => state.load);
 	const save = useSettingsDraft((state) => state.save);
 	const revert = useSettingsDraft((state) => state.revert);
+	const setAntigenEditing = useSettingsDraft((state) => state.setAntigenEditing);
 
 	useEffect(() => {
 		void load();
 	}, [load]);
 
-	// 저장 규칙에 걸리면 저장하지 않고 SaveBar 의 요약으로 이유를 보여 줍니다
-	const hasIssues = issueCount > 0;
+	// 어느 경로로 나가든 다음 진입 첫 화면에 항원 수정 상태가 남지 않게, 관리자 틀이 사라질 때 비웁니다
+	function clearAntigenEditingOnLeave() {
+		return function clearAntigenEditing() {
+			setAntigenEditing(null);
+		};
+	}
 
-	const summary = hasIssues ? `저장할 수 없습니다 · ${issueCount}곳을 확인해 주세요` : undefined;
+	useEffect(clearAntigenEditingOnLeave, [setAntigenEditing]);
+
+	// 저장 규칙에 걸리거나 항원을 수정하는 중이면 저장하지 않고 SaveBar 의 요약으로 이유를 보여 줍니다
+	const isSaveBlocked = issueCount > 0 || isAntigenEditing;
+
+	const summary = getSaveSummary(isAntigenEditing, issueCount);
 
 	async function handleSaveClick() {
 		setOverlay(null);
-		if (hasIssues) return;
+		if (isSaveBlocked) return;
 		setOverlay((await save()) ? "saved" : "saveFailed");
 	}
 
 	async function handleSaveAndLeaveClick() {
 		setOverlay(null);
-		if (hasIssues) return;
+		if (isSaveBlocked) return;
 		if (await save()) {
 			onExit();
 			return;
@@ -124,8 +149,10 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 							key={tone}
 							tone={tone}
 							isActive={tone === activeTone}
+							// 항원 수정은 완료·삭제로만 빠져나오므로(#74) 수정 중에는 다른 탭으로도 못 갑니다
+							disabled={isAntigenEditing && tone !== activeTone}
 							onClick={() => setActiveTone(tone)}
-							className={layout.tab}
+							className={cn(layout.tab, LOCKED_TAB_CLASS)}
 						/>
 					))}
 				</nav>
@@ -158,7 +185,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 						<ConfirmModal
 							type="exit"
 							tone={activeTone}
-							isSaveAndLeaveDisabled={hasIssues}
+							isSaveAndLeaveDisabled={isSaveBlocked}
 							onCancelClick={handleOverlayClose}
 							onLeaveClick={handleLeaveClick}
 							onSaveAndLeaveClick={handleSaveAndLeaveClick}
