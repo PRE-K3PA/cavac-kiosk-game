@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { createDefaultData } from "@/data/defaults";
+import * as storage from "@/data/storage";
 import type { CardGameData, DataFile, VaccineGameData } from "@/types/data";
 
 let stored: Partial<Record<DataFile, unknown>> = {};
@@ -14,7 +15,9 @@ async function getStoredData(file: DataFile): Promise<unknown> {
 	return stored[file];
 }
 
+// Bun 의 mock.module 은 같이 실행되는 다른 테스트 파일에도 적용되므로 나머지 export 를 보존합니다
 mock.module("@/data/storage", () => ({
+	...storage,
 	getData: getStoredData,
 	getImageUrl: (path: string) => `file://${path}`,
 }));

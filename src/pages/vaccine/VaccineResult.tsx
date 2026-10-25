@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
 import VaccineResultCard from "@/components/vaccine/VaccineResultCard";
@@ -10,13 +11,11 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import { useTweenedNumber } from "@/pages/vaccine/useTweenedNumber";
-import VaccineBackground from "@/pages/vaccine/VaccineBackground";
 import { formatScore, VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
 import type { Language } from "@/types/data";
 import { cn } from "@/utils/cn";
 
-// Figma 에 간격이 없어 이번에 정했다
-const AUTO_SLIDE_MS = 3000;
+// Figma 에 없어 이번에 정했다
 const SCORE_COUNT_SECONDS = 1.2;
 
 const LAYOUT = {
@@ -53,16 +52,8 @@ export default function VaccineResult({
 	const layout = LAYOUT[orientation];
 	const [slideIndex, setSlideIndex] = useState(0);
 	const copy = VACCINE_GAME_COPY;
-	const canSlide = result.vaccines.length > 1;
 	const shouldReduceMotion = useReducedMotion();
 	const shownScore = useTweenedNumber(result.score, SCORE_COUNT_SECONDS, 0);
-
-	// 직접 넘겨도 index 가 바뀌므로 그때부터 다시 센다
-	useEffect(() => {
-		if (!canSlide) return;
-		const timerId = setTimeout(() => setSlideIndex(slideIndex + 1), AUTO_SLIDE_MS);
-		return () => clearTimeout(timerId);
-	}, [slideIndex, canSlide]);
 
 	const slides = result.vaccines.map((vaccine) => ({
 		id: vaccine.id,
@@ -88,7 +79,7 @@ export default function VaccineResult({
 	return (
 		<ScreenLayout
 			onAdminActivate={onAdminActivate}
-			background={<VaccineBackground />}
+			background={<GameBackground />}
 			className={cn("items-center justify-center", layout.main)}>
 			<motion.h1
 				initial={shouldReduceMotion ? false : { y: -40, opacity: 0 }}
@@ -118,6 +109,7 @@ export default function VaccineResult({
 					slides={slides}
 					index={slideIndex}
 					onIndexChange={setSlideIndex}
+					autoAdvance
 					className={layout.carouselGap}
 					{...carouselProps}
 				/>
