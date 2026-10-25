@@ -44,11 +44,10 @@ const SHOWN_QUERY_MAX_LENGTH = 20;
 
 const { min: MIN_ENABLED, max: MAX_ENABLED } = LIMITS.enabledVaccines;
 
-type DeleteTarget =
-	| { type: "vaccine"; vaccineId: string }
-	| { type: "antigen"; vaccineId: string; antigenId: string };
-
-type FormTarget = { type: "add" } | { type: "edit"; vaccineId: string };
+type Overlay =
+	| { type: "add" }
+	| { type: "edit" | "deleteVaccine"; vaccineId: string }
+	| { type: "deleteAntigen"; vaccineId: string; antigenId: string };
 
 /** 검색 결과 없음 안내는 한 줄이라, 긴 검색어는 잘라서 보여 줍니다 */
 function formatShownQuery(query: string) {
@@ -65,8 +64,7 @@ function scrollRowIntoView(row: HTMLDivElement | null) {
 export default function VaccineListSection() {
 	const [query, setQuery] = useState("");
 	const [expandedVaccineId, setExpandedVaccineId] = useState<string | null>(null);
-	const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
-	const [formTarget, setFormTarget] = useState<FormTarget | null>(null);
+	const [overlay, setOverlay] = useState<Overlay | null>(null);
 	// 추가한 백신 행이 목록 끝에 그려질 때 그 행까지 스크롤합니다
 	const [addedVaccineId, setAddedVaccineId] = useState<string | null>(null);
 
@@ -85,8 +83,8 @@ export default function VaccineListSection() {
 	const shownExpandedVaccineId = currentEditing?.vaccineId ?? expandedVaccineId;
 	const visibleVaccines = filterVaccines(vaccines, query);
 	const editingVaccine =
-		formTarget?.type === "edit"
-			? vaccines.find((vaccine) => vaccine.id === formTarget.vaccineId)
+		overlay?.type === "edit"
+			? vaccines.find((vaccine) => vaccine.id === overlay.vaccineId)
 			: undefined;
 	const notice =
 		getVaccineUsageNotice(vaccines) ?? (isLimitNoticeShown ? VACCINE_LIMIT_NOTICE : null);
@@ -133,7 +131,7 @@ export default function VaccineListSection() {
 
 	function handleAntigenDeleteClick(vaccineId: string, antigenId: string) {
 		if (needsDeleteConfirm(currentEditing, antigenId)) {
-			setDeleteTarget({ type: "antigen", vaccineId, antigenId });
+			setOverlay({ type: "deleteAntigen", vaccineId, antigenId });
 			return;
 		}
 		applyAntigenEdit(deleteAntigen(editState, vaccineId, antigenId));
@@ -141,31 +139,27 @@ export default function VaccineListSection() {
 
 	function handleAntigenDeleteConfirm(vaccineId: string, antigenId: string) {
 		applyAntigenEdit(deleteAntigen(editState, vaccineId, antigenId));
-		setDeleteTarget(null);
+		setOverlay(null);
 	}
 
 	function handleVaccineDeleteOpen(vaccineId: string) {
-		setDeleteTarget({ type: "vaccine", vaccineId });
-	}
-
-	function handleDeleteOverlayClose() {
-		setDeleteTarget(null);
+		setOverlay({ type: "deleteVaccine", vaccineId });
 	}
 
 	function handleAddVaccineClick() {
-		setFormTarget({ type: "add" });
+		setOverlay({ type: "add" });
 	}
 
 	function handleVaccineEditClick(vaccineId: string) {
-		setFormTarget({ type: "edit", vaccineId });
+		setOverlay({ type: "edit", vaccineId });
 	}
 
-	function handleFormClose() {
-		setFormTarget(null);
+	function handleOverlayClose() {
+		setOverlay(null);
 	}
 
 	function handleVaccineAdded(vaccineId: string) {
-		setFormTarget(null);
+		setOverlay(null);
 		// 새 백신은 항원이 없어 저장이 막히므로, 검색을 풀고 펼쳐서 "+ 항원 추가" 가 바로 보이게 합니다
 		setQuery("");
 		setExpandedVaccineId(vaccineId);
@@ -286,29 +280,27 @@ export default function VaccineListSection() {
 				className="w-full shrink-0"
 			/>
 
-			{(formTarget?.type === "add" || editingVaccine) && (
+			{(overlay?.type === "add" || editingVaccine) && (
 				<VaccineFormOverlay
 					vaccine={editingVaccine}
-					onCancel={handleFormClose}
-					onDone={handleFormClose}
+					onCancel={handleOverlayClose}
+					onDone={handleOverlayClose}
 					onAdded={handleVaccineAdded}
 				/>
 			)}
-			{deleteTarget?.type === "vaccine" && (
+			{overlay?.type === "deleteVaccine" && (
 				<VaccineDeleteOverlay
-					vaccineId={deleteTarget.vaccineId}
-					onCancel={handleDeleteOverlayClose}
-					onDeleted={handleDeleteOverlayClose}
+					vaccineId={overlay.vaccineId}
+					onCancel={handleOverlayClose}
+					onDeleted={handleOverlayClose}
 				/>
 			)}
-			{deleteTarget?.type === "antigen" && (
+			{overlay?.type === "deleteAntigen" && (
 				<AntigenDeleteOverlay
-					vaccineId={deleteTarget.vaccineId}
-					antigenId={deleteTarget.antigenId}
-					onCancel={handleDeleteOverlayClose}
-					onDeleteClick={() =>
-						handleAntigenDeleteConfirm(deleteTarget.vaccineId, deleteTarget.antigenId)
-					}
+					vaccineId={overlay.vaccineId}
+					antigenId={overlay.antigenId}
+					onCancel={handleOverlayClose}
+					onDeleteClick={() => handleAntigenDeleteConfirm(overlay.vaccineId, overlay.antigenId)}
 				/>
 			)}
 		</section>
