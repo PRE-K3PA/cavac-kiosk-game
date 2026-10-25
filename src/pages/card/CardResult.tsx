@@ -4,6 +4,7 @@ import ProductResultCard from "@/components/card/ProductResultCard";
 import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
+import { RESULT_SCORE_BACKDROP, RESULT_SCORE_GRADIENT } from "@/components/common/resultScoreStyle";
 import { getImageUrl } from "@/data/storage";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
@@ -22,15 +23,6 @@ const LAYOUT = {
 	landscape: { main: "gap-4 p-8", home: "h-28 w-120" },
 	portrait: { main: "gap-6 py-12", home: "" },
 } as const;
-
-const SCORE_GRADIENT =
-	"bg-linear-to-b from-accent-yellow to-accent-amber bg-clip-text text-transparent";
-// bg-clip-text 글자에는 text-stroke 가 안쪽으로 걸쳐 그라데이션을 가리므로,
-// 외곽선과 그림자는 같은 글자를 뒤에 한 겹 더 깔아서 그립니다. Figma 외곽선은 약 10px 입니다
-const SCORE_BACKDROP = cn(
-	"absolute inset-0 whitespace-nowrap",
-	"text-text-primary text-shadow-hard-lg outlined-text [--text-outline-width:20px]",
-);
 
 export default function CardResult({ score, products, onExit, onAdminActivate }: CardResultProps) {
 	const { t } = useTranslation("cardGame", { keyPrefix: "result" });
@@ -62,12 +54,12 @@ export default function CardResult({ score, products, onExit, onAdminActivate }:
 				<div className="flex flex-col items-center text-center">
 					<h1 className="typo-display-m font-display text-text-primary">{t("title")}</h1>
 					<p className="typo-display-l relative whitespace-nowrap font-display">
-						<span aria-hidden="true" className={SCORE_BACKDROP}>
+						<span aria-hidden="true" className={RESULT_SCORE_BACKDROP}>
 							{scoreText}
 							{t("unit")}
 						</span>
 						<span className="relative">
-							<span className={SCORE_GRADIENT}>{scoreText}</span>
+							<span className={RESULT_SCORE_GRADIENT}>{scoreText}</span>
 							<span className="text-accent-sky-blue">{t("unit")}</span>
 						</span>
 					</p>
