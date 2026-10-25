@@ -1,7 +1,15 @@
 import { LIMITS } from "@/data/schema";
+import type { UsageNotice } from "@/features/admin/cardSettings";
 import type { Vaccine, VaccineGameData } from "@/types/data";
 
+const MIN_ENABLED = LIMITS.enabledVaccines.min;
 const MAX_ENABLED = LIMITS.enabledVaccines.max;
+
+/** 사용 백신이 한도만큼 켜진 상태에서 더 켜려 할 때 잠깐 보여 주는 안내입니다 (10차 회의) */
+export const VACCINE_LIMIT_NOTICE: UsageNotice = {
+	tone: "info",
+	message: `사용 백신은 ${MAX_ENABLED}개까지입니다. 다른 백신을 쓰려면 하나를 먼저 꺼 주세요.`,
+};
 
 export type EnableVaccineResult =
 	| { isSuccess: true; data: VaccineGameData }
@@ -12,6 +20,19 @@ export type VaccineInfo = Pick<Vaccine, "brandName" | "productName" | "bottleIma
 
 export function countEnabledVaccines(vaccines: Vaccine[]): number {
 	return vaccines.filter((vaccine) => vaccine.isEnabled).length;
+}
+
+/**
+ * 사용 백신이 모자라 저장 규칙에 걸릴 때 목록 머리 아래에 보여 주는 안내입니다.
+ * 등록된 백신이 없는 빈 상태만 앰버, 나머지는 빨강입니다 (Figma _Empty, 카드 설정과 같은 규칙)
+ */
+export function getVaccineUsageNotice(vaccines: Vaccine[]): UsageNotice | null {
+	if (countEnabledVaccines(vaccines) >= MIN_ENABLED) return null;
+
+	return {
+		tone: vaccines.length === 0 ? "info" : "error",
+		message: `백신을 ${MIN_ENABLED}개 이상 체크해야 저장할 수 있어요.`,
+	};
 }
 
 /** 행에 보이는 제품명(KR·EN)으로만 찾습니다. 앞뒤 공백과 영문 대소문자는 무시합니다 */

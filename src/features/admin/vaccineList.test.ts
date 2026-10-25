@@ -8,7 +8,9 @@ import {
 	disableVaccine,
 	enableVaccine,
 	filterVaccines,
+	getVaccineUsageNotice,
 	updateVaccineInfo,
+	VACCINE_LIMIT_NOTICE,
 	type VaccineInfo,
 } from "@/features/admin/vaccineList";
 import type { Vaccine, VaccineGameData } from "@/types/data";
@@ -158,6 +160,37 @@ describe("사용 켜기·끄기", () => {
 	});
 });
 
+describe("사용 안내", () => {
+	const usageMessage = "백신을 1개 이상 체크해야 저장할 수 있어요.";
+
+	test("켠 백신이 1개 이상이면 안내하지 않는다", () => {
+		expect(getVaccineUsageNotice(filledVaccineGame().vaccines)).toBeNull();
+	});
+
+	test("등록된 백신이 없으면 앰버로 체크를 알린다 (빈 상태)", () => {
+		expect(getVaccineUsageNotice(emptyVaccineGame().vaccines)).toEqual({
+			tone: "info",
+			message: usageMessage,
+		});
+	});
+
+	test("백신이 있는데 모두 끄면 빈 상태가 아니라 빨강으로 알린다", () => {
+		let data = filledVaccineGame();
+		for (const name of ["5280 ABBNE", "RV-K", "가금 복합백신"]) {
+			data = disableVaccine(data, vaccineId(data, name));
+		}
+
+		expect(getVaccineUsageNotice(data.vaccines)).toEqual({ tone: "error", message: usageMessage });
+	});
+
+	test("한도 안내는 앰버로 5개까지라고 알린다", () => {
+		expect(VACCINE_LIMIT_NOTICE).toEqual({
+			tone: "info",
+			message: "사용 백신은 5개까지입니다. 다른 백신을 쓰려면 하나를 먼저 꺼 주세요.",
+		});
+	});
+});
+
 describe("백신 추가", () => {
 	test("목록 끝에 항원 없이 넣는다", () => {
 		const added = addVaccine(filledVaccineGame(), vaccineInfo("Vaccine F"));
@@ -271,6 +304,23 @@ describe("저장 규칙과 함께", () => {
 			data = deleteVaccine(data, vaccineId(data, name));
 		}
 
+		expect(validateForSave("vaccine-game", data)).toEqual({
+			isValid: false,
+			issues: [expect.stringContaining("백신을 1~5개")],
+		});
+	});
+
+	test("켠 백신이 1개보다 적으면 사용 안내가 보이고 저장 규칙도 막는다", () => {
+		let data = filledVaccineGame();
+
+		expect(getVaccineUsageNotice(data.vaccines)).toBeNull();
+		expect(validateForSave("vaccine-game", data).isValid).toBe(true);
+
+		for (const name of ["5280 ABBNE", "RV-K", "가금 복합백신"]) {
+			data = disableVaccine(data, vaccineId(data, name));
+		}
+
+		expect(getVaccineUsageNotice(data.vaccines)).not.toBeNull();
 		expect(validateForSave("vaccine-game", data)).toEqual({
 			isValid: false,
 			issues: [expect.stringContaining("백신을 1~5개")],

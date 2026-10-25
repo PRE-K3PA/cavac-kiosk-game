@@ -1,5 +1,7 @@
 import bgmCardGame from "@/assets/sounds/bgmCardGame.mp3";
 import bgmCardHome from "@/assets/sounds/bgmCardHome.mp3";
+import bgmVaccineGame from "@/assets/sounds/bgmVaccineGame.mp3";
+import bgmVaccineHome from "@/assets/sounds/bgmVaccineHome.mp3";
 import sfxButton from "@/assets/sounds/sfxButton.wav";
 import sfxCountdown from "@/assets/sounds/sfxCountdown.mp3";
 import sfxFanfare from "@/assets/sounds/sfxFanfare.wav";
@@ -82,6 +84,8 @@ export function startSound(name: SoundName): () => void {
 export const BGM_NAMES = {
 	cardHome: "cardHome",
 	cardGame: "cardGame",
+	vaccineHome: "vaccineHome",
+	vaccineGame: "vaccineGame",
 } as const;
 
 export type BgmName = (typeof BGM_NAMES)[keyof typeof BGM_NAMES];
@@ -89,12 +93,16 @@ export type BgmName = (typeof BGM_NAMES)[keyof typeof BGM_NAMES];
 const BGMS: Record<BgmName, string> = {
 	cardHome: bgmCardHome,
 	cardGame: bgmCardGame,
+	vaccineHome: bgmVaccineHome,
+	vaccineGame: bgmVaccineGame,
 };
 
 // 효과음이 배경음에 묻히지 않게 낮춥니다. 게임 중에는 효과음이 잦아 더 낮춥니다
 const BGM_VOLUME: Record<BgmName, number> = {
 	cardHome: 0.5,
 	cardGame: 0.4,
+	vaccineHome: 0.5,
+	vaccineGame: 0.5,
 };
 
 let bgm: { name: BgmName; player: HTMLAudioElement } | null = null;

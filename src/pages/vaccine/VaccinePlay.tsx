@@ -1,5 +1,6 @@
 import { motion, useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import GameBackground from "@/components/common/GameBackground";
 import PlayTimer, { WARNING_RATIO } from "@/components/common/PlayTimer";
 import StatBox from "@/components/common/StatBox";
@@ -26,14 +27,7 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import { useTweenedNumber } from "@/pages/vaccine/useTweenedNumber";
-import {
-	formatCombo,
-	formatCount,
-	formatMissingAntigen,
-	formatScore,
-	formatSeconds,
-	VACCINE_GAME_COPY,
-} from "@/pages/vaccine/vaccineGameContent";
+import { formatScore } from "@/pages/vaccine/vaccineGameContent";
 import type { Language, Vaccine, VaccineGameSettings } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -157,7 +151,7 @@ export default function VaccinePlay({
 		isBottleFull(play) ? 100 : getBottleFill(game),
 		BOTTLE_FILL_SECONDS,
 	);
-	const copy = VACCINE_GAME_COPY;
+	const { t } = useTranslation("vaccineGame", { keyPrefix: "play" });
 
 	// 터치 결과마다 화면 흔들림, 빨간 번쩍임, 병 튀기기를 튼다
 	useEffect(() => {
@@ -193,7 +187,7 @@ export default function VaccinePlay({
 		<ScreenLayout onAdminActivate={onAdminActivate} background={<GameBackground />}>
 			<div ref={screenScope} className="absolute inset-0">
 				<PlayTimer
-					time={formatSeconds(Math.ceil(remainingMs / 1000), language)}
+					time={t("time", { seconds: Math.ceil(remainingMs / 1000) })}
 					progress={remainingMs / game.durationMs}
 					className={cn("absolute", layout.timer)}
 				/>
@@ -205,7 +199,7 @@ export default function VaccinePlay({
 							initial={shouldReduceMotion ? false : { scale: 1.15 }}
 							animate={{ scale: 1 }}
 							transition={{ type: "spring", stiffness: 500, damping: 15 }}>
-							<StatBox label={copy.score[language]} value={formatScore(game.score)} />
+							<StatBox label={t("score")} value={formatScore(game.score)} />
 						</motion.div>
 						<motion.div
 							key={`completed-${game.completedCount}`}
@@ -214,8 +208,8 @@ export default function VaccinePlay({
 							transition={{ type: "spring", stiffness: 400, damping: 12 }}
 							className="order-last">
 							<StatBox
-								label={copy.completed[language]}
-								value={formatCount(game.completedCount, language)}
+								label={t("completed")}
+								value={t("completedCount", { n: game.completedCount })}
 							/>
 						</motion.div>
 					</div>
@@ -233,11 +227,7 @@ export default function VaccinePlay({
 						)}
 					</div>
 					<div ref={bottleScope}>
-						<VaccineBottle
-							fill={bottleFill}
-							label={copy.bottleLabel[language]}
-							className={layout.bottle}
-						/>
+						<VaccineBottle fill={bottleFill} label={t("bottleLabel")} className={layout.bottle} />
 					</div>
 				</section>
 
@@ -314,7 +304,7 @@ export default function VaccinePlay({
 								"border-2 border-border-error bg-state-error-subtle text-text-primary",
 								layout.feedback,
 							)}>
-							{formatMissingAntigen(formatAntigenLabel(play.feedback.missing), language)}
+							{t("missingAntigen", { label: formatAntigenLabel(play.feedback.missing) })}
 						</motion.p>
 					)}
 				</div>
@@ -375,7 +365,7 @@ export default function VaccinePlay({
 						initial={{ opacity: 0, scale: 0.4 }}
 						animate={{ opacity: [0, 1, 1, 0], scale: [0.4, 1.15, 1, 1] }}
 						transition={{ duration: 1, times: [0, 0.25, 0.7, 1] }}>
-						{formatCombo(lastTap.combo, language)}
+						{t("combo", { combo: lastTap.combo })}
 					</motion.p>
 				)}
 

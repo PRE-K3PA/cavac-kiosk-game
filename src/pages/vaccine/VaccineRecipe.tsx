@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import GameBackground from "@/components/common/GameBackground";
 import RecipeCard from "@/components/vaccine/RecipeCard";
 import RecipeTimeBar from "@/components/vaccine/RecipeTimeBar";
@@ -9,7 +10,6 @@ import { useSoundWhile } from "@/hooks/useSound";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
-import { VACCINE_GAME_COPY } from "@/pages/vaccine/vaccineGameContent";
 import type { Language, Vaccine } from "@/types/data";
 import { cn } from "@/utils/cn";
 import { SOUND_NAMES } from "@/utils/soundEngine";
@@ -68,6 +68,7 @@ export default function VaccineRecipe({
 	onDone,
 	onAdminActivate,
 }: VaccineRecipeProps) {
+	const { t } = useTranslation("vaccineGame", { keyPrefix: "recipe" });
 	const seconds = getRecipeSeconds(vaccines.length);
 	const [remainingSeconds, setRemainingSeconds] = useState(seconds);
 	const [barProgress, setBarProgress] = useState(100);
@@ -101,7 +102,7 @@ export default function VaccineRecipe({
 					"typo-display-l shrink-0 break-keep text-center font-display text-text-primary",
 					layout.title,
 				)}>
-				{VACCINE_GAME_COPY.recipeTitle[language]}
+				{t("title")}
 			</h1>
 
 			<div ref={areaRef} className="flex min-h-0 w-full flex-1 items-center justify-center">
@@ -128,7 +129,7 @@ export default function VaccineRecipe({
 
 			<div className={cn("flex shrink-0 flex-col items-center gap-3 px-8", layout.countdown)}>
 				<p className="typo-body-l text-center text-text-primary">
-					{VACCINE_GAME_COPY.countdownBefore[language]}
+					{t("countdownBefore")}
 					<motion.span
 						key={remainingSeconds}
 						initial={shouldReduceMotion ? false : { scale: 1.6 }}
@@ -137,12 +138,12 @@ export default function VaccineRecipe({
 						className="typo-number-l inline-block text-state-error">
 						{remainingSeconds}
 					</motion.span>
-					{VACCINE_GAME_COPY.countdownAfter[language]}
+					{t("countdownAfter")}
 				</p>
 				<RecipeTimeBar
 					seconds={seconds}
 					progress={barProgress}
-					label={VACCINE_GAME_COPY.countdownLabel[language]}
+					label={t("countdownLabel")}
 					className={layout.timeBar}
 				/>
 			</div>
