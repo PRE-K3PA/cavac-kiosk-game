@@ -2,18 +2,14 @@ import { useId } from "react";
 import Button from "@/components/admin/Button";
 import FieldMessage from "@/components/admin/FieldMessage";
 import ImageField from "@/components/admin/ImageField";
+import { LANGUAGE_OPTIONS, type LanguageOption } from "@/components/admin/languageLabel";
 import ModalFrame from "@/components/admin/ModalFrame";
 import ModalHeader from "@/components/admin/ModalHeader";
 import TextInput from "@/components/admin/TextInput";
-import type { Localized, Vaccine } from "@/types/data";
+import type { Language, Localized, Vaccine } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 const REQUIRED_NOTICE = "모든 항목이 필수입니다.";
-
-const LANGUAGES = [
-	{ key: "ko", label: "KR" },
-	{ key: "en", label: "EN" },
-] as const;
 
 const NAME_FIELDS = [
 	{
@@ -45,8 +41,6 @@ const IMAGE_FIELDS = [
 	},
 ] as const;
 
-type Language = (typeof LANGUAGES)[number];
-type LanguageKey = keyof Localized<string>;
 type NameField = (typeof NAME_FIELDS)[number];
 type ImageFieldConfig = (typeof IMAGE_FIELDS)[number];
 type VaccineName = Pick<Vaccine, "brandName" | "productName">;
@@ -71,8 +65,8 @@ type VaccineModalProps = (AddModeProps | EditModeProps) & {
 	imageErrorMessages?: Partial<Record<ImageKey, LocalizedText>>;
 	isConfirmDisabled?: boolean;
 	onNameChange?: (name: VaccineName) => void;
-	onImageSelectClick?: (image: ImageKey, language: LanguageKey) => void;
-	onImagePreviewClick?: (image: ImageKey, language: LanguageKey) => void;
+	onImageSelectClick?: (image: ImageKey, language: Language) => void;
+	onImagePreviewClick?: (image: ImageKey, language: Language) => void;
 	onCancelClick?: () => void;
 	onConfirmClick?: () => void;
 	className?: string;
@@ -105,22 +99,22 @@ export default function VaccineModal(props: VaccineModalProps) {
 				}
 			: { title: "백신 추가", subtitle: `새 백신 정보를 입력하세요. ${REQUIRED_NOTICE}` };
 
-	function nameMessageId(field: NameField, language: Language) {
+	function nameMessageId(field: NameField, language: LanguageOption) {
 		return `${fieldIdPrefix}-${field.key}-${language.key}-message`;
 	}
 
-	function nameErrorMessage(field: NameField, language: Language) {
+	function nameErrorMessage(field: NameField, language: LanguageOption) {
 		return nameErrorMessages[field.key]?.[language.key];
 	}
 
-	const nameErrors = LANGUAGES.flatMap((language) =>
+	const nameErrors = LANGUAGE_OPTIONS.flatMap((language) =>
 		NAME_FIELDS.flatMap((field) => {
 			const message = nameErrorMessage(field, language);
 			return message ? [{ id: nameMessageId(field, language), message }] : [];
 		}),
 	);
 
-	function renderNameInput(field: NameField, language: Language) {
+	function renderNameInput(field: NameField, language: LanguageOption) {
 		const errorMessage = nameErrorMessage(field, language);
 
 		function handleChange(text: string) {
@@ -141,7 +135,7 @@ export default function VaccineModal(props: VaccineModalProps) {
 		);
 	}
 
-	function renderNameRow(language: Language) {
+	function renderNameRow(language: LanguageOption) {
 		return (
 			<div key={language.key} className="flex items-center gap-3">
 				<p className="w-10 shrink-0 typo-admin-caption text-text-secondary">{language.label}</p>
@@ -150,7 +144,7 @@ export default function VaccineModal(props: VaccineModalProps) {
 		);
 	}
 
-	function renderImageVersion(field: ImageFieldConfig, language: Language) {
+	function renderImageVersion(field: ImageFieldConfig, language: LanguageOption) {
 		return (
 			<div key={language.key} className="flex flex-col gap-2">
 				<p className="typo-admin-caption text-text-secondary">{language.label}</p>
@@ -170,7 +164,7 @@ export default function VaccineModal(props: VaccineModalProps) {
 			<div key={field.key} className="flex flex-col gap-2">
 				<p className="typo-admin-body text-text-primary">{field.label}</p>
 				<div className={field.layout}>
-					{LANGUAGES.map((language) => renderImageVersion(field, language))}
+					{LANGUAGE_OPTIONS.map((language) => renderImageVersion(field, language))}
 				</div>
 			</div>
 		);
@@ -191,7 +185,7 @@ export default function VaccineModal(props: VaccineModalProps) {
 								</p>
 							))}
 						</div>
-						{LANGUAGES.map(renderNameRow)}
+						{LANGUAGE_OPTIONS.map(renderNameRow)}
 					</div>
 					{nameErrors.map((error) => (
 						<FieldMessage key={error.id} id={error.id} message={error.message} />

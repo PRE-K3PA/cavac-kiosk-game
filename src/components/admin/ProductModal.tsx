@@ -1,20 +1,14 @@
 import Button from "@/components/admin/Button";
 import ImageField from "@/components/admin/ImageField";
+import { LANGUAGE_OPTIONS, type LanguageOption } from "@/components/admin/languageLabel";
 import ModalFrame from "@/components/admin/ModalFrame";
 import ModalHeader from "@/components/admin/ModalHeader";
 import MemoryCard from "@/components/card/MemoryCard";
-import type { Localized, ProductSlot } from "@/types/data";
+import type { Language, Localized, ProductSlot } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 const REQUIRED_NOTICE = "KR·EN 이미지가 모두 필요합니다.";
 
-const LANGUAGES = [
-	{ key: "ko", label: "KR" },
-	{ key: "en", label: "EN" },
-] as const;
-
-type Language = (typeof LANGUAGES)[number];
-type LanguageKey = keyof Localized<string>;
 type LocalizedText = Partial<Localized<string>>;
 
 type AddModeProps = {
@@ -31,8 +25,8 @@ type ProductModalProps = (AddModeProps | EditModeProps) &
 		imageSrcs?: LocalizedText;
 		imageErrorMessages?: LocalizedText;
 		isConfirmDisabled?: boolean;
-		onImageSelectClick?: (language: LanguageKey) => void;
-		onImagePreviewClick?: (language: LanguageKey) => void;
+		onImageSelectClick?: (language: Language) => void;
+		onImagePreviewClick?: (language: Language) => void;
 		onCancelClick?: () => void;
 		onConfirmClick?: () => void;
 		className?: string;
@@ -52,7 +46,7 @@ export default function ProductModal(props: ProductModalProps) {
 	} = props;
 	const title = props.mode === "edit" ? "제품 수정" : "제품 등록";
 
-	function renderLanguageRow(language: Language) {
+	function renderLanguageRow(language: LanguageOption) {
 		const imageSrc = imageSrcs[language.key];
 
 		return (
@@ -85,7 +79,7 @@ export default function ProductModal(props: ProductModalProps) {
 	return (
 		<ModalFrame className={cn("w-180", className)}>
 			<ModalHeader tone="card" title={title} subtitle={`${slot}번 칸 · ${REQUIRED_NOTICE}`} />
-			{LANGUAGES.map(renderLanguageRow)}
+			{LANGUAGE_OPTIONS.map(renderLanguageRow)}
 			<div className="flex w-full gap-3">
 				{props.mode === "edit" && (
 					<Button variant="danger" label="삭제" onClick={props.onDeleteClick} />

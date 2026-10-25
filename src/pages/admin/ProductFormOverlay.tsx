@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ImagePreviewModal from "@/components/admin/ImagePreviewModal";
+import { LANGUAGE_LABEL } from "@/components/admin/languageLabel";
 import ModalOverlay from "@/components/admin/ModalOverlay";
 import ProductModal from "@/components/admin/ProductModal";
 import MemoryCard from "@/components/card/MemoryCard";
@@ -16,8 +17,6 @@ import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useImageSelect } from "@/features/admin/useImageSelect";
 import ProductDeleteOverlay from "@/pages/admin/ProductDeleteOverlay";
 import type { ImagePath, Language, ProductSlot } from "@/types/data";
-
-const LANGUAGE_LABELS = { ko: "KR", en: "EN" } satisfies Record<Language, string>;
 
 const PREVIEW_DESCRIPTION = "카드 앞면과 결과 화면 카드에 이렇게 보입니다.";
 
@@ -113,7 +112,7 @@ export default function ProductFormOverlay({ product, onCancel, onDone }: Produc
 				<ModalOverlay>
 					<ImagePreviewModal
 						tone="card"
-						description={`제품 이미지 · ${LANGUAGE_LABELS[previewLanguage]} — ${PREVIEW_DESCRIPTION}`}
+						description={`제품 이미지 · ${LANGUAGE_LABEL[previewLanguage]} — ${PREVIEW_DESCRIPTION}`}
 						items={[
 							{
 								caption: "카드 앞면 (게임 중)",

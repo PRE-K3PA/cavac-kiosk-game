@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ImagePreviewModal from "@/components/admin/ImagePreviewModal";
+import { LANGUAGE_LABEL } from "@/components/admin/languageLabel";
 import ModalOverlay from "@/components/admin/ModalOverlay";
 import VaccineModal from "@/components/admin/VaccineModal";
 import type { AntigenLabel } from "@/components/vaccine/antigen";
@@ -12,7 +13,6 @@ import {
 	EMPTY_VACCINE_IMAGES,
 	EMPTY_VACCINE_NAME,
 	getBlankNameErrors,
-	LANGUAGE_LABELS,
 	toVaccineInfo,
 	VACCINE_IMAGE_KINDS,
 	type VaccineImageDraft,
@@ -67,7 +67,7 @@ function toImageErrorMessages(messages: Partial<Record<VaccineImageField, string
 
 function formatPreviewDescription({ image, language }: ImagePreview) {
 	const { label, place } = PREVIEW_PLACES[image];
-	return `${label} · ${LANGUAGE_LABELS[language]} — ${place}에 이렇게 보입니다.`;
+	return `${label} · ${LANGUAGE_LABEL[language]} — ${place}에 이렇게 보입니다.`;
 }
 
 /** 항원 색은 게임을 시작할 때마다 새로 정하므로, 미리보기는 차례대로 칠합니다 */
