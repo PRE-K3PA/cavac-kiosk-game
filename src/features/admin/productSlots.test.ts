@@ -13,7 +13,6 @@ import {
 	registerProduct,
 	replaceProductImage,
 	setShownInResult,
-	toProductImage,
 } from "@/features/admin/productSlots";
 import type { CardGameData, ImagePath, Localized, PairCount } from "@/types/data";
 
@@ -204,22 +203,6 @@ describe("제품 등록", () => {
 		expect(registerProduct(data, NEW_IMAGE).products[0].isShownInResult).toBe(
 			createDefaultData("card-game").products[0].isShownInResult,
 		);
-	});
-});
-
-describe("고르는 중인 사진", () => {
-	test("KR·EN 사진이 모두 있으면 제품 사진이 된다", () => {
-		expect(toProductImage({ ko: NEW_IMAGE.ko, en: NEW_IMAGE.en })).toEqual(NEW_IMAGE);
-	});
-
-	test("한쪽 언어만 있으면 제품 사진이 아니다", () => {
-		expect(toProductImage({ ko: NEW_IMAGE.ko })).toBeUndefined();
-		expect(toProductImage({ en: NEW_IMAGE.en })).toBeUndefined();
-	});
-
-	test("빈 경로는 사진이 없는 것으로 본다", () => {
-		expect(toProductImage({ ko: NEW_IMAGE.ko, en: "" })).toBeUndefined();
-		expect(toProductImage({})).toBeUndefined();
 	});
 });
 

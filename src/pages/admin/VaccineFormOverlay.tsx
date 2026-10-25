@@ -6,7 +6,7 @@ import VaccineModal from "@/components/admin/VaccineModal";
 import type { AntigenLabel } from "@/components/vaccine/antigen";
 import VaccineBottle from "@/components/vaccine/VaccineBottle";
 import VaccineResultCard from "@/components/vaccine/VaccineResultCard";
-import { getImageUrl } from "@/data/storage";
+import { toImageSrcs } from "@/features/admin/localizedDraft";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useImageSelect } from "@/features/admin/useImageSelect";
 import {
@@ -22,14 +22,7 @@ import {
 } from "@/features/admin/vaccineForm";
 import { addVaccine, updateVaccineInfo } from "@/features/admin/vaccineList";
 import VaccineDeleteOverlay from "@/pages/admin/VaccineDeleteOverlay";
-import {
-	ANTIGEN_COLOR_KEYS,
-	type Antigen,
-	type ImagePath,
-	type Language,
-	type Localized,
-	type Vaccine,
-} from "@/types/data";
+import { ANTIGEN_COLOR_KEYS, type Antigen, type Language, type Vaccine } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 const PREVIEW_PLACES = {
@@ -53,10 +46,6 @@ type VaccineFormOverlayProps = {
 	onDone: () => void;
 	onAdded: (vaccineId: string) => void;
 };
-
-function toImageSrcs({ ko, en }: Partial<Localized<ImagePath>>) {
-	return { ko: ko && getImageUrl(ko), en: en && getImageUrl(en) };
-}
 
 function toImageErrorMessages(messages: Partial<Record<VaccineImageField, string>>) {
 	return {

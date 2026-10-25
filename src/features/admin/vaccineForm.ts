@@ -1,4 +1,5 @@
 import { LANGUAGE_LABEL } from "@/components/admin/languageLabel";
+import { toCompleteLocalized } from "@/features/admin/localizedDraft";
 import type { VaccineInfo } from "@/features/admin/vaccineList";
 import type { ImageKind, ImagePath, Language, Localized, Vaccine } from "@/types/data";
 
@@ -47,10 +48,10 @@ export function toVaccineInfo(
 	name: VaccineName,
 	images: VaccineImageDraft,
 ): VaccineInfo | undefined {
-	const brandName = toComplete(trimLocalized(name.brandName));
-	const productName = toComplete(trimLocalized(name.productName));
-	const bottleImage = toComplete(images.bottleImage);
-	const logoImage = toComplete(images.logoImage);
+	const brandName = toCompleteLocalized(trimLocalized(name.brandName));
+	const productName = toCompleteLocalized(trimLocalized(name.productName));
+	const bottleImage = toCompleteLocalized(images.bottleImage);
+	const logoImage = toCompleteLocalized(images.logoImage);
 	if (!brandName || !productName || !bottleImage || !logoImage) return undefined;
 
 	return { brandName, productName, bottleImage, logoImage };
@@ -72,9 +73,4 @@ function getBlankMessage(
 
 function trimLocalized({ ko, en }: Localized<string>): Localized<string> {
 	return { ko: ko.trim(), en: en.trim() };
-}
-
-/** KR·EN 이 모두 채워져야 값이 됩니다 */
-function toComplete({ ko, en }: Partial<Localized<string>>): Localized<string> | undefined {
-	return ko && en ? { ko, en } : undefined;
 }
