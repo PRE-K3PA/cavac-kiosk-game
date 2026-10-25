@@ -3,7 +3,7 @@ import type { ComponentProps, PointerEvent, ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import CarouselArrow from "@/components/common/CarouselArrow";
 import CarouselDot from "@/components/common/CarouselDot";
-import { RESULT_CARD_SIZE } from "@/components/common/resultCardStyle";
+import { RESULT_CARD_SIZE } from "@/components/common/style/resultCardStyle";
 import { useSound } from "@/hooks/useSound";
 import { cn } from "@/utils/cn";
 import { SOUND_NAMES } from "@/utils/soundEngine";

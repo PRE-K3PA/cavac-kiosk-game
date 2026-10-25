@@ -4,7 +4,10 @@ import ProductResultCard from "@/components/card/ProductResultCard";
 import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
-import { RESULT_SCORE_BACKDROP, RESULT_SCORE_GRADIENT } from "@/components/common/resultScoreStyle";
+import {
+	RESULT_SCORE_BACKDROP,
+	RESULT_SCORE_GRADIENT,
+} from "@/components/common/style/resultScoreStyle";
 import { getImageUrl } from "@/data/storage";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
