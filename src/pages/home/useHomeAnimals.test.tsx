@@ -1,6 +1,7 @@
 /// <reference path="../../../electron/preload/api.ts" />
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import * as storage from "@/data/storage";
 import type { CommonData } from "@/types/data";
 
 let storedCommon: Partial<CommonData> = {};
@@ -13,7 +14,9 @@ async function getStoredCommon(): Promise<Partial<CommonData>> {
 	return storedCommon;
 }
 
+// Bun 의 mock.module 은 같이 실행되는 다른 테스트 파일에도 적용되므로 나머지 export 를 보존합니다
 mock.module("@/data/storage", () => ({
+	...storage,
 	getData: getStoredCommon,
 	getImageUrl: (path: string) => `file://${path}`,
 }));
