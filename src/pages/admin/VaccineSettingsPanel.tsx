@@ -8,6 +8,7 @@ import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { getHintDelayOptions, getHintWarning } from "@/features/admin/vaccineSettings";
 import { useOrientation } from "@/layout/OrientationContext";
 import PenaltySection from "@/pages/admin/PenaltySection";
+import VaccineListSection from "@/pages/admin/VaccineListSection";
 import type { Penalty, VaccineGameSettings } from "@/types/data";
 import { cn } from "@/utils/cn";
 
@@ -128,6 +129,8 @@ export default function VaccineSettingsPanel() {
 					onChange={handlePenaltyChange}
 				/>
 			</div>
+
+			<VaccineListSection />
 		</div>
 	);
 }

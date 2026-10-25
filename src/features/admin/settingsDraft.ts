@@ -2,6 +2,7 @@ import { create, type StoreApi } from "zustand";
 import { createDefaultData } from "@/data/defaults";
 import { validateForSave } from "@/data/rules";
 import { getData, updateData } from "@/data/storage";
+import { type AntigenEditing, getAntigenEditing } from "@/features/admin/antigenEditing";
 import { compactProducts } from "@/features/admin/productSlots";
 import { DATA_FILES, type DataFile, type DataMap } from "@/types/data";
 
@@ -12,8 +13,14 @@ type SettingsDraftState = {
 	isSaving: boolean;
 	original: DataMap;
 	draft: DataMap;
+	/**
+	 * 11 화면에서 수정 중인 항원 행. 완료하기 전 값이 저장되거나 탭을 바꿔 수정 상태가 사라지지 않게
+	 * 관리자 틀이 저장과 탭 전환을 막는 데 씁니다. 다시 불러오거나 되돌리면 비웁니다
+	 */
+	antigenEditing: AntigenEditing | null;
 	load: () => Promise<void>;
 	setDraft: <F extends DataFile>(file: F, data: DataMap[F]) => void;
+	setAntigenEditing: (editing: AntigenEditing | null) => void;
 	revert: () => void;
 	/** 바뀐 파일만 씁니다. 하나라도 실패하면 false 이고, 성공한 파일만 원본이 됩니다 */
 	save: () => Promise<boolean>;
@@ -101,7 +108,7 @@ function createSettingsDraftState(
 	}
 
 	async function load() {
-		set({ isLoaded: false });
+		set({ isLoaded: false, antigenEditing: null });
 		const [common, vaccineGame, cardGame] = await Promise.all([
 			loadFile("common"),
 			loadFile("vaccine-game"),
@@ -115,8 +122,12 @@ function createSettingsDraftState(
 		set((state) => ({ draft: { ...state.draft, [file]: data } }));
 	}
 
+	function setAntigenEditing(editing: AntigenEditing | null) {
+		set({ antigenEditing: editing });
+	}
+
 	function revert() {
-		set((state) => ({ draft: state.original }));
+		set((state) => ({ draft: state.original, antigenEditing: null }));
 	}
 
 	function save() {
@@ -131,8 +142,10 @@ function createSettingsDraftState(
 		isSaving: false,
 		original: createDefaultDataMap(),
 		draft: createDefaultDataMap(),
+		antigenEditing: null,
 		load,
 		setDraft,
+		setAntigenEditing,
 		revert,
 		save,
 	};
@@ -142,6 +155,15 @@ export const useSettingsDraft = create<SettingsDraftState>()(createSettingsDraft
 
 export function selectIsDirty(state: SettingsDraftState): boolean {
 	return getDirtyFiles(state).length > 0;
+}
+
+/** 수정 중이던 항원이 초안에서 사라졌으면 수정 중이 아닌 것으로 봅니다 */
+export function selectAntigenEditing(state: SettingsDraftState): AntigenEditing | null {
+	return getAntigenEditing(state.draft["vaccine-game"], state.antigenEditing);
+}
+
+export function selectIsAntigenEditing(state: SettingsDraftState): boolean {
+	return selectAntigenEditing(state) !== null;
 }
 
 export function selectIsFileDirty(file: DataFile) {
