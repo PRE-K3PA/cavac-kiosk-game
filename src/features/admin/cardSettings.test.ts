@@ -20,7 +20,7 @@ describe("getUsageNotice", () => {
 	test("등록된 제품이 없으면 앰버로 등록할 개수를 알린다 (빈 상태)", () => {
 		expect(getUsageNotice(emptyCardGame())).toEqual({
 			tone: "info",
-			message: "제품 8개를 더 등록해 주세요",
+			message: "제품 8개를 더 등록해 주세요.",
 		});
 	});
 
@@ -49,7 +49,7 @@ describe("getUsageNotice", () => {
 
 		expect(getUsageNotice(data)).toEqual({
 			tone: "error",
-			message: "제품 2개를 더 등록해 주세요",
+			message: "제품 2개를 더 등록해 주세요.",
 		});
 	});
 

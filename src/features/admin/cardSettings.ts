@@ -17,7 +17,7 @@ export function getUsageNotice(data: CardGameData): UsageNotice | null {
 	if (registeredCount < pairCount) {
 		return {
 			tone: registeredCount === 0 ? "info" : "error",
-			message: `제품 ${pairCount - registeredCount}개를 더 등록해 주세요`,
+			message: `제품 ${pairCount - registeredCount}개를 더 등록해 주세요.`,
 		};
 	}
 
