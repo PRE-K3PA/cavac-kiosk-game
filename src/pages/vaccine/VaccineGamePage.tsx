@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
-import bgmVaccineGame from "@/assets/sounds/bgmVaccineGame.mp3";
 import GameBackground from "@/components/common/GameBackground";
 import type { GameResult } from "@/features/vaccine-game/utils/game";
 import { type GameSetup, loadSetup } from "@/features/vaccine-game/utils/setup";
+import { useBgm } from "@/hooks/useBgm";
 import ScreenLayout from "@/layout/ScreenLayout";
-import { useBgm } from "@/pages/vaccine/useBgm";
 import VaccinePlay from "@/pages/vaccine/VaccinePlay";
 import VaccineRecipe from "@/pages/vaccine/VaccineRecipe";
 import VaccineResult from "@/pages/vaccine/VaccineResult";
 import { useSessionStore } from "@/store/sessionStore";
+import { BGM_NAMES } from "@/utils/soundEngine";
 
 type Step = { type: "recipe" } | { type: "play" } | { type: "result"; result: GameResult };
 
@@ -20,7 +20,7 @@ type VaccineGamePageProps = {
 export default function VaccineGamePage({ onHome, onAdminActivate }: VaccineGamePageProps) {
 	const language = useSessionStore((s) => s.language);
 	// 02~04 를 이 화면이 감싸므로 화면이 바뀌어도 배경음이 끊기지 않습니다
-	useBgm(bgmVaccineGame);
+	useBgm(BGM_NAMES.vaccineGame);
 	const [setup, setSetup] = useState<GameSetup | null>(null);
 	const [step, setStep] = useState<Step>({ type: "recipe" });
 
