@@ -127,6 +127,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 	}
 
 	function handlePinChangeClick() {
+		if (isSaving) return;
 		setIsPinChangeOpen(true);
 	}
 
