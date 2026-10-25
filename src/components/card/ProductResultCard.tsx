@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import { RESULT_CARD_FRAME } from "@/components/common/resultCardStyle";
+import { RESULT_CARD_FRAME } from "@/components/common/style/resultCardStyle";
 import { cn } from "@/utils/cn";
 
 const frameVariants = cva(

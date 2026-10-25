@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useRef, useState } from "react";
-import { RESULT_CARD_FRAME } from "@/components/common/resultCardStyle";
+import { RESULT_CARD_FRAME } from "@/components/common/style/resultCardStyle";
 import {
 	ANTIGEN_COLOR_CLASS,
 	type AntigenLabel,
