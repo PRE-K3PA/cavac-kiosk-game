@@ -5,18 +5,17 @@ import ModalOverlay from "@/components/admin/ModalOverlay";
 import ProductModal from "@/components/admin/ProductModal";
 import MemoryCard from "@/components/card/MemoryCard";
 import ProductResultCard from "@/components/card/ProductResultCard";
-import { getImageUrl } from "@/data/storage";
+import { toCompleteLocalized, toImageSrcs } from "@/features/admin/localizedDraft";
 import {
 	findRegisterSlot,
 	type ProductImageDraft,
 	registerProduct,
 	replaceProductImage,
-	toProductImage,
 } from "@/features/admin/productSlots";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { useImageSelect } from "@/features/admin/useImageSelect";
 import ProductDeleteOverlay from "@/pages/admin/ProductDeleteOverlay";
-import type { ImagePath, Language, ProductSlot } from "@/types/data";
+import type { Language, ProductSlot } from "@/types/data";
 
 const PREVIEW_DESCRIPTION = "카드 앞면과 결과 화면 카드에 이렇게 보입니다.";
 
@@ -26,10 +25,6 @@ type ProductFormOverlayProps = {
 	onCancel: () => void;
 	onDone: () => void;
 };
-
-function toImageSrc(path?: ImagePath): string | undefined {
-	return path && getImageUrl(path);
-}
 
 export default function ProductFormOverlay({ product, onCancel, onDone }: ProductFormOverlayProps) {
 	const [images, setImages] = useState<ProductImageDraft>(product?.image ?? {});
@@ -42,8 +37,9 @@ export default function ProductFormOverlay({ product, onCancel, onDone }: Produc
 
 	// 등록할 칸은 registerProduct 와 같은 함수로 구해, 보이는 칸 번호와 실제로 들어가는 칸을 맞춥니다
 	const slot = product?.slot ?? findRegisterSlot(card.products);
-	const completeImage = toProductImage(images);
-	const imageSrcs = { ko: toImageSrc(images.ko), en: toImageSrc(images.en) };
+	// KR·EN 사진이 모두 있어야 제품 사진이 됩니다 (Figma Q48)
+	const completeImage = toCompleteLocalized(images);
+	const imageSrcs = toImageSrcs(images);
 	const previewSrc = previewLanguage && imageSrcs[previewLanguage];
 
 	async function handleImageSelectClick(language: Language) {

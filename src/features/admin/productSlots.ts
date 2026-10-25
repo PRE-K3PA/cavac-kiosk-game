@@ -57,12 +57,6 @@ export function setShownInResult(
 	return updateProduct(data, slot, (product) => ({ ...product, isShownInResult }));
 }
 
-/** KR·EN 사진이 모두 있어야 제품 사진이 됩니다 (Figma Q48). 하나라도 없으면 undefined */
-export function toProductImage(draft: ProductImageDraft): Localized<ImagePath> | undefined {
-	if (!draft.ko || !draft.en) return undefined;
-	return { ko: draft.ko, en: draft.en };
-}
-
 /** 다음에 등록할 칸 번호입니다. 칸 번호가 가장 작은 빈 칸이고, 빈 칸이 없으면 undefined */
 export function findRegisterSlot(products: ProductSlot[]): number | undefined {
 	return products
