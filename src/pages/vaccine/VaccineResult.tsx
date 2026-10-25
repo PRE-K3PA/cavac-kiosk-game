@@ -4,7 +4,10 @@ import { useTranslation } from "react-i18next";
 import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
-import { RESULT_SCORE_BACKDROP, RESULT_SCORE_GRADIENT } from "@/components/common/resultScoreStyle";
+import {
+	RESULT_SCORE_BACKDROP,
+	RESULT_SCORE_GRADIENT,
+} from "@/components/common/style/resultScoreStyle";
 import VaccineResultCard from "@/components/vaccine/VaccineResultCard";
 import { getImageUrl } from "@/data/storage";
 import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
