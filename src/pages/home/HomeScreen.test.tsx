@@ -250,15 +250,17 @@ describe("관리자 핫스팟", () => {
 		expect(findHotspot(container).className).toContain("size-50");
 	});
 
-	test("1.5초 이상 길게 누른 뒤 떼면 onAdminActivate 가 불린다", () => {
+	test("1.5초 동안 누르고 있으면 떼지 않아도 onAdminActivate 가 불린다", () => {
 		const { container, onAdminActivate } = renderHome(VaccineHome);
 		const hotspot = findHotspot(container);
 
 		fireEvent.pointerDown(hotspot);
-		act(() => jest.advanceTimersByTime(1600));
+		act(() => jest.advanceTimersByTime(1499));
 		expect(onAdminActivate).not.toHaveBeenCalled();
-		fireEvent.pointerUp(hotspot);
+		act(() => jest.advanceTimersByTime(1));
+		expect(onAdminActivate).toHaveBeenCalledTimes(1);
 
+		fireEvent.pointerUp(hotspot);
 		expect(onAdminActivate).toHaveBeenCalledTimes(1);
 	});
 });
