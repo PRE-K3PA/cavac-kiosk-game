@@ -7,12 +7,13 @@ import { useCardGame } from "@/features/card-game/hooks/useCardGame";
 import { useCardGameData } from "@/features/card-game/hooks/useCardGameData";
 import { useCardGameSounds } from "@/features/card-game/hooks/useCardGameSounds";
 import { useBgm } from "@/hooks/useBgm";
+import { useIdleTimeout } from "@/hooks/useIdleTimeout";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import CardBoard from "@/pages/card/CardBoard";
 import CardResult from "@/pages/card/CardResult";
 import { CARD_BOARD_AREA } from "@/pages/card/cardBoardLayout";
-import type { CardGameData } from "@/types/data";
+import type { CardGameData, CommonData } from "@/types/data";
 import { BGM_NAMES } from "@/utils/soundEngine";
 
 export type CardGameProps = {
@@ -44,17 +45,21 @@ const HIDDEN_COUNT = String.fromCharCode(0xa0);
 type CardGameSessionProps = CardGameProps & {
 	data: CardGameData;
 	playDurationSeconds: number;
+	autoReset: CommonData["autoReset"];
 };
 
 function CardGameSession({
 	data,
 	playDurationSeconds,
+	autoReset,
 	onExit,
 	onAdminActivate,
 }: CardGameSessionProps) {
 	const { t } = useTranslation("cardGame");
 	const game = useCardGame(data, playDurationSeconds);
 	useCardGameSounds(game);
+	// 홈으로 나가면 이 컴포넌트가 사라지면서 판의 진행 상태도 함께 버려집니다
+	useIdleTimeout({ ...autoReset, onTimeout: onExit });
 	// 결과 화면에서는 팡파레가 들리도록 배경음을 끕니다
 	useBgm(game.phase === "finished" ? null : BGM_NAMES.cardGame);
 	const orientation = useOrientation();
@@ -127,6 +132,7 @@ export default function CardGame({ onExit, onAdminActivate }: CardGameProps) {
 		<CardGameSession
 			data={source.cardGame}
 			playDurationSeconds={source.playDurationSeconds}
+			autoReset={source.autoReset}
 			onExit={onExit}
 			onAdminActivate={onAdminActivate}
 		/>
