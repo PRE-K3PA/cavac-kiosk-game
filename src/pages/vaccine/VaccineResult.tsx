@@ -3,6 +3,7 @@ import { useState } from "react";
 import GameBackground from "@/components/common/GameBackground";
 import HomeButton from "@/components/common/HomeButton";
 import ResultCarousel from "@/components/common/ResultCarousel";
+import { RESULT_SCORE_BACKDROP, RESULT_SCORE_GRADIENT } from "@/components/common/resultScoreStyle";
 import VaccineResultCard from "@/components/vaccine/VaccineResultCard";
 import { getImageUrl } from "@/data/storage";
 import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
@@ -54,6 +55,7 @@ export default function VaccineResult({
 	const copy = VACCINE_GAME_COPY;
 	const shouldReduceMotion = useReducedMotion();
 	const shownScore = useTweenedNumber(result.score, SCORE_COUNT_SECONDS, 0);
+	const scoreText = formatScore(Math.round(shownScore));
 
 	const slides = result.vaccines.map((vaccine) => ({
 		id: vaccine.id,
@@ -92,11 +94,15 @@ export default function VaccineResult({
 				initial={shouldReduceMotion ? false : { scale: 0.3, opacity: 0 }}
 				animate={{ scale: 1, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.15 }}
-				className="typo-display-l whitespace-nowrap font-display">
-				<span className="bg-linear-to-b from-accent-yellow to-accent-amber bg-clip-text text-transparent">
-					{formatScore(Math.round(shownScore))}
+				className="typo-display-l relative whitespace-nowrap font-display">
+				<span aria-hidden="true" className={RESULT_SCORE_BACKDROP}>
+					{scoreText}
+					{copy.scoreUnit[language]}
 				</span>
-				<span className="text-accent-sky-blue">{copy.scoreUnit[language]}</span>
+				<span className="relative">
+					<span className={RESULT_SCORE_GRADIENT}>{scoreText}</span>
+					<span className="text-accent-sky-blue">{copy.scoreUnit[language]}</span>
+				</span>
 			</motion.p>
 			<p className="typo-title-m text-text-secondary">{copy.resultSubtitle[language]}</p>
 
