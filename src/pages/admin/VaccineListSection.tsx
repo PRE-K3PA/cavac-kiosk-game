@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AddButton from "@/components/admin/AddButton";
 import AntigenRow from "@/components/admin/AntigenRow";
 import EmptyState from "@/components/admin/EmptyState";
@@ -22,6 +22,7 @@ import {
 	toggleExpandedVaccine,
 } from "@/features/admin/antigenEditing";
 import { selectAntigenEditing, useSettingsDraft } from "@/features/admin/settingsDraft";
+import { useLimitNotice } from "@/features/admin/useLimitNotice";
 import {
 	countEnabledVaccines,
 	disableVaccine,
@@ -38,8 +39,6 @@ import { cn } from "@/utils/cn";
 
 const SECTION_CARD_CLASS =
 	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
-
-const LIMIT_NOTICE_MS = 3000;
 
 const SHOWN_QUERY_MAX_LENGTH = 20;
 
@@ -70,8 +69,6 @@ export default function VaccineListSection() {
 	const [formTarget, setFormTarget] = useState<FormTarget | null>(null);
 	// 추가한 백신 행이 목록 끝에 그려질 때 그 행까지 스크롤합니다
 	const [addedVaccineId, setAddedVaccineId] = useState<string | null>(null);
-	// 더 켜려 할 때마다 값을 바꿔 안내 줄의 표시 시간을 처음부터 다시 셉니다
-	const [limitNoticeId, setLimitNoticeId] = useState<number | null>(null);
 
 	const vaccineGame = useSettingsDraft((state) => state.draft["vaccine-game"]);
 	// 관리자 틀이 수정 중 탭 전환과 저장을 막도록 수정 상태는 설정 초안 스토어에 둡니다
@@ -79,21 +76,7 @@ export default function VaccineListSection() {
 	const setDraft = useSettingsDraft((state) => state.setDraft);
 	const setAntigenEditing = useSettingsDraft((state) => state.setAntigenEditing);
 	const { vaccines } = vaccineGame;
-
-	function hideLimitNoticeLater() {
-		if (limitNoticeId === null) return;
-
-		function hideLimitNotice() {
-			setLimitNoticeId(null);
-		}
-
-		const timer = setTimeout(hideLimitNotice, LIMIT_NOTICE_MS);
-		return function cancelHide() {
-			clearTimeout(timer);
-		};
-	}
-
-	useEffect(hideLimitNoticeLater, [limitNoticeId]);
+	const { isLimitNoticeShown, showLimitNotice, hideLimitNotice } = useLimitNotice();
 
 	const editState: AntigenEditState = { data: vaccineGame, editing: currentEditing };
 	const isEditing = currentEditing !== null;
@@ -106,7 +89,7 @@ export default function VaccineListSection() {
 			? vaccines.find((vaccine) => vaccine.id === formTarget.vaccineId)
 			: undefined;
 	const notice =
-		getVaccineUsageNotice(vaccines) ?? (limitNoticeId === null ? null : VACCINE_LIMIT_NOTICE);
+		getVaccineUsageNotice(vaccines) ?? (isLimitNoticeShown ? VACCINE_LIMIT_NOTICE : null);
 
 	function applyAntigenEdit(next: AntigenEditState) {
 		if (next.data !== vaccineGame) setDraft("vaccine-game", next.data);
@@ -115,7 +98,7 @@ export default function VaccineListSection() {
 
 	function handleEnabledChange(vaccineId: string, isEnabled: boolean) {
 		if (!isEnabled) {
-			setLimitNoticeId(null);
+			hideLimitNotice();
 			setDraft("vaccine-game", disableVaccine(vaccineGame, vaccineId));
 			return;
 		}
@@ -125,7 +108,7 @@ export default function VaccineListSection() {
 			setDraft("vaccine-game", result.data);
 			return;
 		}
-		if (result.reason === "limit") setLimitNoticeId((id) => (id ?? 0) + 1);
+		if (result.reason === "limit") showLimitNotice();
 	}
 
 	function handleAntigenToggleClick(vaccineId: string) {
