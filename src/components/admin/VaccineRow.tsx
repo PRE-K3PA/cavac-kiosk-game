@@ -1,5 +1,5 @@
 import { cva } from "class-variance-authority";
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import icChevron from "@/assets/icons/icChevron.svg";
 import AddButton from "@/components/admin/AddButton";
 import Button from "@/components/admin/Button";
@@ -38,6 +38,7 @@ type VaccineRowProps = {
 	onEditClick?: () => void;
 	onDeleteClick?: () => void;
 	onAddAntigenClick?: () => void;
+	ref?: Ref<HTMLDivElement>;
 	className?: string;
 };
 
@@ -54,10 +55,11 @@ export default function VaccineRow({
 	onEditClick,
 	onDeleteClick,
 	onAddAntigenClick,
+	ref,
 	className,
 }: VaccineRowProps) {
 	return (
-		<div className={cn(vaccineRowVariants({ isExpanded }), className)}>
+		<div ref={ref} className={cn(vaccineRowVariants({ isExpanded }), className)}>
 			<div className="flex h-16 items-center gap-4">
 				<Checkbox
 					aria-label={`${productName.ko} 사용`}
