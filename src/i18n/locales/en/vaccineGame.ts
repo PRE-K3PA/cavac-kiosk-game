@@ -11,7 +11,7 @@ export default {
 	play: {
 		score: "SCORE",
 		completed: "Vaccines Made",
-		completedCount: "{{count}}",
+		completedCount: "{{n}}",
 		bottleLabel: "Vaccine bottle",
 		time: "{{seconds}}s",
 		combo: "{{combo}} COMBO!",
