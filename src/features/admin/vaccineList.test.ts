@@ -161,7 +161,7 @@ describe("사용 켜기·끄기", () => {
 });
 
 describe("사용 안내", () => {
-	const usageMessage = "백신을 1개 이상 체크해야 저장할 수 있어요";
+	const usageMessage = "백신을 1개 이상 체크해야 저장할 수 있어요.";
 
 	test("켠 백신이 1개 이상이면 안내하지 않는다", () => {
 		expect(getVaccineUsageNotice(filledVaccineGame().vaccines)).toBeNull();

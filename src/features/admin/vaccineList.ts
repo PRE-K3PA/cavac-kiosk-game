@@ -31,7 +31,7 @@ export function getVaccineUsageNotice(vaccines: Vaccine[]): UsageNotice | null {
 
 	return {
 		tone: vaccines.length === 0 ? "info" : "error",
-		message: `백신을 ${MIN_ENABLED}개 이상 체크해야 저장할 수 있어요`,
+		message: `백신을 ${MIN_ENABLED}개 이상 체크해야 저장할 수 있어요.`,
 	};
 }
 
