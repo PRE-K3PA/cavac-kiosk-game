@@ -85,6 +85,7 @@ export default function AntigenRow({
 	className,
 }: AntigenRowProps) {
 	const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+	const rowRef = useRef<HTMLDivElement>(null);
 	const infoRef = useRef<HTMLDivElement>(null);
 	const tooltipRef = useRef<HTMLDivElement>(null);
 	const tooltipId = useId();
@@ -117,6 +118,13 @@ export default function AntigenRow({
 
 	useEffect(subscribeTooltipDismiss, [isTooltipOpen]);
 
+	// 항원 추가로 목록 끝에 생긴 행이 스크롤 밖에 있어도 입력할 수 있게 보이는 곳으로 옮깁니다
+	function scrollIntoViewWhenEditing() {
+		if (isEditing) rowRef.current?.scrollIntoView({ block: "nearest" });
+	}
+
+	useEffect(scrollIntoViewWhenEditing, [isEditing]);
+
 	function handleInfoClick() {
 		setIsTooltipOpen(!isTooltipOpen);
 	}
@@ -138,7 +146,7 @@ export default function AntigenRow({
 	}
 
 	return (
-		<div className={cn("flex w-full flex-col gap-2", className)}>
+		<div ref={rowRef} className={cn("flex w-full flex-col gap-2", className)}>
 			<div className={antigenRowVariants({ isEditing })}>
 				<button
 					type="button"
