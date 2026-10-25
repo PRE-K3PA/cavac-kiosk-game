@@ -4,7 +4,7 @@ import KioskStage from "@/layout/KioskStage";
 import AdminPinPage from "@/pages/admin/AdminPinPage";
 import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
 import CardSettingsPanel from "@/pages/admin/CardSettingsPanel";
-import CommonSettingsPanel from "@/pages/admin/CommonSettingsPanel";
+import CommonSettings from "@/pages/admin/CommonSettings";
 import VaccineSettingsPanel from "@/pages/admin/VaccineSettingsPanel";
 import CardGame from "@/pages/card/CardGame";
 import CardHome from "@/pages/card/CardHome";
@@ -15,7 +15,7 @@ import type { GameType } from "@/types/data";
 type Screen = "home" | "game" | "adminPin" | "adminSettings";
 
 const ADMIN_CONTENTS = {
-	common: <CommonSettingsPanel />,
+	common: <CommonSettings />,
 	vaccine: <VaccineSettingsPanel />,
 	card: <CardSettingsPanel />,
 };
