@@ -18,6 +18,15 @@ import { cn } from "@/utils/cn";
 // Figma 에 없어 이번에 정했다
 const SCORE_COUNT_SECONDS = 1.2;
 
+// 점수 모양은 카드 결과(CardResult)와 같습니다.
+// bg-clip-text 글자에는 text-stroke 가 안쪽으로 걸쳐 그라데이션을 가리므로, 같은 글자를 뒤에 한 겹 더 깔아 그립니다
+const SCORE_GRADIENT =
+	"bg-linear-to-b from-accent-yellow to-accent-amber bg-clip-text text-transparent";
+const SCORE_BACKDROP = cn(
+	"absolute inset-0 whitespace-nowrap",
+	"text-text-primary text-shadow-hard-lg outlined-text [--text-outline-width:20px]",
+);
+
 const LAYOUT = {
 	landscape: {
 		main: "gap-6",
@@ -54,6 +63,7 @@ export default function VaccineResult({
 	const copy = VACCINE_GAME_COPY;
 	const shouldReduceMotion = useReducedMotion();
 	const shownScore = useTweenedNumber(result.score, SCORE_COUNT_SECONDS, 0);
+	const scoreText = formatScore(Math.round(shownScore));
 
 	const slides = result.vaccines.map((vaccine) => ({
 		id: vaccine.id,
@@ -92,11 +102,15 @@ export default function VaccineResult({
 				initial={shouldReduceMotion ? false : { scale: 0.3, opacity: 0 }}
 				animate={{ scale: 1, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.15 }}
-				className="typo-display-l whitespace-nowrap font-display">
-				<span className="bg-linear-to-b from-accent-yellow to-accent-amber bg-clip-text text-transparent">
-					{formatScore(Math.round(shownScore))}
+				className="typo-display-l relative whitespace-nowrap font-display">
+				<span aria-hidden="true" className={SCORE_BACKDROP}>
+					{scoreText}
+					{copy.scoreUnit[language]}
 				</span>
-				<span className="text-accent-sky-blue">{copy.scoreUnit[language]}</span>
+				<span className="relative">
+					<span className={SCORE_GRADIENT}>{scoreText}</span>
+					<span className="text-accent-sky-blue">{copy.scoreUnit[language]}</span>
+				</span>
 			</motion.p>
 			<p className="typo-title-m text-text-secondary">{copy.resultSubtitle[language]}</p>
 
