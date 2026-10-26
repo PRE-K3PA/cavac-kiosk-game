@@ -245,9 +245,11 @@ describe("관리자 핫스팟", () => {
 		expect(onAdminActivate).not.toHaveBeenCalled();
 	});
 
-	test.each(ORIENTATIONS)("%s 방향에서도 핫스팟은 200x200 이다", (orientation) => {
+	test.each(ORIENTATIONS)("%s 방향에서도 핫스팟은 360x220 이다", (orientation) => {
 		const { container } = renderHome(VaccineHome, orientation);
-		expect(findHotspot(container).className).toContain("size-50");
+		const { className } = findHotspot(container);
+		expect(className).toContain("w-90");
+		expect(className).toContain("h-55");
 	});
 
 	test("1.5초 동안 누르고 있으면 떼지 않아도 onAdminActivate 가 불린다", () => {
