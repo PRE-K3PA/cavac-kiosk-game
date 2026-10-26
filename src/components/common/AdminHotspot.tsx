@@ -2,13 +2,13 @@ import type { ComponentProps } from "react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/utils/cn";
 
-type HotspotState = "default" | "holding" | "armed";
+type HotspotState = "default" | "holding";
 
 type AdminHotspotProps = Omit<
 	ComponentProps<"div">,
 	"children" | "onPointerDown" | "onPointerUp" | "onPointerLeave" | "onPointerCancel"
 > & {
-	/** 이 시간(ms) 이상 누른 뒤 손을 떼면 onActivate 를 부른다 */
+	/** 이 시간(ms) 동안 누르고 있으면 손을 떼지 않아도 onActivate 를 부른다 */
 	holdMs?: number;
 	onActivate: () => void;
 };
@@ -21,14 +21,12 @@ export default function AdminHotspot({
 }: AdminHotspotProps) {
 	const [state, setState] = useState<HotspotState>("default");
 	const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	const isArmed = useRef(false);
 
 	const reset = () => {
 		if (timer.current !== null) {
 			clearTimeout(timer.current);
 			timer.current = null;
 		}
-		isArmed.current = false;
 		setState("default");
 	};
 
@@ -44,15 +42,9 @@ export default function AdminHotspot({
 		setState("holding");
 		timer.current = setTimeout(() => {
 			timer.current = null;
-			isArmed.current = true;
-			setState("armed");
+			setState("default");
+			onActivate();
 		}, holdMs);
-	};
-
-	const handlePointerUp = () => {
-		const wasArmed = isArmed.current;
-		reset();
-		if (wasArmed) onActivate();
 	};
 
 	return (
@@ -60,7 +52,7 @@ export default function AdminHotspot({
 			data-state={state}
 			className={cn("h-45 w-70 touch-none", className)}
 			onPointerDown={handlePointerDown}
-			onPointerUp={handlePointerUp}
+			onPointerUp={reset}
 			onPointerLeave={reset}
 			onPointerCancel={reset}
 			{...props}

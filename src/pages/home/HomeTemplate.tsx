@@ -13,7 +13,7 @@ import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { type HomeAnimals, useHomeAnimals } from "@/pages/home/useHomeAnimals";
 import { useSessionStore } from "@/store/sessionStore";
-import { HOME_SLOTS, type Localized } from "@/types/data";
+import type { HomeSlot, Localized } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 export type HomeScreenProps = {
@@ -42,6 +42,14 @@ const HOME_LOGO = {
 	ko: imgLogoKo,
 	en: imgLogoEn,
 } satisfies Localized<string>;
+
+// 동물끼리 겹치면 나중에 그린 쪽이 앞에 옵니다. 바깥쪽 동물이 앞에 오도록 안쪽을 먼저 그립니다
+const ANIMAL_PAINT_ORDER = [
+	"left-1",
+	"right-1",
+	"left-2",
+	"right-2",
+] as const satisfies readonly HomeSlot[];
 
 const STEP_ACCENTS = ["yellow", "green", "blue"] as const;
 const STEP_KEYS = ["step1", "step2", "step3"] as const;
@@ -190,7 +198,7 @@ export default function HomeTemplate({
 				/>
 			</main>
 
-			{HOME_SLOTS.map((slot) => {
+			{ANIMAL_PAINT_ORDER.map((slot) => {
 				const animal = animals[slot];
 				if (!animal) return null;
 				return (
