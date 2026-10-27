@@ -308,10 +308,19 @@ describe("고정", () => {
 		});
 	});
 
-	test("다른 행을 수정하는 중에는 고정을 바꾸지 않는다", () => {
+	test("다른 행을 수정하는 중에는 같은 백신이든 다른 백신이든 고정을 바꾸지 않는다", () => {
 		const state = editingExisting("RV-K", "CDV");
+		const unchanged = { isSuccess: true, data: state.data } as const;
 
-		expect(togglePin(state, "Vaccine D", "PED")).toEqual({ isSuccess: true, data: state.data });
+		expect(togglePin(state, "RV-K", "RV")).toEqual(unchanged);
+		expect(togglePin(state, "Vaccine D", "PED")).toEqual(unchanged);
+	});
+
+	test("항원이 모두 고정된 백신에서도 고정을 풀 수 있다", () => {
+		const state = pinnedTge();
+		findAntigen(state.data, "Vaccine D", "PED").isPinned = true;
+
+		expect(pinnedAfterToggle(state, "Vaccine D", "PED")).toEqual(["TGE"]);
 	});
 
 	test("없는 항원이나 다른 백신의 항원이면 고정을 바꾸지 않는다", () => {
@@ -524,12 +533,13 @@ describe("초안에 없는 수정 상태", () => {
 		expect(getAntigenEditing(filledVaccineGame(), added.editing)).toBeNull();
 	});
 
-	test("그 상태에서는 다른 행의 수정·추가·삭제를 막지 않는다", () => {
+	test("그 상태에서는 다른 행의 고정·수정·추가·삭제를 막지 않는다", () => {
 		const { editing } = addedToRvk({ abbr: "AI" });
 		const reverted = { data: filledVaccineGame(), editing };
 		const vaccine = findVaccine(reverted.data, "RV-K");
 		const cdv = findAntigen(reverted.data, "RV-K", "CDV");
 
+		expect(pinnedAfterToggle(reverted, "RV-K", "CDV")).toEqual(["CDV"]);
 		expect(startAntigenEdit(reverted, vaccine.id, cdv.id).editing?.antigenId).toBe(cdv.id);
 		expect(addAntigen(reverted, vaccine.id).editing?.isNew).toBe(true);
 		expect(abbrs(deleteAntigen(reverted, vaccine.id, cdv.id).data, "RV-K")).toEqual(["RV", "CPV"]);

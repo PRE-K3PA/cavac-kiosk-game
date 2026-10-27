@@ -69,6 +69,10 @@ function formatPreviewDescription({ image, language }: ImagePreview) {
 	return `${label} · ${LANGUAGE_LABEL[language]} — ${place}에 이렇게 보입니다.`;
 }
 
+function formatPreviewCaption({ image, orientation }: ImagePreview) {
+	return `${PREVIEW_PLACES[image].place} (${formatOrientationBasis(orientation)})`;
+}
+
 /** 항원 색은 게임을 시작할 때마다 새로 정하므로, 미리보기는 차례대로 칠합니다 */
 function toPreviewAntigens(antigens: Antigen[]): AntigenLabel[] {
 	return antigens.map(({ abbr, subtype, pathogenType }, index) => ({
@@ -216,7 +220,7 @@ export default function VaccineFormOverlay({
 						description={formatPreviewDescription(preview)}
 						items={[
 							{
-								caption: `${PREVIEW_PLACES[preview.image].place} (${formatOrientationBasis(preview.orientation)})`,
+								caption: formatPreviewCaption(preview),
 								content: renderPreviewContent(preview, previewSrc),
 							},
 						]}
