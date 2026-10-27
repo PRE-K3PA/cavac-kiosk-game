@@ -60,8 +60,8 @@ function CardGameSession({
 	useCardGameSounds(game);
 	// 홈으로 나가면 이 컴포넌트가 사라지면서 판의 진행 상태도 함께 버려집니다
 	useIdleTimeout({ ...autoReset, onTimeout: onExit });
-	// 결과 화면에서는 팡파레가 들리도록 배경음을 끕니다
-	useBgm(game.phase === "finished" ? null : BGM_NAMES.cardGame);
+	// 결과 화면도 이 컴포넌트가 그리므로 배경음이 끊기지 않습니다
+	useBgm(BGM_NAMES.cardGame);
 	const orientation = useOrientation();
 	const layout = LAYOUT[orientation];
 
