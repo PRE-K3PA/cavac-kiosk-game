@@ -230,6 +230,10 @@ describe("stepFalling", () => {
 });
 
 describe("getFallSpeed", () => {
+	test("기본값 100% 에서 초당 300px 떨어진다", () => {
+		expect(getFallSpeed(100)).toBe(300);
+	});
+
 	test("낙하 속도 설정을 기본 속도에 비율로 곱한다", () => {
 		expect(getFallSpeed(150) / getFallSpeed(100)).toBeCloseTo(1.5);
 		expect(getFallSpeed(50) / getFallSpeed(100)).toBeCloseTo(0.5);
