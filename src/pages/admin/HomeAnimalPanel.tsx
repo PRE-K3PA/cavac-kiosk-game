@@ -18,7 +18,7 @@ import type { HomeAnimal, HomeSlot } from "@/types/data";
 import { cn } from "@/utils/cn";
 
 const LAYOUT = {
-	landscape: { panel: "w-192" },
+	landscape: { panel: "max-h-full w-192" },
 	portrait: { panel: "w-full" },
 } as const;
 
@@ -86,10 +86,11 @@ export default function HomeAnimalPanel() {
 	return (
 		<section
 			className={cn(
-				"flex flex-col gap-3 rounded-2xl border-2 border-border-default bg-background-surface p-5",
+				"flex min-h-0 flex-col gap-3 rounded-2xl border-2 border-border-default",
+				"bg-background-surface p-5",
 				layout.panel,
 			)}>
-			<div className="flex items-center gap-3">
+			<div className="flex shrink-0 items-center gap-3">
 				<SectionHeader title="축종 설정" className="flex-1" />
 				<Button
 					variant="secondary"
@@ -107,8 +108,8 @@ export default function HomeAnimalPanel() {
 			</div>
 			<div
 				className={cn(
-					"flex items-center justify-center gap-12 rounded-2xl border-2 border-border-default",
-					"bg-background-canvas px-6 py-4",
+					"flex shrink-0 items-center justify-center gap-12 rounded-2xl border-2",
+					"border-border-default bg-background-canvas px-6 py-4",
 				)}>
 				{SLOT_GROUPS.map((slots) => (
 					<div key={slots[0]} className="flex items-start gap-3">

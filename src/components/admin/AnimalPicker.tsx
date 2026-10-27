@@ -55,8 +55,8 @@ export default function AnimalPicker({
 	}
 
 	return (
-		<div className={cn("flex w-full flex-col items-start gap-2", className)}>
-			<div className="flex h-14 w-full items-center gap-3">
+		<div className={cn("flex min-h-0 w-full flex-col items-start gap-2", className)}>
+			<div className="flex h-14 w-full shrink-0 items-center gap-3">
 				<p
 					className={cn(
 						"typo-admin-label whitespace-nowrap",
@@ -73,7 +73,11 @@ export default function AnimalPicker({
 					/>
 				)}
 			</div>
-			<div className="flex w-full flex-wrap content-start items-start gap-3">
+			<div
+				className={cn(
+					"flex min-h-0 w-full flex-wrap content-start items-start gap-3",
+					"overflow-y-auto overscroll-contain [scrollbar-width:none]",
+				)}>
 				{species.map(renderOption)}
 			</div>
 		</div>
