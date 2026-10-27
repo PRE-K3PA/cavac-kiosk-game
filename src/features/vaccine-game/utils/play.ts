@@ -13,6 +13,7 @@ import {
 	type FallingField,
 	getDistractors,
 	getFallSpeed,
+	getSpawnGapMs,
 	pickSpawnAntigen,
 	pickSpawnX,
 	shouldSpawn,
@@ -48,6 +49,7 @@ export type PlayState = {
 	nextId: number;
 	msSinceSpawn: number;
 	fallSpeed: number;
+	spawnGapMs: number;
 	maxOnScreen: number;
 	feedback: PlayFeedback | null;
 	lastTap: TapEvent | null;
@@ -73,6 +75,7 @@ export function createPlay(
 		nextId: 1,
 		msSinceSpawn: Number.POSITIVE_INFINITY,
 		fallSpeed: getFallSpeed(settings.fallSpeedPercent),
+		spawnGapMs: getSpawnGapMs(settings.fallSpeedPercent),
 		maxOnScreen: settings.maxAntigensOnScreen,
 		feedback: null,
 		lastTap: null,
@@ -94,7 +97,9 @@ function isCorrectExpired(item: FallingAntigen, elapsedMs: number): boolean {
 }
 
 function spawn(state: PlayState, options: PlayOptions): PlayState {
-	if (!shouldSpawn(state.falling, state.maxOnScreen, state.msSinceSpawn)) return state;
+	if (!shouldSpawn(state.falling, state.maxOnScreen, state.msSinceSpawn, state.spawnGapMs)) {
+		return state;
+	}
 
 	const current = getCurrentVaccine(state.game);
 	if (!current) return state;
