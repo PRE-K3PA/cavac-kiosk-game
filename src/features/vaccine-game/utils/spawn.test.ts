@@ -6,6 +6,7 @@ import {
 	type FallingField,
 	getDistractors,
 	getFallSpeed,
+	getSpawnGapMs,
 	pickSpawnAntigen,
 	pickSpawnX,
 	shouldSpawn,
@@ -175,17 +176,22 @@ describe("pickSpawnX", () => {
 
 describe("shouldSpawn", () => {
 	test("화면의 구슬이 최대 개수보다 적고 간격이 지났으면 새로 떨어뜨린다", () => {
-		expect(shouldSpawn([falling(HA)], 7, 1000)).toBe(true);
+		expect(shouldSpawn([falling(HA)], 7, 1000, 600)).toBe(true);
 	});
 
 	test("화면의 구슬이 최대 개수면 떨어뜨리지 않는다", () => {
 		const items = Array.from({ length: 7 }, () => falling(HA));
 
-		expect(shouldSpawn(items, 7, 10_000)).toBe(false);
+		expect(shouldSpawn(items, 7, 10_000, 600)).toBe(false);
 	});
 
 	test("직전에 떨어뜨린 뒤 간격이 지나지 않았으면 떨어뜨리지 않는다", () => {
-		expect(shouldSpawn([], 7, 100)).toBe(false);
+		expect(shouldSpawn([], 7, 100, 600)).toBe(false);
+	});
+
+	test("받은 간격이 지났는지로 판단한다", () => {
+		expect(shouldSpawn([], 7, 400, 400)).toBe(true);
+		expect(shouldSpawn([], 7, 399, 400)).toBe(false);
 	});
 });
 
@@ -224,8 +230,27 @@ describe("stepFalling", () => {
 });
 
 describe("getFallSpeed", () => {
+	test("기본값 100% 에서 초당 300px 떨어진다", () => {
+		expect(getFallSpeed(100)).toBe(300);
+	});
+
 	test("낙하 속도 설정을 기본 속도에 비율로 곱한다", () => {
 		expect(getFallSpeed(150) / getFallSpeed(100)).toBeCloseTo(1.5);
 		expect(getFallSpeed(50) / getFallSpeed(100)).toBeCloseTo(0.5);
+	});
+});
+
+describe("getSpawnGapMs", () => {
+	test("낙하 속도 50%·100%·150% 에서 1.2초·0.6초·0.4초 간격으로 떨어뜨린다", () => {
+		expect(getSpawnGapMs(50)).toBe(1200);
+		expect(getSpawnGapMs(100)).toBe(600);
+		expect(getSpawnGapMs(150)).toBe(400);
+	});
+
+	test("낙하 속도가 달라도 구슬 사이 거리가 같다", () => {
+		const gap = getFallSpeed(100) * getSpawnGapMs(100);
+
+		expect(getFallSpeed(50) * getSpawnGapMs(50)).toBeCloseTo(gap);
+		expect(getFallSpeed(150) * getSpawnGapMs(150)).toBeCloseTo(gap);
 	});
 });

@@ -5,9 +5,5 @@ import type { HomeContent } from "@/pages/home/HomeTemplate";
 
 export const CARD_HOME = {
 	namespace: "cardHome",
-	stepMedia: [
-		{ src: imgCardStepMemorize, fit: "contain" },
-		{ src: imgCardStepMatch, fit: "cover" },
-		{ src: imgStepTrophy, fit: "contain" },
-	],
+	stepMedia: [imgCardStepMemorize, imgCardStepMatch, imgStepTrophy],
 } satisfies HomeContent;

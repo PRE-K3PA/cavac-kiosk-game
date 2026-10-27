@@ -21,12 +21,10 @@ export type HomeScreenProps = {
 	onAdminActivate: () => void;
 };
 
-type HomeStepMedia = { src: string; fit: "contain" | "cover" };
-
 /** 문구는 네임스페이스 사전에 있고, 여기에는 사전을 고르는 이름과 번역 대상이 아닌 그림만 둡니다 */
 export type HomeContent = {
 	namespace: "vaccineHome" | "cardHome";
-	stepMedia: readonly [HomeStepMedia, HomeStepMedia, HomeStepMedia];
+	stepMedia: readonly [string, string, string];
 };
 
 type HomeTemplateProps = HomeScreenProps & {
@@ -108,17 +106,17 @@ export default function HomeTemplate({
 	const toggleLanguage = useSessionStore((s) => s.toggleLanguage);
 	const isMuted = useSessionStore((s) => s.isMuted);
 	const toggleMute = useSessionStore((s) => s.toggleMute);
-	const resetSession = useSessionStore((s) => s.reset);
+	const resetMute = useSessionStore((s) => s.resetMute);
 	const savedAnimals = useHomeAnimals();
 	const animals = previewAnimals ?? savedAnimals;
 	const orientation = useOrientation();
 	// 관리자에서 저장하고 홈으로 돌아오면 다시 그려지면서 새 크기를 읽습니다
 	useSoundVolume();
 
-	// 홈은 다음 관람객이 처음 만나는 화면입니다. 앞 사람의 언어와 음소거를 여기서 지웁니다
+	// 홈으로 돌아오면 소리는 다시 켜고, 언어는 게임에서 쓰던 그대로 둡니다
 	useEffect(() => {
-		resetSession();
-	}, [resetSession]);
+		resetMute();
+	}, [resetMute]);
 
 	const layout = LAYOUT[orientation];
 	const isCentered = orientation === "landscape" || portraitAlign === "center";
@@ -167,7 +165,7 @@ export default function HomeTemplate({
 				<section className={cn("flex w-full flex-col items-center", layout.howToPlay)}>
 					<h2 className="typo-title-m whitespace-nowrap text-text-primary">{t("howToPlay")}</h2>
 					<div className={cn("flex w-full items-center", layout.steps)}>
-						{content.stepMedia.map((media, index) => (
+						{content.stepMedia.map((src, index) => (
 							<HowToPlayCard
 								key={STEP_KEYS[index]}
 								step={String(index + 1)}
@@ -176,15 +174,7 @@ export default function HomeTemplate({
 								direction={layout.cardDirection}
 								tip={index === content.stepMedia.length - 1 ? t("tip") : undefined}
 								media={
-									<img
-										src={media.src}
-										alt=""
-										draggable={false}
-										className={cn(
-											"size-full",
-											media.fit === "cover" ? "object-cover" : "object-contain",
-										)}
-									/>
+									<img src={src} alt="" draggable={false} className="size-full object-contain" />
 								}
 							/>
 						))}
