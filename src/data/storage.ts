@@ -21,6 +21,7 @@ const PLATFORM_METHODS = [
 	"getImageUrl",
 	"verifyPin",
 	"updatePin",
+	"quitApp",
 ] as const satisfies readonly (keyof Platform)[];
 
 function isPlatform(value: unknown): value is Platform {
@@ -76,4 +77,8 @@ export function verifyPin(pin: string): Promise<boolean> {
 
 export function updatePin(current: string, next: string): Promise<PinChangeResult> {
 	return getPlatform().updatePin(current, next);
+}
+
+export function quitApp(): Promise<void> {
+	return getPlatform().quitApp();
 }

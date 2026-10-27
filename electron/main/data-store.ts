@@ -10,6 +10,8 @@ import { retryOnFileLock } from "./retry";
 export type DataStore = {
 	read<F extends DataFile>(file: F): Promise<DataMap[F]>;
 	write<F extends DataFile>(file: F, data: unknown): Promise<SaveResult<F>>;
+	/** 지금까지 들어온 읽기, 쓰기가 모두 끝나면 풀립니다 */
+	flush(): Promise<void>;
 };
 
 export function createDataStore(dataDir: string): DataStore {
@@ -93,6 +95,10 @@ export function createDataStore(dataDir: string): DataStore {
 					return { isSuccess: false, reason: "io" };
 				}
 			});
+		},
+
+		async flush() {
+			await Promise.all(queues.values());
 		},
 	};
 }
