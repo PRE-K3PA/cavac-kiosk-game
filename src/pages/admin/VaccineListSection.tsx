@@ -116,7 +116,11 @@ export default function VaccineListSection() {
 			setDraft("vaccine-game", result.data);
 			return;
 		}
-		if (result.reason === "limit") showLimitNotice();
+		if (result.reason === "limit") {
+			// 앞서 띄운 고정 안내가 이번 한도 안내를 가리지 않게 닫습니다
+			hidePinNotice();
+			showLimitNotice();
+		}
 	}
 
 	function handleAntigenToggleClick(vaccineId: string) {

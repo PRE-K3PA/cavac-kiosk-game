@@ -12,10 +12,11 @@ import { VACCINE_HOME } from "@/pages/vaccine/vaccineHomeContent";
 import type { GameType } from "@/types/data";
 import { cn } from "@/utils/cn";
 
-const HOME_CONTENT = {
-	vaccine: VACCINE_HOME,
-	card: CARD_HOME,
-} satisfies Record<GameType, HomeContent>;
+// 실제 홈 화면(VaccineHome·CardHome)과 같은 값입니다. 카드 홈은 세로 화면에서 본문을 위부터 쌓습니다
+const HOME_SCREEN_PROPS = {
+	vaccine: { content: VACCINE_HOME },
+	card: { content: CARD_HOME, portraitAlign: "start" },
+} satisfies Record<GameType, { content: HomeContent; portraitAlign?: "start" | "center" }>;
 
 /** 홈 화면을 가로는 616px 폭, 세로는 560px 높이로 줄여 보여 줍니다 */
 const HOME_PREVIEW_SIZE = {
@@ -53,7 +54,7 @@ export default function HomePreviewOverlay({ onClose }: HomePreviewOverlayProps)
 								<div className={cn("origin-top-left", size.screen)}>
 									<OrientationProvider orientation={previewOrientation}>
 										<HomeTemplate
-											content={HOME_CONTENT[common.activeGame]}
+											{...HOME_SCREEN_PROPS[common.activeGame]}
 											animals={animals}
 											onStart={ignore}
 											onAdminActivate={ignore}

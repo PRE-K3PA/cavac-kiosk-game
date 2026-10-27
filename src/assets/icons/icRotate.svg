@@ -1,11 +1,11 @@
 <svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 <title>화면 방향 바꾸기</title>
 <g id="_Icon / Rotate">
-<path id="Vector" d="M9.91667 3.5H5.25C4.2835 3.5 3.5 4.2835 3.5 5.25V14.5833C3.5 15.5498 4.2835 16.3333 5.25 16.3333H9.91667C10.8832 16.3333 11.6667 15.5498 11.6667 14.5833V5.25C11.6667 4.2835 10.8832 3.5 9.91667 3.5Z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="#2B3A54"/>
-<path id="Vector_2" d="M23.9167 15.166H15.75C14.7835 15.166 14 15.9495 14 16.916V21.5827C14 22.5492 14.7835 23.3327 15.75 23.3327H23.9167C24.8832 23.3327 25.6667 22.5492 25.6667 21.5827V16.916C25.6667 15.9495 24.8832 15.166 23.9167 15.166Z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="#2B3A54"/>
-<path id="Vector_3" d="M16.3333 4.66602H19.8333C20.7616 4.66602 21.6518 5.03476 22.3082 5.69114C22.9646 6.34752 23.3333 7.23776 23.3333 8.16602V11.666" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="#2B3A54"/>
-<path id="Vector_4" d="M21 9.33398L23.3333 11.6673L25.6667 9.33398" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="#2B3A54"/>
-<path id="Vector_5" d="M11.6667 23.3327H8.16669C7.23843 23.3327 6.34819 22.9639 5.69181 22.3076C5.03544 21.6512 4.66669 20.7609 4.66669 19.8327V18.666" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="#2B3A54"/>
-<path id="Vector_6" d="M2.33331 20.9993L4.66665 18.666L6.99998 20.9993" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="#2B3A54"/>
+<path id="Vector" d="M9.91667 3.5H5.25C4.2835 3.5 3.5 4.2835 3.5 5.25V14.5833C3.5 15.5498 4.2835 16.3333 5.25 16.3333H9.91667C10.8832 16.3333 11.6667 15.5498 11.6667 14.5833V5.25C11.6667 4.2835 10.8832 3.5 9.91667 3.5Z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/>
+<path id="Vector_2" d="M23.9167 15.166H15.75C14.7835 15.166 14 15.9495 14 16.916V21.5827C14 22.5492 14.7835 23.3327 15.75 23.3327H23.9167C24.8832 23.3327 25.6667 22.5492 25.6667 21.5827V16.916C25.6667 15.9495 24.8832 15.166 23.9167 15.166Z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/>
+<path id="Vector_3" d="M16.3333 4.66602H19.8333C20.7616 4.66602 21.6518 5.03476 22.3082 5.69114C22.9646 6.34752 23.3333 7.23776 23.3333 8.16602V11.666" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/>
+<path id="Vector_4" d="M21 9.33398L23.3333 11.6673L25.6667 9.33398" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/>
+<path id="Vector_5" d="M11.6667 23.3327H8.16669C7.23843 23.3327 6.34819 22.9639 5.69181 22.3076C5.03544 21.6512 4.66669 20.7609 4.66669 19.8327V18.666" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/>
+<path id="Vector_6" d="M2.33331 20.9993L4.66665 18.666L6.99998 20.9993" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/>
 </g>
 </svg>
