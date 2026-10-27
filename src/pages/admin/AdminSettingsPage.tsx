@@ -59,8 +59,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 	const [activeTone, setActiveTone] = useState<AdminTone>("common");
 	const [overlay, setOverlay] = useState<Overlay | null>(null);
 	const [isPinChangeOpen, setIsPinChangeOpen] = useState(false);
-	const orientation = useOrientation();
-	const layout = LAYOUT[orientation];
+	const layout = LAYOUT[useOrientation()];
 
 	const isLoaded = useSettingsDraft((state) => state.isLoaded);
 	const isSaving = useSettingsDraft((state) => state.isSaving);
@@ -135,10 +134,7 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 	return (
 		<div className="flex h-full w-full flex-col bg-background-surface-subtle">
 			<AdminHeader
-				tone={activeTone}
 				isUnsaved={isDirty}
-				// 세로 헤더는 폭이 좁아 알림이 뜨면 버튼이 밀립니다. 현재 탭은 바로 아래 탭 줄에서 보입니다
-				isToneLabelVisible={orientation === "landscape"}
 				onPinChangeClick={handlePinChangeClick}
 				onExitClick={handleExitClick}
 				className={layout.header}

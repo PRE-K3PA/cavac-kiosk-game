@@ -102,7 +102,7 @@ export default function HomeAnimalPanel() {
 					variant="secondary"
 					label="축종 관리"
 					onClick={handleSpeciesManagerOpen}
-					className="h-16 w-50"
+					className="h-16 w-40"
 				/>
 			</div>
 			<div
