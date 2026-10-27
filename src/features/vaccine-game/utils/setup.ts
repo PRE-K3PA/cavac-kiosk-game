@@ -6,7 +6,7 @@ import {
 	assignAntigenColors,
 } from "@/features/vaccine-game/utils/antigenColors";
 import { getRoundVaccines } from "@/features/vaccine-game/utils/round";
-import type { DataFile, DataMap, Vaccine, VaccineGameSettings } from "@/types/data";
+import type { CommonData, DataFile, DataMap, Vaccine, VaccineGameSettings } from "@/types/data";
 
 export type DataReader = <F extends DataFile>(file: F) => Promise<DataMap[F]>;
 
@@ -15,16 +15,21 @@ export type GameSetup = {
 	allVaccines: Vaccine[];
 	settings: VaccineGameSettings;
 	playDurationSeconds: number;
+	autoReset: CommonData["autoReset"];
 	colors: AntigenColors;
 };
 
-function toSetup(vaccines: Vaccine[], settings: VaccineGameSettings, playDurationSeconds: number) {
+function toSetup(
+	{ vaccines, settings }: DataMap["vaccine-game"],
+	{ playDurationSeconds, autoReset }: CommonData,
+): GameSetup {
 	const round = getRoundVaccines(vaccines);
 	return {
 		round,
 		allVaccines: vaccines,
 		settings,
 		playDurationSeconds,
+		autoReset,
 		colors: assignAntigenColors(round, Math.random),
 	};
 }
@@ -39,9 +44,8 @@ export async function loadSetup(read: DataReader = getData): Promise<GameSetup> 
 			readWithDefault("vaccine-game", read),
 			readWithDefault("common", read),
 		]);
-		return toSetup(vaccineGame.vaccines, vaccineGame.settings, common.playDurationSeconds);
+		return toSetup(vaccineGame, common);
 	} catch {
-		const { vaccines, settings } = createDefaultData("vaccine-game");
-		return toSetup(vaccines, settings, createDefaultData("common").playDurationSeconds);
+		return toSetup(createDefaultData("vaccine-game"), createDefaultData("common"));
 	}
 }
