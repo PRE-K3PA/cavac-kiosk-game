@@ -1,17 +1,27 @@
+import { useState } from "react";
 import ImagePreviewModal from "@/components/admin/ImagePreviewModal";
 import ModalOverlay from "@/components/admin/ModalOverlay";
+import { formatOrientationBasis } from "@/components/admin/orientationLabel";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
-import { OrientationProvider } from "@/layout/OrientationContext";
+import { OrientationProvider, useOrientation } from "@/layout/OrientationContext";
+import type { Orientation } from "@/layout/stage";
 import { CARD_HOME } from "@/pages/card/cardHomeContent";
 import HomeTemplate, { type HomeContent } from "@/pages/home/HomeTemplate";
 import { toHomeAnimals } from "@/pages/home/useHomeAnimals";
 import { VACCINE_HOME } from "@/pages/vaccine/vaccineHomeContent";
 import type { GameType } from "@/types/data";
+import { cn } from "@/utils/cn";
 
 const HOME_CONTENT = {
 	vaccine: VACCINE_HOME,
 	card: CARD_HOME,
 } satisfies Record<GameType, HomeContent>;
+
+/** 홈 화면을 가로는 616px 폭, 세로는 560px 높이로 줄여 보여 줍니다 */
+const HOME_PREVIEW_SIZE = {
+	landscape: { frame: "h-[346.5px] w-154", screen: "h-270 w-480 scale-[0.3208333]" },
+	portrait: { frame: "h-140 w-78.75", screen: "h-480 w-270 scale-[0.2916667]" },
+} as const satisfies Record<Orientation, { frame: string; screen: string }>;
 
 type HomePreviewOverlayProps = {
 	onClose: () => void;
@@ -19,12 +29,15 @@ type HomePreviewOverlayProps = {
 
 function ignore() {}
 
-// Figma ImagePreviewOverlay_Character1~4: 화면 방향과 상관없이 가로 홈 화면을 616px 폭으로 줄여 보여 줍니다
+// Figma ImagePreviewOverlay_Character1~4: 지금 키오스크 화면 방향부터 보여 주고, 전환 버튼으로 가로·세로를 바꿉니다
 export default function HomePreviewOverlay({ onClose }: HomePreviewOverlayProps) {
+	const stageOrientation = useOrientation();
+	const [previewOrientation, setPreviewOrientation] = useState(stageOrientation);
 	const common = useSettingsDraft((state) => state.draft.common);
 
 	const animals = toHomeAnimals(common);
 	const animalCount = Object.keys(animals).length;
+	const size = HOME_PREVIEW_SIZE[previewOrientation];
 
 	return (
 		<ModalOverlay>
@@ -34,11 +47,11 @@ export default function HomePreviewOverlay({ onClose }: HomePreviewOverlayProps)
 				captionStyle="chip"
 				items={[
 					{
-						caption: `메인 화면 · 동물 ${animalCount}마리 (가로 화면 기준)`,
+						caption: `메인 화면 · 동물 ${animalCount}마리 (${formatOrientationBasis(previewOrientation)})`,
 						content: (
-							<div inert className="h-[346.5px] w-154 overflow-hidden rounded-xl">
-								<div className="h-270 w-480 origin-top-left scale-[0.3208333]">
-									<OrientationProvider orientation="landscape">
+							<div inert className={cn("overflow-hidden rounded-xl", size.frame)}>
+								<div className={cn("origin-top-left", size.screen)}>
+									<OrientationProvider orientation={previewOrientation}>
 										<HomeTemplate
 											content={HOME_CONTENT[common.activeGame]}
 											animals={animals}
@@ -51,6 +64,8 @@ export default function HomePreviewOverlay({ onClose }: HomePreviewOverlayProps)
 						),
 					},
 				]}
+				orientation={previewOrientation}
+				onOrientationChange={setPreviewOrientation}
 				onCloseClick={onClose}
 			/>
 		</ModalOverlay>
