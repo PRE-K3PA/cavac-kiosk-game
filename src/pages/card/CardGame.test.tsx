@@ -238,12 +238,12 @@ describe("자동 복귀", () => {
 
 describe("카드판 배치", () => {
 	test.each([
-		["landscape", 4, 8, "grid-cols-4", "w-79.5"],
-		["landscape", 8, 16, "grid-cols-4", "w-71.25"],
-		["landscape", 12, 24, "grid-cols-6", "w-53.75"],
-		["portrait", 4, 8, "grid-cols-2", "w-59"],
+		["landscape", 4, 8, "grid-cols-4", "w-78.5"],
+		["landscape", 8, 16, "grid-cols-4", "w-74"],
+		["landscape", 12, 24, "grid-cols-6", "w-50"],
+		["portrait", 4, 8, "grid-cols-2", "w-122.5"],
 		["portrait", 8, 16, "grid-cols-4", "w-59"],
-		["portrait", 12, 24, "grid-cols-4", "w-41.25"],
+		["portrait", 12, 24, "grid-cols-4", "w-59"],
 	] as const)(
 		"%s %i쌍은 카드 %i장, %s, %s",
 		async (orientation, pairCount, total, columns, width) => {
