@@ -2,6 +2,7 @@ import { useState } from "react";
 import ImagePreviewModal from "@/components/admin/ImagePreviewModal";
 import { LANGUAGE_LABEL } from "@/components/admin/languageLabel";
 import ModalOverlay from "@/components/admin/ModalOverlay";
+import { formatOrientationBasis } from "@/components/admin/orientationLabel";
 import VaccineModal from "@/components/admin/VaccineModal";
 import type { AntigenLabel } from "@/components/vaccine/antigen";
 import VaccineBottle from "@/components/vaccine/VaccineBottle";
@@ -21,6 +22,8 @@ import {
 	type VaccineName,
 } from "@/features/admin/vaccineForm";
 import { addVaccine, updateVaccineInfo } from "@/features/admin/vaccineList";
+import { useOrientation } from "@/layout/OrientationContext";
+import type { Orientation } from "@/layout/stage";
 import VaccineDeleteOverlay from "@/pages/admin/VaccineDeleteOverlay";
 import { ANTIGEN_COLOR_KEYS, type Antigen, type Language, type Vaccine } from "@/types/data";
 import { cn } from "@/utils/cn";
@@ -33,9 +36,16 @@ const PREVIEW_PLACES = {
 /** Figma 미리보기의 병 채움 정도 */
 const PREVIEW_BOTTLE_FILL = 60;
 
+/** 게임 화면 정보 레일처럼 세로 화면에서는 로고와 병을 옆으로 놓고, 병도 게임 화면과 같은 크기로 줄입니다 */
+const PREVIEW_LOGO_RAIL = {
+	landscape: { rail: "flex-col gap-6 p-4", bottle: undefined },
+	portrait: { rail: "flex-row gap-5 px-5 py-7", bottle: "h-56.75 w-33.5" },
+} as const satisfies Record<Orientation, { rail: string; bottle?: string }>;
+
 type ImagePreview = {
 	image: VaccineImageKey;
 	language: Language;
+	orientation: Orientation;
 };
 
 type VaccineFormOverlayProps = {
@@ -57,6 +67,10 @@ function toImageErrorMessages(messages: Partial<Record<VaccineImageField, string
 function formatPreviewDescription({ image, language }: ImagePreview) {
 	const { label, place } = PREVIEW_PLACES[image];
 	return `${label} · ${LANGUAGE_LABEL[language]} — ${place}에 이렇게 보입니다.`;
+}
+
+function formatPreviewCaption({ image, orientation }: ImagePreview) {
+	return `${PREVIEW_PLACES[image].place} (${formatOrientationBasis(orientation)})`;
 }
 
 /** 항원 색은 게임을 시작할 때마다 새로 정하므로, 미리보기는 차례대로 칠합니다 */
@@ -88,6 +102,7 @@ export default function VaccineFormOverlay({
 	const [preview, setPreview] = useState<ImagePreview>();
 	const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
+	const stageOrientation = useOrientation();
 	const vaccineGame = useSettingsDraft((state) => state.draft["vaccine-game"]);
 	const setDraft = useSettingsDraft((state) => state.setDraft);
 	const { isSelecting, errorMessages, selectImageFor } = useImageSelect<VaccineImageField>();
@@ -136,25 +151,33 @@ export default function VaccineFormOverlay({
 
 	function handleImagePreviewClick(image: VaccineImageKey, language: Language) {
 		if (isSelecting) return;
-		setPreview({ image, language });
+		// 열 때마다 지금 키오스크 화면 방향부터 보여 줍니다
+		setPreview({ image, language, orientation: stageOrientation });
+	}
+
+	function handlePreviewOrientationChange(orientation: Orientation) {
+		setPreview((current) => current && { ...current, orientation });
 	}
 
 	function handleImagePreviewClose() {
 		setPreview(undefined);
 	}
 
-	function renderPreviewContent({ image, language }: ImagePreview, src: string) {
+	function renderPreviewContent({ image, language, orientation }: ImagePreview, src: string) {
 		if (image === "logoImage") {
+			const layout = PREVIEW_LOGO_RAIL[orientation];
+
 			return (
 				<div
 					className={cn(
-						"flex flex-col items-center gap-6 rounded-[30px] border-3 border-border-default",
-						"bg-background-surface p-4 shadow-md",
+						"flex items-center rounded-[30px] border-3 border-border-default",
+						"bg-background-surface shadow-md",
+						layout.rail,
 					)}>
 					<div className="flex h-25 w-75 items-center justify-center">
 						<img src={src} alt="" className="max-h-full max-w-full object-contain" />
 					</div>
-					<VaccineBottle fill={PREVIEW_BOTTLE_FILL} />
+					<VaccineBottle fill={PREVIEW_BOTTLE_FILL} className={layout.bottle} />
 				</div>
 			);
 		}
@@ -197,10 +220,12 @@ export default function VaccineFormOverlay({
 						description={formatPreviewDescription(preview)}
 						items={[
 							{
-								caption: `${PREVIEW_PLACES[preview.image].place} (가로 화면 기준)`,
+								caption: formatPreviewCaption(preview),
 								content: renderPreviewContent(preview, previewSrc),
 							},
 						]}
+						orientation={preview.orientation}
+						onOrientationChange={handlePreviewOrientationChange}
 						onCloseClick={handleImagePreviewClose}
 					/>
 				</ModalOverlay>
