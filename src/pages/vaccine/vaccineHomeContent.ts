@@ -5,9 +5,5 @@ import type { HomeContent } from "@/pages/home/HomeTemplate";
 
 export const VACCINE_HOME = {
 	namespace: "vaccineHome",
-	stepMedia: [
-		{ src: imgVaccineStepMemorize, fit: "contain" },
-		{ src: imgVaccineStepCatch, fit: "contain" },
-		{ src: imgStepTrophy, fit: "contain" },
-	],
+	stepMedia: [imgVaccineStepMemorize, imgVaccineStepCatch, imgStepTrophy],
 } satisfies HomeContent;
