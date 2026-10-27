@@ -1,8 +1,8 @@
 import { antigenKey } from "@/data/rules";
 import type { Antigen, Vaccine } from "@/types/data";
 
-// Figma 에 없는 값이라 이번에 정했다. 낙하 속도 100% 에서 가로 화면 높이(914)를 약 4.5초에 지난다
-const BASE_FALL_SPEED = 200;
+// Figma 에 없는 값이라 이번에 정했다. 낙하 속도 100% 에서 가로 화면 높이(914)를 약 3초에 지난다
+const BASE_FALL_SPEED = 300;
 const SPAWN_GAP_MS = 600;
 /** 오답 구슬은 빠르게 떨어뜨려 틀렸다는 느낌을 준다 */
 export const WRONG_FALL_MULTIPLIER = 2.5;
