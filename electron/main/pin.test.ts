@@ -96,7 +96,8 @@ describe("PIN 확인과 변경", () => {
 	test("저장된 파일에 PIN 원문이 없다", async () => {
 		await createPinStore(dataDir, NO_MASTER).update("0000", "5824");
 		const saved = await readPinFile();
-		expect(saved).not.toContain("5824");
+		// 해시는 16진수라 우연히 "5824" 를 품을 수 있으므로, 16진수 사이에 낀 경우는 원문으로 보지 않습니다
+		expect(saved).not.toMatch(/(?<![0-9a-f])5824(?![0-9a-f])/);
 		expect(JSON.parse(saved).pinHash).toStartWith("scrypt:");
 	});
 
@@ -215,5 +216,16 @@ describe("PIN 확인과 변경", () => {
 			isSuccess: false,
 			reason: "io",
 		});
+	});
+});
+
+describe("flush", () => {
+	test("끝나지 않은 PIN 변경을 기다린 뒤 풀린다", async () => {
+		const store = createPinStore(dataDir, NO_MASTER);
+
+		void store.update("0000", "1234");
+		await store.flush();
+
+		expect(await createPinStore(dataDir, NO_MASTER).verify("1234")).toBe(true);
 	});
 });

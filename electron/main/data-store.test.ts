@@ -158,3 +158,19 @@ describe("쓰기", () => {
 		expect(await readJson("common.json")).toMatchObject({ playDurationSeconds: 35 });
 	});
 });
+
+describe("flush", () => {
+	test("끝나지 않은 저장을 기다린 뒤 풀린다", async () => {
+		const store = createDataStore(dataDir);
+		const saved = { ...createDefaultData("common"), playDurationSeconds: 30 };
+
+		void store.write("common", saved);
+		await store.flush();
+
+		expect(await readJson("common.json")).toEqual(saved);
+	});
+
+	test("저장할 것이 없으면 바로 풀린다", async () => {
+		await createDataStore(dataDir).flush();
+	});
+});
