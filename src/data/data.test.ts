@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { createDefaultData } from "@/data/defaults";
 import { createMockData, createMockPlatform } from "@/data/mock/mock-platform";
 import { antigenKey, formatAntigenLabel, isHintDelayTooLong, validateForSave } from "@/data/rules";
@@ -181,6 +181,13 @@ describe("저장 규칙", () => {
 });
 
 describe("mock Platform", () => {
+	test("quitApp 은 브라우저 창을 닫지 않고 끝난다", async () => {
+		const info = spyOn(console, "info").mockImplementation(() => {});
+		await createMockPlatform().quitApp();
+		expect(info).toHaveBeenCalledTimes(1);
+		info.mockRestore();
+	});
+
 	test("저장하면 정리된 값을 돌려주고 다시 읽을 때 반영된다", async () => {
 		const platform = createMockPlatform();
 		const common = await platform.getData("common");

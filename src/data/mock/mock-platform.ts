@@ -111,6 +111,12 @@ export function createMockPlatform(options: MockPlatformOptions = {}): Platform 
 			pin = next;
 			return { isSuccess: true };
 		},
+
+		// 브라우저 창은 닫지 않습니다. 버튼이 눌렸는지만 콘솔로 확인합니다
+		async quitApp() {
+			await wait();
+			console.info("[mock] quitApp: 실제 앱에서는 여기서 종료됩니다");
+		},
 	};
 }
 
