@@ -193,6 +193,6 @@ export interface Platform {
 	verifyPin(pin: string): Promise<boolean>;
 	updatePin(current: string, next: string): Promise<PinChangeResult>;
 
-	/** 진행 중인 저장을 마친 뒤 앱을 닫습니다. 앱이 닫히므로 결과를 기다리지 않아도 됩니다 */
+	/** 진행 중인 저장을 마친 뒤 앱을 닫습니다. 저장이 끝나기 전까지는 풀리지 않습니다 */
 	quitApp(): Promise<void>;
 }
