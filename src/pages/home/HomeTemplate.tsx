@@ -108,17 +108,17 @@ export default function HomeTemplate({
 	const toggleLanguage = useSessionStore((s) => s.toggleLanguage);
 	const isMuted = useSessionStore((s) => s.isMuted);
 	const toggleMute = useSessionStore((s) => s.toggleMute);
-	const resetSession = useSessionStore((s) => s.reset);
+	const resetMute = useSessionStore((s) => s.resetMute);
 	const savedAnimals = useHomeAnimals();
 	const animals = previewAnimals ?? savedAnimals;
 	const orientation = useOrientation();
 	// 관리자에서 저장하고 홈으로 돌아오면 다시 그려지면서 새 크기를 읽습니다
 	useSoundVolume();
 
-	// 홈은 다음 관람객이 처음 만나는 화면입니다. 앞 사람의 언어와 음소거를 여기서 지웁니다
+	// 홈으로 돌아오면 소리는 다시 켜고, 언어는 게임에서 쓰던 그대로 둡니다
 	useEffect(() => {
-		resetSession();
-	}, [resetSession]);
+		resetMute();
+	}, [resetMute]);
 
 	const layout = LAYOUT[orientation];
 	const isCentered = orientation === "landscape" || portraitAlign === "center";
