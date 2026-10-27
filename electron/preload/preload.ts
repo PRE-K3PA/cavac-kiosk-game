@@ -12,6 +12,8 @@ const api: ElectronApi = {
 
 	verifyPin: (pin) => ipcRenderer.invoke("pin:verify", pin),
 	updatePin: (current, next) => ipcRenderer.invoke("pin:update", current, next),
+
+	quitApp: () => ipcRenderer.invoke("app:quit"),
 };
 
 contextBridge.exposeInMainWorld("api", api);

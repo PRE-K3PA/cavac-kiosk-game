@@ -1,4 +1,4 @@
-import { BrowserWindow, dialog, ipcMain, type OpenDialogOptions } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, type OpenDialogOptions } from "electron";
 import { IMAGE_EXTENSIONS } from "@/data/schema";
 import {
 	DATA_FILES,
@@ -13,6 +13,7 @@ import type { DataStore } from "./data-store";
 import { importImage, removeUnusedImages } from "./images";
 import { getDataDir, getImagesDir } from "./paths";
 import type { PinStore } from "./pin";
+import { quitAfterPendingWrites } from "./quit";
 
 function isDataFile(value: unknown): value is DataFile {
 	return DATA_FILES.some((file) => file === value);
@@ -29,6 +30,8 @@ const IMAGE_DIALOG_OPTIONS: OpenDialogOptions = {
 
 export function registerIpcHandlers(dataStore: DataStore, pinStore: PinStore): void {
 	ipcMain.handle("app:getVersion", () => process.env.npm_package_version ?? "0.0.0");
+
+	ipcMain.handle("app:quit", () => quitAfterPendingWrites([dataStore, pinStore], () => app.quit()));
 
 	ipcMain.handle("data:get", (_event, file: unknown) => {
 		// 화면 코드가 잘못된 파일 이름을 넘긴 경우라 돌려줄 데이터가 없습니다

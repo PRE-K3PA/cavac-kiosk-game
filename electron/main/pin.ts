@@ -26,6 +26,8 @@ type PinFile =
 export type PinStore = {
 	verify(pin: string): Promise<boolean>;
 	update(current: string, next: string): Promise<PinChangeResult>;
+	/** 지금까지 들어온 확인, 변경이 모두 끝나면 풀립니다 */
+	flush(): Promise<void>;
 };
 
 export function createPinStore(dataDir: string, masterPinHash: string): PinStore {
@@ -105,6 +107,10 @@ export function createPinStore(dataDir: string, masterPinHash: string): PinStore
 					return { isSuccess: false, reason: "io" };
 				}
 			});
+		},
+
+		async flush() {
+			await queue;
 		},
 	};
 }

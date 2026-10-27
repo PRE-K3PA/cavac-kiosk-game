@@ -46,6 +46,9 @@ const LAYOUT = {
 		timer: "left-12 top-9.5 w-456",
 		rail: "left-12 top-34 h-228.5 w-85 flex-col items-center justify-between py-6",
 		stats: "contents",
+		// 칸이 커지면 레일 간격이 줄어 병이 내려가므로, 칸은 두고 그림만 위아래 간격으로 넘치게 한다
+		logo: "h-25 w-75",
+		logoImage: "h-49 w-full",
 		bottle: undefined,
 		field: "left-102.5 top-34 h-228.5 w-365.5",
 		antigenList: "top-0 left-0 h-full w-49 flex-col items-center gap-7 pt-12",
@@ -62,6 +65,8 @@ const LAYOUT = {
 		timer: "left-12 top-9.5 w-246",
 		rail: "left-12 top-34 h-80 w-246 flex-row items-center justify-between pr-22 pl-5",
 		stats: "flex flex-col gap-6",
+		logo: "h-60 w-100",
+		logoImage: "size-full",
 		bottle: "h-56.75 w-33.5",
 		field: "left-12 top-119 h-349 w-246",
 		antigenList: "top-0 left-0 h-45 w-full flex-row items-center justify-center gap-17.25",
@@ -213,7 +218,7 @@ export default function VaccinePlay({
 							/>
 						</motion.div>
 					</div>
-					<div className="flex h-25 w-75 shrink-0 items-center justify-center">
+					<div className={cn("flex shrink-0 items-center justify-center", layout.logo)}>
 						{vaccine && (
 							<motion.img
 								key={vaccine.id}
@@ -222,7 +227,7 @@ export default function VaccinePlay({
 								src={getImageUrl(vaccine.logoImage[language])}
 								alt={vaccine.productName[language]}
 								draggable={false}
-								className="max-h-full max-w-full object-contain"
+								className={cn("shrink-0 object-contain", layout.logoImage)}
 							/>
 						)}
 					</div>
