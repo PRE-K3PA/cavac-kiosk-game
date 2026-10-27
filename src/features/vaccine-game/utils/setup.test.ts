@@ -11,7 +11,7 @@ function readFilled<F extends DataFile>(file: F): Promise<DataMap[F]> {
 }
 
 describe("loadSetup", () => {
-	test("설정을 읽으면 켜진 백신과 설정, 제한 시간을 돌려준다", async () => {
+	test("설정을 읽으면 켜진 백신과 설정, 제한 시간, 자동 초기화를 돌려준다", async () => {
 		const setup = await loadSetup(readFilled);
 
 		const enabledIds = filled["vaccine-game"].vaccines
@@ -21,6 +21,7 @@ describe("loadSetup", () => {
 		expect(setup.allVaccines).toEqual(filled["vaccine-game"].vaccines);
 		expect(setup.settings).toEqual(filled["vaccine-game"].settings);
 		expect(setup.playDurationSeconds).toBe(filled.common.playDurationSeconds);
+		expect(setup.autoReset).toEqual(filled.common.autoReset);
 	});
 
 	test("데이터를 읽는 함수가 바로 예외를 던져도 기본값으로 진행한다", async () => {
@@ -33,10 +34,15 @@ describe("loadSetup", () => {
 		expect(setup.round).toEqual([]);
 		expect(setup.settings).toEqual(createDefaultData("vaccine-game").settings);
 		expect(setup.playDurationSeconds).toBe(createDefaultData("common").playDurationSeconds);
+		expect(setup.autoReset).toEqual(createDefaultData("common").autoReset);
 	});
 
 	test("한 파일만 실패하면 그 파일만 기본값을 쓴다", async () => {
-		const common = { ...filled.common, playDurationSeconds: 45 };
+		const common = {
+			...filled.common,
+			playDurationSeconds: 45,
+			autoReset: { isEnabled: false, idleSeconds: 90 },
+		};
 		const failVaccineGame: DataReader = <F extends DataFile>(file: F) =>
 			file === "vaccine-game"
 				? Promise.reject(new Error("깨진 파일"))
@@ -46,5 +52,6 @@ describe("loadSetup", () => {
 
 		expect(setup.round).toEqual([]);
 		expect(setup.playDurationSeconds).toBe(45);
+		expect(setup.autoReset).toEqual({ isEnabled: false, idleSeconds: 90 });
 	});
 });
