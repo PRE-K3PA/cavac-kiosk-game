@@ -130,12 +130,18 @@ export function pickSpawnX(
 	return freeLanes.length > 0 ? pickOne(freeLanes, random) : null;
 }
 
+/** 낙하 속도에 반비례하는 간격이라, 속도가 달라도 구슬 사이 거리와 화면의 구슬 밀도가 같다 */
+export function getSpawnGapMs(fallSpeedPercent: number): number {
+	return (SPAWN_GAP_MS * 100) / fallSpeedPercent;
+}
+
 export function shouldSpawn(
 	falling: FallingAntigen[],
 	maxOnScreen: number,
 	msSinceLastSpawn: number,
+	spawnGapMs: number,
 ): boolean {
-	return falling.length < maxOnScreen && msSinceLastSpawn >= SPAWN_GAP_MS;
+	return falling.length < maxOnScreen && msSinceLastSpawn >= spawnGapMs;
 }
 
 /** 정답 구슬은 약병으로 날아가는 동안 멈추고, 오답 구슬은 빠르게 떨어진다 */
