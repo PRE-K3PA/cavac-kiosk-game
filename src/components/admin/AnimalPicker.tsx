@@ -1,4 +1,4 @@
-import type { MouseEvent } from "react";
+import { type MouseEvent, type UIEvent, useEffect, useRef, useState } from "react";
 import AnimalOption from "@/components/admin/AnimalOption";
 import Button from "@/components/admin/Button";
 import { cn } from "@/utils/cn";
@@ -24,6 +24,11 @@ function getHeadMessage(slotLabel?: string, currentSpeciesId?: string) {
 	return `${slotLabel} 칸에 세울 동물을 고르세요`;
 }
 
+// 1px 은 배율 때문에 생기는 소수점 오차를 넘기기 위한 여유입니다
+function hasHiddenContentBelow(element: HTMLElement) {
+	return element.scrollHeight - element.scrollTop - element.clientHeight > 1;
+}
+
 export default function AnimalPicker({
 	species,
 	slotLabel,
@@ -34,6 +39,24 @@ export default function AnimalPicker({
 }: AnimalPickerProps) {
 	const isIdle = !slotLabel;
 	const isFilledSlot = !isIdle && Boolean(currentSpeciesId);
+	const listRef = useRef<HTMLDivElement>(null);
+	const gridRef = useRef<HTMLDivElement>(null);
+	const [isFadeVisible, setIsFadeVisible] = useState(false);
+
+	// 축종이 늘어 칸 크기는 그대로인 채 내용만 길어질 때도 알 수 있게 안쪽 grid 도 지켜봅니다
+	useEffect(() => {
+		const list = listRef.current;
+		const grid = gridRef.current;
+		if (!list || !grid) return;
+		const observer = new ResizeObserver(() => setIsFadeVisible(hasHiddenContentBelow(list)));
+		observer.observe(list);
+		observer.observe(grid);
+		return () => observer.disconnect();
+	}, []);
+
+	function handleListScroll(event: UIEvent<HTMLDivElement>) {
+		setIsFadeVisible(hasHiddenContentBelow(event.currentTarget));
+	}
 
 	function handleOptionClick(event: MouseEvent<HTMLButtonElement>) {
 		const speciesId = event.currentTarget.dataset.speciesId;
@@ -55,8 +78,8 @@ export default function AnimalPicker({
 	}
 
 	return (
-		<div className={cn("flex w-full flex-col items-start gap-2", className)}>
-			<div className="flex h-14 w-full items-center gap-3">
+		<div className={cn("flex min-h-0 w-full flex-col items-start gap-2", className)}>
+			<div className="flex h-14 w-full shrink-0 items-center gap-3">
 				<p
 					className={cn(
 						"typo-admin-label whitespace-nowrap",
@@ -73,8 +96,26 @@ export default function AnimalPicker({
 					/>
 				)}
 			</div>
-			<div className="flex w-full flex-wrap content-start items-start gap-3">
-				{species.map(renderOption)}
+			<div className="relative flex min-h-0 w-full flex-col">
+				<div
+					ref={listRef}
+					onScroll={handleListScroll}
+					className="min-h-0 overflow-y-auto overscroll-contain [scrollbar-width:none]">
+					<div
+						ref={gridRef}
+						className="grid grid-cols-[repeat(auto-fill,144px)] justify-center gap-3">
+						{species.map(renderOption)}
+					</div>
+				</div>
+				{/* 스크롤바를 숨겨 두어서, 아래에 줄이 더 있으면 흐리게 덮어 알립니다 */}
+				{isFadeVisible && (
+					<div
+						className={cn(
+							"pointer-events-none absolute inset-x-0 bottom-0 h-20",
+							"bg-linear-to-b from-transparent to-background-surface",
+						)}
+					/>
+				)}
 			</div>
 		</div>
 	);

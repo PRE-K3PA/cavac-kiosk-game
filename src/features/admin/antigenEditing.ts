@@ -1,5 +1,6 @@
 import { antigenKey } from "@/data/rules";
 import { LIMITS } from "@/data/schema";
+import type { UsageNotice } from "@/features/admin/usageNotice";
 import type { Antigen, VaccineGameData } from "@/types/data";
 
 const MAX_ABBR_LENGTH = LIMITS.antigenAbbr.max;
@@ -15,9 +16,19 @@ export const ANTIGEN_ERROR_MESSAGES = {
 
 export type AntigenError = keyof typeof ANTIGEN_ERROR_MESSAGES;
 
+/** 마지막 남은 고정 안 된 항원을 고정하려 할 때 잠깐 보여 주는 안내입니다 (10-27 실기 테스트 QA) */
+export const ANTIGEN_PIN_NOTICE: UsageNotice = {
+	tone: "info",
+	message: ANTIGEN_ERROR_MESSAGES.allPinned,
+};
+
+export type ToggleAntigenPinResult =
+	| { isSuccess: true; data: VaccineGameData }
+	| { isSuccess: false; reason: "allPinned" };
+
 /**
  * 수정 중인 항원 행. 설정 파일에 넣지 않는 화면 상태이고, 한 번에 한 행만 둡니다 (Figma Q12).
- * 수정 중에는 다른 항원 행의 수정·삭제와 항원 추가를 이 파일의 함수가 막습니다.
+ * 수정 중에는 다른 항원 행의 고정·수정·삭제와 항원 추가를 이 파일의 함수가 막습니다.
  * 백신 목록 조작(펼치기·접기, 검색, 사용 체크, 백신 추가·수정·삭제)은 화면이 disabled 로 막습니다
  */
 export type AntigenEditing = {
@@ -92,6 +103,37 @@ export function changeAntigen(
 		),
 	);
 	return { data, editing };
+}
+
+/**
+ * 고정은 수정을 누르지 않고 바로 바꿉니다. 다른 행을 수정하는 동안(Q12)에는 바꾸지 않고,
+ * 백신의 항원이 모두 고정되는 고정은 거절합니다 (10-27 실기 테스트 QA)
+ */
+export function toggleAntigenPin(
+	state: AntigenEditState,
+	vaccineId: string,
+	antigenId: string,
+): ToggleAntigenPinResult {
+	const { data } = state;
+	const editing = currentEditing(state);
+	const vaccine = data.vaccines.find((item) => item.id === vaccineId);
+	const target = vaccine?.antigens.find((antigen) => antigen.id === antigenId);
+	if (vaccine === undefined || target === undefined) return { isSuccess: true, data };
+	if (editing !== null && editing.antigenId !== antigenId) return { isSuccess: true, data };
+
+	const othersPinned = vaccine.antigens.every(
+		(antigen) => antigen.id === antigenId || antigen.isPinned,
+	);
+	if (!target.isPinned && othersPinned) return { isSuccess: false, reason: "allPinned" };
+
+	return {
+		isSuccess: true,
+		data: updateAntigens(data, vaccineId, (antigens) =>
+			antigens.map((antigen) =>
+				antigen.id === antigenId ? { ...antigen, isPinned: !antigen.isPinned } : antigen,
+			),
+		),
+	};
 }
 
 /**

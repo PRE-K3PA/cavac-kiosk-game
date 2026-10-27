@@ -14,6 +14,7 @@ import {
 	getAntigenError,
 	needsDeleteConfirm,
 	startAntigenEdit,
+	toggleAntigenPin,
 	toggleExpandedVaccine,
 } from "@/features/admin/antigenEditing";
 import { addVaccine, type VaccineInfo } from "@/features/admin/vaccineList";
@@ -140,6 +141,23 @@ function abbrs(data: VaccineGameData, productName: string): string[] {
 	return findVaccine(data, productName).antigens.map((antigen) => antigen.abbr);
 }
 
+function togglePin(state: AntigenEditState, productName: string, abbr: string) {
+	return toggleAntigenPin(
+		state,
+		findVaccine(state.data, productName).id,
+		findAntigen(state.data, productName, abbr).id,
+	);
+}
+
+/** 고정을 누른 뒤 그 백신에서 고정된 항원의 약어. 거절되면 테스트를 실패시킵니다 */
+function pinnedAfterToggle(state: AntigenEditState, productName: string, abbr: string): string[] {
+	const result = togglePin(state, productName, abbr);
+	if (!result.isSuccess) throw new Error(`${productName} 의 ${abbr} 고정이 거절됐습니다`);
+	return findVaccine(result.data, productName)
+		.antigens.filter((antigen) => antigen.isPinned)
+		.map((antigen) => antigen.abbr);
+}
+
 function deepFreeze<T>(value: T): T {
 	if (typeof value === "object" && value !== null) {
 		for (const child of Object.values(value)) deepFreeze(child);
@@ -241,6 +259,81 @@ describe("수정 시작과 입력", () => {
 		const antigen = findAntigen(state.data, "RV-K", "CDV");
 
 		expect(changeAntigen(state, { ...antigen, abbr: "CAV" })).toBe(state);
+	});
+});
+
+describe("고정", () => {
+	test("수정 중이 아니어도 바로 고정한다", () => {
+		expect(pinnedAfterToggle(idle(), "Vaccine D", "PED")).toEqual(["PED"]);
+	});
+
+	test("고정한 항원을 누르면 고정을 푼다", () => {
+		expect(pinnedAfterToggle(pinnedTge(), "Vaccine D", "TGE")).toEqual([]);
+	});
+
+	test("고정하지 않은 마지막 항원은 고정하지 않고 allPinned 로 거절한다", () => {
+		expect(togglePin(pinnedTge(), "Vaccine D", "PED")).toEqual({
+			isSuccess: false,
+			reason: "allPinned",
+		});
+	});
+
+	test("항원이 하나뿐인 백신은 그 항원을 고정하지 않는다", () => {
+		const data = addVaccine(emptyVaccineGame(), vaccineInfo("Vaccine F"));
+		const added = addAntigen(idle(data), data.vaccines[0].id);
+		const finished = finishAntigenEdit(
+			changeAntigen(added, { ...editingAntigen(added), abbr: "ND" }),
+		);
+
+		expect(togglePin(finished, "Vaccine F", "ND")).toEqual({
+			isSuccess: false,
+			reason: "allPinned",
+		});
+	});
+
+	test("수정 중인 행도 같은 규칙으로 고정한다", () => {
+		const state = pinnedTge();
+		const pedEditing = startAntigenEdit(
+			state,
+			findVaccine(state.data, "Vaccine D").id,
+			findAntigen(state.data, "Vaccine D", "PED").id,
+		);
+
+		expect(pinnedAfterToggle(editingExisting("Vaccine D", "PED"), "Vaccine D", "PED")).toEqual([
+			"PED",
+		]);
+		expect(togglePin(pedEditing, "Vaccine D", "PED")).toEqual({
+			isSuccess: false,
+			reason: "allPinned",
+		});
+	});
+
+	test("다른 행을 수정하는 중에는 같은 백신이든 다른 백신이든 고정을 바꾸지 않는다", () => {
+		const state = editingExisting("RV-K", "CDV");
+		const unchanged = { isSuccess: true, data: state.data } as const;
+
+		expect(togglePin(state, "RV-K", "RV")).toEqual(unchanged);
+		expect(togglePin(state, "Vaccine D", "PED")).toEqual(unchanged);
+	});
+
+	test("항원이 모두 고정된 백신에서도 고정을 풀 수 있다", () => {
+		const state = pinnedTge();
+		findAntigen(state.data, "Vaccine D", "PED").isPinned = true;
+
+		expect(pinnedAfterToggle(state, "Vaccine D", "PED")).toEqual(["TGE"]);
+	});
+
+	test("없는 항원이나 다른 백신의 항원이면 고정을 바꾸지 않는다", () => {
+		const state = idle();
+		const cdv = findAntigen(state.data, "RV-K", "CDV");
+		const unchanged = { isSuccess: true, data: state.data } as const;
+
+		expect(toggleAntigenPin(state, findVaccine(state.data, "RV-K").id, "없는 항원")).toEqual(
+			unchanged,
+		);
+		expect(toggleAntigenPin(state, findVaccine(state.data, "Vaccine D").id, cdv.id)).toEqual(
+			unchanged,
+		);
 	});
 });
 
@@ -440,12 +533,13 @@ describe("초안에 없는 수정 상태", () => {
 		expect(getAntigenEditing(filledVaccineGame(), added.editing)).toBeNull();
 	});
 
-	test("그 상태에서는 다른 행의 수정·추가·삭제를 막지 않는다", () => {
+	test("그 상태에서는 다른 행의 고정·수정·추가·삭제를 막지 않는다", () => {
 		const { editing } = addedToRvk({ abbr: "AI" });
 		const reverted = { data: filledVaccineGame(), editing };
 		const vaccine = findVaccine(reverted.data, "RV-K");
 		const cdv = findAntigen(reverted.data, "RV-K", "CDV");
 
+		expect(pinnedAfterToggle(reverted, "RV-K", "CDV")).toEqual(["CDV"]);
 		expect(startAntigenEdit(reverted, vaccine.id, cdv.id).editing?.antigenId).toBe(cdv.id);
 		expect(addAntigen(reverted, vaccine.id).editing?.isNew).toBe(true);
 		expect(abbrs(deleteAntigen(reverted, vaccine.id, cdv.id).data, "RV-K")).toEqual(["RV", "CPV"]);
@@ -473,6 +567,7 @@ describe("받은 값", () => {
 			const editing = startAntigenEdit(idle(data), vaccine.id, cdv.id);
 			changeAntigen(editing, { ...cdv, abbr: "CAV" });
 			deleteAntigen(editing, vaccine.id, cdv.id);
+			toggleAntigenPin(idle(data), vaccine.id, cdv.id);
 		}).not.toThrow();
 		expect(data).toEqual(filledVaccineGame());
 	});
@@ -483,6 +578,13 @@ describe("저장 규칙과 함께", () => {
 		const finished = finishAntigenEdit(addedToRvk({ abbr: "AI", subtype: "H5" }));
 
 		expect(validateForSave("vaccine-game", finished.data)).toMatchObject({ isValid: true });
+	});
+
+	test("바로 고정한 값은 저장할 수 있다", () => {
+		const result = togglePin(idle(), "Vaccine D", "PED");
+		if (!result.isSuccess) throw new Error("고정이 거절됐습니다");
+
+		expect(validateForSave("vaccine-game", result.data)).toMatchObject({ isValid: true });
 	});
 
 	test("첫 실행에서 백신을 넣고 항원을 추가해 완료하면 저장할 수 있다", () => {

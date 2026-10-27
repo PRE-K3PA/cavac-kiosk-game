@@ -6,7 +6,7 @@ import HomeAnimalPanel from "@/pages/admin/HomeAnimalPanel";
 export default function CommonSettings() {
 	if (useOrientation() === "portrait") {
 		return (
-			<div className="flex flex-col gap-6">
+			<div className="flex h-full flex-col gap-6">
 				<HomeAnimalPanel />
 				<CommonSettingsPanel />
 			</div>
@@ -14,7 +14,7 @@ export default function CommonSettings() {
 	}
 
 	return (
-		<div className="flex items-start gap-6">
+		<div className="flex h-full items-start gap-6">
 			<CommonSettingsPanel />
 			<HomeAnimalPanel />
 		</div>

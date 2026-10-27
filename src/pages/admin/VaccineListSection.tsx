@@ -10,6 +10,7 @@ import { LIMITS } from "@/data/schema";
 import { getImageUrl } from "@/data/storage";
 import {
 	ANTIGEN_ERROR_MESSAGES,
+	ANTIGEN_PIN_NOTICE,
 	type AntigenEditState,
 	addAntigen,
 	canFinishAntigenEdit,
@@ -19,6 +20,7 @@ import {
 	getAntigenError,
 	needsDeleteConfirm,
 	startAntigenEdit,
+	toggleAntigenPin,
 	toggleExpandedVaccine,
 } from "@/features/admin/antigenEditing";
 import { selectAntigenEditing, useSettingsDraft } from "@/features/admin/settingsDraft";
@@ -75,6 +77,11 @@ export default function VaccineListSection() {
 	const setAntigenEditing = useSettingsDraft((state) => state.setAntigenEditing);
 	const { vaccines } = vaccineGame;
 	const { isLimitNoticeShown, showLimitNotice, hideLimitNotice } = useLimitNotice();
+	const {
+		isLimitNoticeShown: isPinNoticeShown,
+		showLimitNotice: showPinNotice,
+		hideLimitNotice: hidePinNotice,
+	} = useLimitNotice();
 
 	const editState: AntigenEditState = { data: vaccineGame, editing: currentEditing };
 	const isEditing = currentEditing !== null;
@@ -86,8 +93,11 @@ export default function VaccineListSection() {
 		overlay?.type === "edit"
 			? vaccines.find((vaccine) => vaccine.id === overlay.vaccineId)
 			: undefined;
+	// 고정 거절 안내는 누른 직후에만 잠깐 뜨므로, 떠 있는 동안은 백신 개수 안내보다 앞에 둡니다
 	const notice =
-		getVaccineUsageNotice(vaccines) ?? (isLimitNoticeShown ? VACCINE_LIMIT_NOTICE : null);
+		(isPinNoticeShown ? ANTIGEN_PIN_NOTICE : null) ??
+		getVaccineUsageNotice(vaccines) ??
+		(isLimitNoticeShown ? VACCINE_LIMIT_NOTICE : null);
 
 	function applyAntigenEdit(next: AntigenEditState) {
 		if (next.data !== vaccineGame) setDraft("vaccine-game", next.data);
@@ -106,7 +116,11 @@ export default function VaccineListSection() {
 			setDraft("vaccine-game", result.data);
 			return;
 		}
-		if (result.reason === "limit") showLimitNotice();
+		if (result.reason === "limit") {
+			// 앞서 띄운 고정 안내가 이번 한도 안내를 가리지 않게 닫습니다
+			hidePinNotice();
+			showLimitNotice();
+		}
 	}
 
 	function handleAntigenToggleClick(vaccineId: string) {
@@ -123,6 +137,16 @@ export default function VaccineListSection() {
 
 	function handleAntigenChange(nextAntigen: Omit<Antigen, "id">) {
 		applyAntigenEdit(changeAntigen(editState, nextAntigen));
+	}
+
+	function handleAntigenPinClick(vaccineId: string, antigenId: string) {
+		const result = toggleAntigenPin(editState, vaccineId, antigenId);
+		if (!result.isSuccess) {
+			showPinNotice();
+			return;
+		}
+		hidePinNotice();
+		if (result.data !== vaccineGame) setDraft("vaccine-game", result.data);
 	}
 
 	function handleAntigenDoneClick() {
@@ -190,8 +214,9 @@ export default function VaccineListSection() {
 				isEditing={isEditingRow}
 				abbrErrorMessage={isEditingRow ? getAntigenErrorMessage(vaccineId, antigen.id) : undefined}
 				isDoneDisabled={isAntigenDoneDisabled}
-				isEditDeleteDisabled={isEditing && !isEditingRow}
+				isPinEditDeleteDisabled={isEditing && !isEditingRow}
 				onChange={handleAntigenChange}
+				onPinClick={() => handleAntigenPinClick(vaccineId, antigen.id)}
 				onEditClick={() => handleAntigenEditClick(vaccineId, antigen.id)}
 				onDoneClick={handleAntigenDoneClick}
 				onDeleteClick={() => handleAntigenDeleteClick(vaccineId, antigen.id)}

@@ -32,22 +32,29 @@ const antigenRowVariants = cva(
 	},
 );
 
-const pinToggleVariants = cva("flex size-14 shrink-0 items-center justify-center rounded-lg", {
-	variants: {
-		isEditing: {
-			true: "border-2 border-border-strong active:bg-background-canvas",
-			false: "",
-		},
-		isPinned: {
-			true: "text-text-primary",
-			false: "text-border-strong",
-		},
-	},
-	compoundVariants: [
-		{ isEditing: true, isPinned: true, className: "bg-background-canvas" },
-		{ isEditing: true, isPinned: false, className: "bg-background-surface" },
+// 수정 중이 아닐 때는 테두리 없이 아이콘만 보이지만 바로 누를 수 있습니다 (10-27 실기 테스트 QA)
+const pinToggleVariants = cva(
+	[
+		"flex size-14 shrink-0 items-center justify-center rounded-lg active:bg-background-canvas",
+		"disabled:text-text-placeholder",
 	],
-});
+	{
+		variants: {
+			isEditing: {
+				true: "border-2 border-border-strong",
+				false: "",
+			},
+			isPinned: {
+				true: "text-text-primary",
+				false: "text-border-strong",
+			},
+		},
+		compoundVariants: [
+			{ isEditing: true, isPinned: true, className: "bg-background-canvas" },
+			{ isEditing: true, isPinned: false, className: "bg-background-surface" },
+		],
+	},
+);
 
 type AntigenValue = Omit<Antigen, "id">;
 
@@ -63,9 +70,11 @@ type AntigenRowProps = {
 	isEditing: boolean;
 	abbrErrorMessage?: string;
 	isDoneDisabled?: boolean;
-	/** 다른 행을 수정하는 동안(Q12) 잠긴 행의 수정·삭제만 막습니다. ⓘ 는 막지 않습니다 */
-	isEditDeleteDisabled?: boolean;
+	/** 다른 행을 수정하는 동안(Q12) 잠긴 행의 고정·수정·삭제만 막습니다. ⓘ 는 막지 않습니다 */
+	isPinEditDeleteDisabled?: boolean;
 	onChange?: (value: AntigenValue) => void;
+	/** 고정은 수정 중이 아니어도 누를 수 있고, 마지막 고정 안 된 항원인지는 화면이 판단합니다 */
+	onPinClick?: () => void;
 	onEditClick?: () => void;
 	onDoneClick?: () => void;
 	onDeleteClick?: () => void;
@@ -77,8 +86,9 @@ export default function AntigenRow({
 	isEditing,
 	abbrErrorMessage,
 	isDoneDisabled,
-	isEditDeleteDisabled,
+	isPinEditDeleteDisabled,
 	onChange,
+	onPinClick,
 	onEditClick,
 	onDoneClick,
 	onDeleteClick,
@@ -129,10 +139,6 @@ export default function AntigenRow({
 		setIsTooltipOpen(!isTooltipOpen);
 	}
 
-	function handlePinClick() {
-		onChange?.({ ...value, isPinned: !value.isPinned });
-	}
-
 	function handleAbbrChange(abbr: string) {
 		onChange?.({ ...value, abbr });
 	}
@@ -152,8 +158,8 @@ export default function AntigenRow({
 					type="button"
 					aria-label={`${antigenName} 고정`}
 					aria-pressed={value.isPinned}
-					disabled={!isEditing}
-					onClick={handlePinClick}
+					disabled={!isEditing && isPinEditDeleteDisabled}
+					onClick={onPinClick}
 					className={pinToggleVariants({ isEditing, isPinned: value.isPinned })}>
 					<Icon src={value.isPinned ? icPinned : icUnpinned} />
 				</button>
@@ -227,7 +233,7 @@ export default function AntigenRow({
 				<Button
 					variant="secondary"
 					label={isEditing ? "완료" : "수정"}
-					disabled={isEditing ? isDoneDisabled : isEditDeleteDisabled}
+					disabled={isEditing ? isDoneDisabled : isPinEditDeleteDisabled}
 					size="row"
 					className="shrink-0"
 					onClick={isEditing ? onDoneClick : onEditClick}
@@ -235,7 +241,7 @@ export default function AntigenRow({
 				<Button
 					variant="danger"
 					label="삭제"
-					disabled={!isEditing && isEditDeleteDisabled}
+					disabled={!isEditing && isPinEditDeleteDisabled}
 					size="row"
 					className="shrink-0"
 					onClick={onDeleteClick}
