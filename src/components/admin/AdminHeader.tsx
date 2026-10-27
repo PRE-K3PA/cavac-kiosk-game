@@ -42,14 +42,14 @@ export default function AdminHeader({
 				<Button
 					variant="secondary"
 					label="PIN 변경"
-					className="ml-auto h-20 w-50"
+					className="ml-auto h-20 w-50 shrink-0"
 					onClick={onPinChangeClick}
 				/>
 			)}
 			<Button
 				variant="secondary"
 				label="관리자 종료"
-				className={cn("h-20 w-70", !onPinChangeClick && "ml-auto")}
+				className={cn("h-20 w-50 shrink-0", !onPinChangeClick && "ml-auto")}
 				onClick={onExitClick}
 			/>
 		</header>
