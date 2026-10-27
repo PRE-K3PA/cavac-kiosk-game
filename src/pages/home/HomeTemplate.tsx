@@ -21,12 +21,10 @@ export type HomeScreenProps = {
 	onAdminActivate: () => void;
 };
 
-type HomeStepMedia = { src: string; fit: "contain" | "cover" };
-
 /** 문구는 네임스페이스 사전에 있고, 여기에는 사전을 고르는 이름과 번역 대상이 아닌 그림만 둡니다 */
 export type HomeContent = {
 	namespace: "vaccineHome" | "cardHome";
-	stepMedia: readonly [HomeStepMedia, HomeStepMedia, HomeStepMedia];
+	stepMedia: readonly [string, string, string];
 };
 
 type HomeTemplateProps = HomeScreenProps & {
@@ -167,7 +165,7 @@ export default function HomeTemplate({
 				<section className={cn("flex w-full flex-col items-center", layout.howToPlay)}>
 					<h2 className="typo-title-m whitespace-nowrap text-text-primary">{t("howToPlay")}</h2>
 					<div className={cn("flex w-full items-center", layout.steps)}>
-						{content.stepMedia.map((media, index) => (
+						{content.stepMedia.map((src, index) => (
 							<HowToPlayCard
 								key={STEP_KEYS[index]}
 								step={String(index + 1)}
@@ -176,15 +174,7 @@ export default function HomeTemplate({
 								direction={layout.cardDirection}
 								tip={index === content.stepMedia.length - 1 ? t("tip") : undefined}
 								media={
-									<img
-										src={media.src}
-										alt=""
-										draggable={false}
-										className={cn(
-											"size-full",
-											media.fit === "cover" ? "object-cover" : "object-contain",
-										)}
-									/>
+									<img src={src} alt="" draggable={false} className="size-full object-contain" />
 								}
 							/>
 						))}

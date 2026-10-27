@@ -27,8 +27,8 @@ describe.each(HOME_CONTENTS)("%s 문구 구성", (_name, content) => {
 				expect(description.trim()).not.toBe("");
 			}
 		}
-		for (const media of content.stepMedia) {
-			expect(media.src).toBeTruthy();
+		for (const src of content.stepMedia) {
+			expect(src).toBeTruthy();
 		}
 	});
 
