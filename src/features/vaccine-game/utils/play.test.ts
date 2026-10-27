@@ -222,3 +222,17 @@ describe("isBottleFull", () => {
 		expect(isBottleFull(ended)).toBe(false);
 	});
 });
+
+describe("구슬 나오는 간격", () => {
+	test("낙하 속도가 빠르면 다음 구슬이 더 빨리 나온다", () => {
+		const settings = createMockData("filled")["vaccine-game"].settings;
+		const fast = createPlay(ROUND, { ...settings, fallSpeedPercent: 150 }, 60);
+		const normal = createPlay(ROUND, { ...settings, fallSpeedPercent: 100 }, 60);
+
+		const fastAfter = advancePlay(advancePlay(fast, 1, OPTIONS), 400, OPTIONS);
+		const normalAfter = advancePlay(advancePlay(normal, 1, OPTIONS), 400, OPTIONS);
+
+		expect(fastAfter.falling).toHaveLength(2);
+		expect(normalAfter.falling).toHaveLength(1);
+	});
+});

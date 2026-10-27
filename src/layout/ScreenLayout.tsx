@@ -25,7 +25,8 @@ export default function ScreenLayout({
 				</div>
 			)}
 			<div className={cn("relative flex size-full flex-col", className)}>{children}</div>
-			<AdminHotspot onActivate={onAdminActivate} className="absolute top-0 left-0 size-50" />
+			{/* 홈 로고(세로 화면 기준 오른쪽 끝 x328, 아래 끝 y124)를 여유 있게 덮는 크기 */}
+			<AdminHotspot onActivate={onAdminActivate} className="absolute top-0 left-0 h-55 w-90" />
 		</div>
 	);
 }
