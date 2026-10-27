@@ -7,7 +7,7 @@ export const CARD_HOME = {
 	namespace: "cardHome",
 	stepMedia: [
 		{ src: imgCardStepMemorize, fit: "contain" },
-		{ src: imgCardStepMatch, fit: "cover" },
+		{ src: imgCardStepMatch, fit: "contain" },
 		{ src: imgStepTrophy, fit: "contain" },
 	],
 } satisfies HomeContent;
