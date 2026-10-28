@@ -16,7 +16,13 @@ type DiscardConfirmProps = {
 	onRevertClick?: () => void;
 };
 
-type ConfirmModalProps = (ExitConfirmProps | DiscardConfirmProps) & {
+type LeaveConfirmProps = {
+	type: "leave";
+	onQuitClick?: () => void;
+	onHomeClick?: () => void;
+};
+
+type ConfirmModalProps = (ExitConfirmProps | DiscardConfirmProps | LeaveConfirmProps) & {
 	tone?: AdminTone;
 	onCancelClick?: () => void;
 	className?: string;
@@ -48,6 +54,28 @@ export default function ConfirmModal(props: ConfirmModalProps) {
 						disabled={props.isSaveAndLeaveDisabled}
 						onClick={props.onSaveAndLeaveClick}
 					/>
+				</div>
+			</ModalFrame>
+		);
+	}
+
+	if (props.type === "leave") {
+		return (
+			<ModalFrame className={cn("w-200", className)}>
+				<ModalHeader
+					tone={tone}
+					title="관리자 화면을 나갈까요?"
+					subtitle="프로그램 종료는 키오스크 앱을 완전히 닫습니다."
+				/>
+				<div className="flex w-full items-center gap-3">
+					<Button variant="secondary" label="취소" onClick={onCancelClick} />
+					<Button
+						variant="danger"
+						label="프로그램 종료"
+						className="ml-auto w-60"
+						onClick={props.onQuitClick}
+					/>
+					<Button variant="primary" label="홈으로" className="w-60" onClick={props.onHomeClick} />
 				</div>
 			</ModalFrame>
 		);
