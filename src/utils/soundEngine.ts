@@ -50,6 +50,37 @@ let volume: Volume = { ...DEFAULT_VOLUME };
 
 const loaded = new Map<SoundName, HTMLAudioElement>();
 
+// 효과음 크기에 곱하는 배율. 남은 시간이 촉박할 때의 틱은 다른 소리에 묻히지 않게 키웁니다
+const SFX_BOOST: Partial<Record<SoundName, number>> = {
+	tickUrgent: 1.2,
+};
+
+/** 관리자 효과음 크기에 소리별 배율을 곱한 값. 1 을 넘을 수 있습니다 */
+export function getSfxLevel(name: SoundName, sfxPercent: number): number {
+	return (sfxPercent / 100) * (SFX_BOOST[name] ?? 1);
+}
+
+let audioContext: AudioContext | null = null;
+
+// audio 요소의 volume 은 1 을 넘을 수 없어서, 1 보다 크게 낼 때만 Web Audio 로 키웁니다
+function boost(player: HTMLAudioElement, level: number) {
+	if (typeof AudioContext === "undefined") return;
+	audioContext ??= new AudioContext();
+	if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+	const source = audioContext.createMediaElementSource(player);
+	const gain = audioContext.createGain();
+	gain.gain.value = level;
+	source.connect(gain).connect(audioContext.destination);
+	player.addEventListener(
+		"ended",
+		() => {
+			source.disconnect();
+			gain.disconnect();
+		},
+		{ once: true },
+	);
+}
+
 // 처음 쓸 때 한 번 읽어 두고, 재생은 복제본으로 해서 같은 소리가 겹쳐도 끊기지 않게 합니다
 function getSource(name: SoundName): HTMLAudioElement | null {
 	if (typeof Audio === "undefined") return null;
@@ -71,7 +102,15 @@ export function startSound(name: SoundName): () => void {
 		const player = getSource(name)?.cloneNode() as HTMLAudioElement | undefined;
 		if (!player) return () => {};
 		// volume 은 속성이 아니라 복제되지 않으므로 복제본마다 넣습니다
-		player.volume = volume.sfxPercent / 100;
+		const level = getSfxLevel(name, volume.sfxPercent);
+		player.volume = Math.min(1, level);
+		if (level > 1) {
+			try {
+				boost(player, level);
+			} catch {
+				// 키우지 못해도 최대 크기로는 재생합니다
+			}
+		}
 		// 자동재생 정책이나 파일 문제로 거절돼도 게임은 계속됩니다
 		player.play().catch(() => {});
 		return () => player.pause();

@@ -56,7 +56,7 @@ export default function CardResult({ score, products, onExit, onAdminActivate }:
 			<main className={cn("flex size-full flex-col items-center justify-center", layout.main)}>
 				<div className="flex flex-col items-center text-center">
 					<h1 className="typo-display-m font-display text-text-primary">{t("title")}</h1>
-					<p className="typo-display-l relative whitespace-nowrap font-display">
+					<p className="typo-display-xl relative whitespace-nowrap font-display">
 						<span aria-hidden="true" className={RESULT_SCORE_BACKDROP}>
 							{scoreText}
 							{t("unit")}

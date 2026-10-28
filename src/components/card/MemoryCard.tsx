@@ -15,15 +15,9 @@ const memoryCardFaceVariants = cva(
 					"justify-center border-3 border-border-default",
 					"bg-background-surface-subtle p-4.5 shadow-md",
 				],
-				front: [
-					"flex-col border-3 border-border-default",
-					"bg-background-surface-subtle p-3.5 shadow-md",
-				],
-				wrong: "flex-col border-4 border-state-error bg-background-surface-subtle p-3.5 shadow-md",
-				matched: [
-					"flex-col border-4 border-state-success",
-					"bg-background-surface-subtle p-3.5 shadow-md",
-				],
+				front: "flex-col border-3 border-border-default bg-background-surface p-3.5 shadow-md",
+				wrong: "flex-col border-4 border-state-error bg-background-surface p-3.5 shadow-md",
+				matched: "flex-col border-4 border-state-success bg-background-surface p-3.5 shadow-md",
 			},
 		},
 		defaultVariants: { state: "back" },
@@ -85,9 +79,7 @@ export default function MemoryCard({
 				<div className={cn(memoryCardFaceVariants({ state: faceState }), "rotate-y-180")}>
 					<div
 						className={cn(
-							"flex min-h-px w-full flex-1 items-center justify-center overflow-clip",
-							"rounded-xl border-2 border-dashed border-border-default",
-							"bg-background-surface",
+							"flex min-h-px w-full flex-1 items-center justify-center overflow-clip rounded-xl",
 							state === "matched" && "opacity-55",
 						)}>
 						{productImage ? (
