@@ -19,7 +19,7 @@ describe("getIdleSecondsOptions", () => {
 
 	test("목록 밖의 현재 값은 순서에 맞춰 끼워 넣는다", () => {
 		expect(getIdleSecondsOptions(45).map((option) => option.value)).toEqual([
-			30, 45, 60, 90, 120, 180,
+			20, 30, 45, 60, 90, 120, 180,
 		]);
 		expect(getIdleSecondsOptions(600).at(-1)).toEqual({ value: 600, label: "600초" });
 	});

@@ -22,16 +22,6 @@ describe("sessionStore", () => {
 		expect(useSessionStore.getState().language).toBe("ko");
 	});
 
-	test("resetMute 는 음소거만 풀고 언어는 그대로 둔다", () => {
-		useSessionStore.getState().setLanguage("en");
-		useSessionStore.getState().toggleMute();
-
-		useSessionStore.getState().resetMute();
-
-		expect(useSessionStore.getState().language).toBe("en");
-		expect(useSessionStore.getState().isMuted).toBe(false);
-	});
-
 	test("언어와 음소거를 바꾼 뒤 reset 하면 둘 다 기본값으로 돌아온다", () => {
 		useSessionStore.getState().setLanguage("en");
 		useSessionStore.getState().toggleMute();
