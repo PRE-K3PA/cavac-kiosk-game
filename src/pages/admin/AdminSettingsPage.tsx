@@ -7,6 +7,7 @@ import SaveBar from "@/components/admin/SaveBar";
 import SavedModal from "@/components/admin/SavedModal";
 import SaveFailedModal from "@/components/admin/SaveFailedModal";
 import SettingsTab from "@/components/admin/SettingsTab";
+import { quitApp } from "@/data/storage";
 import {
 	selectIsAntigenEditing,
 	selectIsDirty,
@@ -41,12 +42,30 @@ const LAYOUT = {
 // Figma _AntigenEditingSave 의 저장 막대 문구
 const ANTIGEN_EDITING_SUMMARY = "항원 수정 중입니다 · '완료'를 누른 뒤 저장해 주세요";
 
-type Overlay = "saved" | "saveFailed" | "saveAndExitFailed" | "exitConfirm" | "discardConfirm";
+type Overlay =
+	| "saved"
+	| "saveFailed"
+	| "saveAndExitFailed"
+	| "leaveConfirm"
+	| "exitConfirm"
+	| "discardConfirm"
+	| "quitting";
+
+type LeaveTarget = "home" | "quit";
 
 function getSaveSummary(isAntigenEditing: boolean, issueCount: number): string | undefined {
 	if (isAntigenEditing) return ANTIGEN_EDITING_SUMMARY;
 	if (issueCount > 0) return `저장할 수 없습니다 · ${issueCount}곳을 확인해 주세요`;
 	return undefined;
+}
+
+async function requestQuit() {
+	try {
+		await quitApp();
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 type AdminSettingsPageProps = {
@@ -58,6 +77,7 @@ type AdminSettingsPageProps = {
 export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPageProps) {
 	const [activeTone, setActiveTone] = useState<AdminTone>("common");
 	const [overlay, setOverlay] = useState<Overlay | null>(null);
+	const [leaveTarget, setLeaveTarget] = useState<LeaveTarget>("home");
 	const [isPinChangeOpen, setIsPinChangeOpen] = useState(false);
 	const layout = LAYOUT[useOrientation()];
 
@@ -85,11 +105,22 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 		setOverlay((await save()) ? "saved" : "saveFailed");
 	}
 
+	async function leaveTo(target: LeaveTarget) {
+		if (target === "home") {
+			onExit();
+			return;
+		}
+		// 진행 중인 저장을 기다려 종료하는 동안 화면을 덮어 다른 입력을 막습니다.
+		// 종료되면 화면이 사라지므로 덮개는 실패했을 때만 걷어 다시 누를 수 있게 합니다
+		setOverlay("quitting");
+		if (!(await requestQuit())) setOverlay(null);
+	}
+
 	async function handleSaveAndLeaveClick() {
 		setOverlay(null);
 		if (isSaveBlocked) return;
 		if (await save()) {
-			onExit();
+			await leaveTo(leaveTarget);
 			return;
 		}
 		setOverlay("saveAndExitFailed");
@@ -97,16 +128,23 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 
 	function handleExitClick() {
 		if (isSaving) return;
+		setOverlay("leaveConfirm");
+	}
+
+	function handleLeaveTargetClick(target: LeaveTarget) {
 		if (isDirty) {
+			setLeaveTarget(target);
 			setOverlay("exitConfirm");
 			return;
 		}
-		onExit();
+		setOverlay(null);
+		void leaveTo(target);
 	}
 
 	function handleLeaveClick() {
+		setOverlay(null);
 		revert();
-		onExit();
+		void leaveTo(leaveTarget);
 	}
 
 	function handleRevertClick() {
@@ -176,6 +214,15 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 						<SaveFailedModal
 							onCloseClick={handleOverlayClose}
 							onRetryClick={handleSaveAndLeaveClick}
+						/>
+					)}
+					{overlay === "leaveConfirm" && (
+						<ConfirmModal
+							type="leave"
+							tone={activeTone}
+							onCancelClick={handleOverlayClose}
+							onQuitClick={() => handleLeaveTargetClick("quit")}
+							onHomeClick={() => handleLeaveTargetClick("home")}
 						/>
 					)}
 					{overlay === "exitConfirm" && (
