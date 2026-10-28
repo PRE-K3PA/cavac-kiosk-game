@@ -3,7 +3,9 @@ import { createMockData } from "@/data/mock/mock-platform";
 import {
 	getRecipeSeconds,
 	getRoundVaccines,
+	hasTwoRowRecipe,
 	pinnedAntigensLast,
+	RECIPE_ROW_MAX_ANTIGENS,
 } from "@/features/vaccine-game/utils/round";
 import type { Antigen, Vaccine } from "@/types/data";
 
@@ -114,5 +116,36 @@ describe("getRoundVaccines", () => {
 describe("getRecipeSeconds", () => {
 	test("레시피 시간은 2초에 백신 수를 더한다", () => {
 		expect([1, 2, 3, 4, 5].map(getRecipeSeconds)).toEqual([3, 4, 5, 6, 7]);
+	});
+});
+
+describe("hasTwoRowRecipe", () => {
+	function withAntigenCounts(...counts: number[]): Vaccine[] {
+		const base = mockVaccines()[0];
+		return counts.map((count, index) => ({
+			...base,
+			id: `v${index}`,
+			antigens: Array.from({ length: count }, (_, n) => ({
+				...base.antigens[0],
+				id: `v${index}-a${n}`,
+				abbr: `A${n}`,
+			})),
+		}));
+	}
+
+	test(`모든 레시피의 항원이 ${RECIPE_ROW_MAX_ANTIGENS}개 이하면 두 줄 카드가 없다`, () => {
+		expect(hasTwoRowRecipe(withAntigenCounts(1, 2, RECIPE_ROW_MAX_ANTIGENS))).toBe(false);
+	});
+
+	test(`항원이 ${RECIPE_ROW_MAX_ANTIGENS + 1}개인 레시피가 있으면 두 줄 카드가 있다`, () => {
+		expect(hasTwoRowRecipe(withAntigenCounts(1, RECIPE_ROW_MAX_ANTIGENS + 1))).toBe(true);
+	});
+
+	test("여러 레시피 중 하나만 두 줄이어도 두 줄 카드가 있다", () => {
+		expect(hasTwoRowRecipe(withAntigenCounts(1, 2, 3, 5, 2))).toBe(true);
+	});
+
+	test("레시피가 없으면 두 줄 카드가 없다", () => {
+		expect(hasTwoRowRecipe([])).toBe(false);
 	});
 });

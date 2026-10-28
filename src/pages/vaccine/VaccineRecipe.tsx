@@ -6,7 +6,7 @@ import RecipeCard from "@/components/vaccine/RecipeCard";
 import RecipeTimeBar from "@/components/vaccine/RecipeTimeBar";
 import { useRecipeCountdownSound } from "@/features/vaccine-game/hooks/useRecipeCountdownSound";
 import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
-import { getRecipeSeconds } from "@/features/vaccine-game/utils/round";
+import { getRecipeSeconds, hasTwoRowRecipe } from "@/features/vaccine-game/utils/round";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
@@ -17,8 +17,8 @@ const RECIPE_TONES = ["01", "02", "03", "04", "05"] as const;
 
 const LAYOUT = {
 	landscape: {
-		main: "gap-17.5 p-16",
-		title: "w-400 pb-12.5",
+		main: "gap-8 px-16 py-10",
+		title: "w-400",
 		grid: "w-448 flex-row flex-wrap justify-center gap-8",
 		card: undefined,
 		countdown: "w-318.5",
@@ -69,6 +69,7 @@ export default function VaccineRecipe({
 }: VaccineRecipeProps) {
 	const { t } = useTranslation("vaccineGame", { keyPrefix: "recipe" });
 	const seconds = getRecipeSeconds(vaccines.length);
+	const isTwoRowHeight = hasTwoRowRecipe(vaccines);
 	const [remainingSeconds, setRemainingSeconds] = useState(seconds);
 	const [barProgress, setBarProgress] = useState(100);
 	const layout = LAYOUT[useOrientation()];
@@ -119,6 +120,7 @@ export default function VaccineRecipe({
 								name={vaccine.productName[language]}
 								tone={RECIPE_TONES[index % RECIPE_TONES.length]}
 								antigens={vaccine.antigens.map((antigen) => toAntigenLabel(antigen, colors))}
+								isTwoRowHeight={isTwoRowHeight}
 								className={layout.card}
 							/>
 						</motion.div>
