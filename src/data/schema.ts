@@ -11,6 +11,7 @@ import {
 	type ImagePath,
 	PAIR_COUNTS,
 	PATHOGEN_TYPES,
+	type PairCount,
 	type Penalty,
 	type VaccineGameData,
 } from "@/types/data";
@@ -145,9 +146,17 @@ export const vaccineGameDataSchema: z.ZodType<VaccineGameData> = z.object({
 	),
 });
 
+// 쌍 수가 4·8·12 에서 6·8·10 으로 바뀌기 전에 저장된 설정도 통과해야 하므로, 가장 가까운 쌍 수로 바꿔 읽습니다
+const LEGACY_PAIR_COUNTS: Readonly<Record<number, PairCount>> = { 4: 6, 12: 10 };
+
+const pairCountSchema = z.preprocess(
+	(value) => (typeof value === "number" ? (LEGACY_PAIR_COUNTS[value] ?? value) : value),
+	z.union(PAIR_COUNTS.map((count) => z.literal(count))),
+);
+
 export const cardGameDataSchema: z.ZodType<CardGameData> = z.object({
 	settings: z.object({
-		pairCount: z.union(PAIR_COUNTS.map((count) => z.literal(count))),
+		pairCount: pairCountSchema,
 		penalty: penaltySchema,
 	}),
 	products: z

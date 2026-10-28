@@ -46,6 +46,16 @@ describe("읽기", () => {
 		expect(await findCorruptFiles("common")).toEqual([]);
 	});
 
+	test("예전 4쌍으로 저장된 card-game.json 도 6쌍으로 읽고 제품 목록은 그대로 둔다", async () => {
+		const saved = createMockData("filled")["card-game"];
+		const legacy = { ...saved, settings: { ...saved.settings, pairCount: 4 } };
+		await writeFile(filePath("card-game.json"), JSON.stringify(legacy));
+
+		const data = await createDataStore(dataDir).read("card-game");
+		expect(data).toEqual({ ...saved, settings: { ...saved.settings, pairCount: 6 } });
+		expect(await findCorruptFiles("card-game")).toEqual([]);
+	});
+
 	test("원본이 깨지면 .bak 으로 복구하고 원본을 다시 쓴다", async () => {
 		const backup = createMockData("filled")["vaccine-game"];
 		await writeFile(filePath("vaccine-game.json"), "{ 깨진 파일");
