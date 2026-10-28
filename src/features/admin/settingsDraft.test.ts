@@ -51,7 +51,7 @@ function changePairCount() {
 	const card = draft()["card-game"];
 	useSettingsDraft
 		.getState()
-		.setDraft("card-game", { ...card, settings: { ...card.settings, pairCount: 4 } });
+		.setDraft("card-game", { ...card, settings: { ...card.settings, pairCount: 6 } });
 }
 
 beforeEach(async () => {
@@ -179,7 +179,7 @@ describe("저장", () => {
 		const state = useSettingsDraft.getState();
 		expect(selectIsFileDirty("common")(state)).toBe(false);
 		expect(selectIsFileDirty("card-game")(state)).toBe(true);
-		expect(state.draft["card-game"].settings.pairCount).toBe(4);
+		expect(state.draft["card-game"].settings.pairCount).toBe(6);
 	});
 
 	test("다시 시도하면 남은 파일만 쓴다", async () => {
