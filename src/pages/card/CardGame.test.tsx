@@ -238,12 +238,12 @@ describe("자동 복귀", () => {
 
 describe("카드판 배치", () => {
 	test.each([
-		["landscape", 4, 8, "grid-cols-4", "w-78.5"],
-		["landscape", 8, 16, "grid-cols-4", "w-74"],
-		["landscape", 12, 24, "grid-cols-6", "w-50"],
-		["portrait", 4, 8, "grid-cols-2", "w-122.5"],
-		["portrait", 8, 16, "grid-cols-4", "w-59"],
-		["portrait", 12, 24, "grid-cols-4", "w-59"],
+		["landscape", 4, 8, "grid-cols-3", "w-106"],
+		["landscape", 8, 16, "grid-cols-4", "w-78.5"],
+		["landscape", 12, 24, "grid-cols-5", "w-61.5"],
+		["portrait", 4, 8, "grid-cols-3", "w-81.25"],
+		["portrait", 8, 16, "grid-cols-4", "w-59.75"],
+		["portrait", 12, 24, "grid-cols-5", "w-46.75"],
 	] as const)(
 		"%s %i쌍은 카드 %i장, %s, %s",
 		async (orientation, pairCount, total, columns, width) => {
@@ -255,6 +255,21 @@ describe("카드판 배치", () => {
 			expect(cards()[0].className).toContain(width);
 		},
 	);
+
+	test.each([
+		[4, true],
+		[8, false],
+		[12, true],
+	] as const)("%i쌍의 가운데 로고 칸 여부는 %p", async (pairCount, hasLogo) => {
+		stored = cardGameData(pairCount, products(12));
+		const { container } = await renderGame();
+
+		const logo = screen.queryByTestId("center-logo");
+		expect(Boolean(logo)).toBe(hasLogo);
+		if (logo) {
+			expect(Array.from(board(container).children).indexOf(logo)).toBe(pairCount);
+		}
+	});
 
 	test("안내와 게임의 카드판 위치와 크기는 같다", async () => {
 		const { container } = await renderGame("portrait");
