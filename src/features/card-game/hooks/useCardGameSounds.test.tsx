@@ -2,12 +2,18 @@ import { afterEach, beforeEach, describe, expect, jest, spyOn, test } from "bun:
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { useCardGame } from "@/features/card-game/hooks/useCardGame";
 import { useCardGameSounds } from "@/features/card-game/hooks/useCardGameSounds";
-import { CARD_FLIP_MS, type GameCard, WRONG_REVEAL_MS } from "@/features/card-game/utils/cardRules";
+import {
+	CARD_FLIP_MS,
+	type GameCard,
+	PREVIEW_COUNTDOWN_SECONDS,
+	WRONG_REVEAL_MS,
+} from "@/features/card-game/utils/cardRules";
 import { useSessionStore } from "@/store/sessionStore";
 import type { CardGameData } from "@/types/data";
 import * as engine from "@/utils/soundEngine";
 
 const PLAY_SECONDS = 12;
+const PREVIEW_MS = PREVIEW_COUNTDOWN_SECONDS[8] * 1000;
 
 const DATA: CardGameData = {
 	settings: {
@@ -70,7 +76,7 @@ function advance(ms: number) {
 }
 
 function startPlaying() {
-	advance(3000);
+	advance(PREVIEW_MS);
 	advance(CARD_FLIP_MS);
 	played = [];
 }
@@ -92,7 +98,7 @@ describe("useCardGameSounds", () => {
 		renderGame();
 		expect(started).toEqual(["countdown"]);
 
-		advance(2000);
+		advance(PREVIEW_MS - 1000);
 		expect(played).toEqual([]);
 		expect(stopped).toEqual([]);
 
@@ -168,7 +174,7 @@ describe("useCardGameSounds", () => {
 	test("음소거면 소리가 나지 않는다", () => {
 		useSessionStore.getState().toggleMute();
 		const view = renderGame();
-		advance(3000);
+		advance(PREVIEW_MS);
 		advance(CARD_FLIP_MS);
 		const [first, second] = pair(view, true);
 		click(view, first);

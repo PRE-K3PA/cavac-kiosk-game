@@ -3,13 +3,14 @@
 import { afterEach, beforeEach, describe, expect, jest, mock, test } from "bun:test";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import * as storage from "@/data/storage";
-import { CARD_FLIP_MS } from "@/features/card-game/utils/cardRules";
+import { CARD_FLIP_MS, PREVIEW_COUNTDOWN_SECONDS } from "@/features/card-game/utils/cardRules";
 import type { Orientation } from "@/layout/stage";
 import { useSessionStore } from "@/store/sessionStore";
 import type { CardGameData, CommonData, PairCount, ProductSlot } from "@/types/data";
 
 const PLAY_SECONDS = 10;
 const IDLE_SECONDS = 30;
+const PREVIEW_MS = PREVIEW_COUNTDOWN_SECONDS[8] * 1000;
 
 function products(count: number): ProductSlot[] {
 	return Array.from({ length: count }, (_, index) => ({
@@ -70,7 +71,7 @@ function advance(ms: number) {
 }
 
 function startPlaying() {
-	advance(3000);
+	advance(PREVIEW_MS);
 	advance(CARD_FLIP_MS);
 }
 
@@ -106,13 +107,13 @@ describe("흐름", () => {
 		const { container } = await renderGame();
 
 		expect(screen.getByText(/카드 위치를/)).toBeTruthy();
-		expect(screen.getByText("3")).toBeTruthy();
+		expect(screen.getByText("5")).toBeTruthy();
 		expect(cards().every((card) => card.getAttribute("aria-pressed") === "true")).toBe(true);
 		expect(screen.queryByRole("progressbar")).toBeNull();
 
 		advance(1000);
-		expect(screen.getByText("2")).toBeTruthy();
-		advance(2000);
+		expect(screen.getByText("4")).toBeTruthy();
+		advance(PREVIEW_MS - 1000);
 
 		// 뒤집히는 동안은 안내 패널이 그대로이고 숫자만 숨겨진다
 		expect(screen.getByText(/카드 위치를/)).toBeTruthy();
@@ -135,7 +136,7 @@ describe("흐름", () => {
 
 	test("뒤집히는 동안 안내 말풍선은 그대로이고 숫자 자리에는 글자가 보이지 않는다", async () => {
 		const { container } = await renderGame();
-		advance(3000);
+		advance(PREVIEW_MS);
 
 		const count = container.querySelector(".typo-number-xl");
 		expect(count).toBeTruthy();
@@ -147,7 +148,7 @@ describe("흐름", () => {
 	test("안내 중에는 카드를 눌러도 아무 일도 없다", async () => {
 		await renderGame();
 		fireEvent.click(cards()[0]);
-		advance(3000);
+		advance(PREVIEW_MS);
 		expect(cards()[0].getAttribute("aria-pressed")).toBe("false");
 	});
 
@@ -260,7 +261,7 @@ describe("카드판 배치", () => {
 	test("안내와 게임의 카드판 위치와 크기는 같다", async () => {
 		const { container } = await renderGame("portrait");
 		const preview = board(container).parentElement?.className;
-		advance(3000);
+		advance(PREVIEW_MS);
 		expect(board(container).parentElement?.className).toBe(preview);
 	});
 });
@@ -377,7 +378,7 @@ describe("배경", () => {
 		const { container } = await renderGame();
 		expect(hasBackground(container)).toBe(true);
 
-		advance(3000);
+		advance(PREVIEW_MS);
 		advance(CARD_FLIP_MS);
 		expect(hasBackground(container)).toBe(true);
 

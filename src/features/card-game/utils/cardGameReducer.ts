@@ -31,7 +31,7 @@ export function createInitialState(
 ): CardGameState {
 	return {
 		phase: "preview",
-		countdown: PREVIEW_COUNTDOWN_SECONDS,
+		countdown: PREVIEW_COUNTDOWN_SECONDS[settings.pairCount],
 		cards: createDeck(products, settings.pairCount),
 		score: 0,
 		remainingSeconds: playDurationSeconds,
