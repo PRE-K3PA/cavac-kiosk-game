@@ -10,7 +10,7 @@ import {
 	selectCard,
 	timeBonus,
 } from "@/features/card-game/utils/cardRules";
-import type { Penalty, ProductSlot } from "@/types/data";
+import { PAIR_COUNTS, type Penalty, type ProductSlot } from "@/types/data";
 
 function product(slot: number, overrides: Partial<ProductSlot> = {}): ProductSlot {
 	const image = { ko: `images/product/${slot}-ko.png`, en: `images/product/${slot}-en.png` };
@@ -54,7 +54,7 @@ function judged(state: PlayState, penalty: Penalty, ...ids: string[]): PlayState
 }
 
 describe("createDeck", () => {
-	test.each([4, 8, 12] as const)("%i쌍이면 쌍마다 2장씩 카드가 만들어진다", (pairCount) => {
+	test.each([...PAIR_COUNTS])("%i쌍이면 쌍마다 2장씩 카드가 만들어진다", (pairCount) => {
 		const deck = createDeck(products(14), pairCount);
 
 		expect(deck).toHaveLength(pairCount * 2);
@@ -68,11 +68,13 @@ describe("createDeck", () => {
 	});
 
 	test("꺼진 제품과 사진 없는 제품은 켜진 제품이 충분하면 쓰지 않는다", () => {
-		const list = [...products(4), product(5, { isEnabled: false }), product(6, { image: null })];
+		const list = [...products(8), product(9, { isEnabled: false }), product(10, { image: null })];
 
-		const pairIds = new Set(createDeck(list, 4).map((item) => item.pairId));
+		const pairIds = new Set(createDeck(list, 8).map((item) => item.pairId));
 
-		expect(pairIds).toEqual(new Set(["product-1", "product-2", "product-3", "product-4"]));
+		expect(pairIds).toEqual(
+			new Set(Array.from({ length: 8 }, (_, index) => `product-${index + 1}`)),
+		);
 	});
 
 	test("켜진 제품이 모자라도 꺼진 제품은 쓰지 않고 자리표시 쌍으로 채운다", () => {
@@ -82,24 +84,24 @@ describe("createDeck", () => {
 			product(4, { isEnabled: false }),
 		];
 
-		const deck = createDeck(list, 4);
+		const deck = createDeck(list, 8);
 
-		expect(deck).toHaveLength(8);
+		expect(deck).toHaveLength(16);
 		expect(deck.some((item) => item.pairId === "product-3")).toBe(false);
 		expect(deck.some((item) => item.pairId === "product-4")).toBe(false);
-		expect(deck.filter((item) => item.image === null)).toHaveLength(4);
+		expect(deck.filter((item) => item.image === null)).toHaveLength(12);
 	});
 
 	test("사진 없는 켜진 제품도 쓰지 않고 자리표시 쌍으로 채워 pairCount 쌍을 지킨다", () => {
-		const deck = createDeck([product(1), product(2, { image: null })], 4);
+		const deck = createDeck([product(1), product(2, { image: null })], 8);
 
-		expect(deck).toHaveLength(8);
-		expect(deck.filter((item) => item.image === null)).toHaveLength(6);
-		expect(new Set(deck.map((item) => item.id)).size).toBe(8);
+		expect(deck).toHaveLength(16);
+		expect(deck.filter((item) => item.image === null)).toHaveLength(14);
+		expect(new Set(deck.map((item) => item.id)).size).toBe(16);
 	});
 
 	test("자리표시 카드는 모두 같은 pairId 라 어느 두 장을 골라도 맞는다", () => {
-		const deck = createDeck([], 4);
+		const deck = createDeck([], 8);
 		expect(new Set(deck.map((item) => item.pairId)).size).toBe(1);
 
 		// 서로 다른 자리표시 쌍에서 나온 두 장을 고른다

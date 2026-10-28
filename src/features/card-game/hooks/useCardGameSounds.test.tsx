@@ -11,13 +11,13 @@ const PLAY_SECONDS = 12;
 
 const DATA: CardGameData = {
 	settings: {
-		pairCount: 4,
+		pairCount: 8,
 		penalty: {
 			time: { isEnabled: false, seconds: 3 },
 			score: { isEnabled: false, points: 50 },
 		},
 	},
-	products: Array.from({ length: 4 }, (_, index) => ({
+	products: Array.from({ length: 8 }, (_, index) => ({
 		slot: index + 1,
 		image: { ko: `images/${index + 1}.png`, en: `images/${index + 1}.png` },
 		isEnabled: true,

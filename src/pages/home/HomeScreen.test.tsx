@@ -39,11 +39,11 @@ const IMAGE = { ko: "images/product/ko.png", en: "images/product/en.png" };
 function startableCardGame(): CardGameData {
 	const data = createDefaultData("card-game");
 	return {
-		settings: { ...data.settings, pairCount: 4 },
+		settings: { ...data.settings, pairCount: 8 },
 		products: data.products.map((product, index) => ({
 			...product,
 			image: IMAGE,
-			isEnabled: index < 4,
+			isEnabled: index < 8,
 		})),
 	};
 }
