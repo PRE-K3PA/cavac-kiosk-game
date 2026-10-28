@@ -252,12 +252,12 @@ describe("관리자 핫스팟", () => {
 		expect(className).toContain("h-55");
 	});
 
-	test("1.5초 동안 누르고 있으면 떼지 않아도 onAdminActivate 가 불린다", () => {
+	test("1초 동안 누르고 있으면 떼지 않아도 onAdminActivate 가 불린다", () => {
 		const { container, onAdminActivate } = renderHome(VaccineHome);
 		const hotspot = findHotspot(container);
 
 		fireEvent.pointerDown(hotspot);
-		act(() => jest.advanceTimersByTime(1499));
+		act(() => jest.advanceTimersByTime(999));
 		expect(onAdminActivate).not.toHaveBeenCalled();
 		act(() => jest.advanceTimersByTime(1));
 		expect(onAdminActivate).toHaveBeenCalledTimes(1);
