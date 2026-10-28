@@ -184,8 +184,13 @@ images/
 
 ### 미리 만든 데이터 넣기
 
-전시 전에 다른 PC 에서 설정을 마친 `cavac-data/` 를 그대로 복사해 쓰면 됩니다.
-`common.json` 이나 `pin.json` 을 빼고 넣으면 그 파일만 첫 실행 상태로 만들어집니다.
+전시 전에 다른 PC 에서 설정을 마친 `cavac-data/` 를 통째로 복사해 쓰면 됩니다.
+일부 파일만 지워서 처음 상태로 되돌리지 마세요. 생각과 다르게 동작합니다.
+
+- `pin.json` 만 지우면 `pin.json.bak` 의 예전 PIN 을 그대로 씁니다. `0000` 은 두 파일이 모두 없을 때만 받습니다
+- `common.json` 만 지우면 `common.json.bak` 으로 복구됩니다. `.bak` 까지 지워도 `default-species-seeded` 가 남아 있으면 기본 축종을 다시 넣지 않아 축종이 비게 됩니다
+
+처음 상태가 필요하면 아래 표처럼 `cavac-data/` 를 통째로 지웁니다.
 
 ### 백업과 초기화
 
@@ -208,7 +213,8 @@ images/
 | 언어, 빌드 | TypeScript, Vite |
 | UI | React, Tailwind, cva, clsx, tailwind-merge |
 | 상태, 검증 | Zustand, Zod |
-| 애니메이션 | GSAP, Motion |
+| 애니메이션 | Motion |
+| 다국어 | i18next, react-i18next |
 | 포맷, 린트 | Biome |
 | 테스트 | bun test, React Testing Library |
 | 앱 런타임, 배포 | Electron, electron-builder |
