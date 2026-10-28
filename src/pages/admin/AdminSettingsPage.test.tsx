@@ -96,7 +96,7 @@ describe("AdminSettingsPage 관리자 종료", () => {
 		expect(quitApp).not.toHaveBeenCalled();
 	});
 
-	test("종료에 실패하면 덮개를 걷어 다시 누를 수 있다", async () => {
+	test("종료에 실패하면 안내를 띄우고 다시 시도하면 다시 종료한다", async () => {
 		const { onExit } = await renderPage();
 		let rejectQuit: (error: Error) => void = () => {};
 		quitApp.mockImplementationOnce(
@@ -112,10 +112,28 @@ describe("AdminSettingsPage 관리자 종료", () => {
 		expect(findCover()).not.toBeNull();
 
 		await act(async () => rejectQuit(new Error("ipc")));
-		expect(findCover()).toBeNull();
+		expect(screen.getByRole("dialog").textContent).toContain("프로그램을 종료하지 못했습니다");
+
+		click("다시 시도");
+		await waitFor(() => expect(quitApp).toHaveBeenCalledTimes(2));
+		expect(screen.queryByRole("dialog")).toBeNull();
+		expect(findCover()).not.toBeNull();
+		expect(onExit).not.toHaveBeenCalled();
+	});
+
+	test("종료 실패 안내를 닫으면 관리자 화면에 남는다", async () => {
+		const { onExit } = await renderPage();
+		quitApp.mockImplementationOnce(async () => {
+			throw new Error("ipc");
+		});
 
 		click("관리자 종료");
-		expect(screen.getByRole("dialog").textContent).toContain("관리자 화면을 나갈까요?");
+		click("프로그램 종료");
+		await screen.findByText("프로그램을 종료하지 못했습니다");
+
+		click("닫기");
+		expect(findCover()).toBeNull();
+		expect(screen.getByText("공통 설정 내용")).not.toBeNull();
 		expect(onExit).not.toHaveBeenCalled();
 	});
 });
