@@ -14,8 +14,6 @@ type SessionState = {
 	setLanguage: (language: Language) => void;
 	toggleLanguage: () => void;
 	toggleMute: () => void;
-	/** 홈으로 돌아올 때 부릅니다. 언어는 앞 화면에서 고른 그대로 둡니다 */
-	resetMute: () => void;
 	reset: () => void;
 };
 
@@ -32,15 +30,11 @@ function createSessionState(set: StoreApi<SessionState>["setState"]): SessionSta
 		set((s) => ({ isMuted: !s.isMuted }));
 	}
 
-	function resetMute() {
-		set({ isMuted: DEFAULT_SESSION.isMuted });
-	}
-
 	function reset() {
 		set(DEFAULT_SESSION);
 	}
 
-	return { ...DEFAULT_SESSION, setLanguage, toggleLanguage, toggleMute, resetMute, reset };
+	return { ...DEFAULT_SESSION, setLanguage, toggleLanguage, toggleMute, reset };
 }
 
 export const useSessionStore = create<SessionState>()(createSessionState);
