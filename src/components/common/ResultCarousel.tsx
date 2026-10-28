@@ -9,8 +9,8 @@ import { cn } from "@/utils/cn";
 import { SOUND_NAMES } from "@/utils/soundEngine";
 
 const SWIPE_THRESHOLD = 80;
-// 결과 화면 캐러셀은 3초마다 다음 제품으로 넘어가는 것이 두 게임 공통 규칙입니다
-const AUTO_ADVANCE_MS = 3000;
+// 결과 화면 캐러셀은 2초마다 다음 제품으로 넘어가는 것이 두 게임 공통 규칙입니다
+const AUTO_ADVANCE_MS = 2000;
 
 const SIZE = {
 	compact: {
