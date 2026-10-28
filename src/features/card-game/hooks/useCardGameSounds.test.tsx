@@ -8,6 +8,7 @@ import {
 	PREVIEW_COUNTDOWN_SECONDS,
 	WRONG_REVEAL_MS,
 } from "@/features/card-game/utils/cardRules";
+import { COUNTDOWN_LOOP_MS } from "@/hooks/useSound";
 import { useSessionStore } from "@/store/sessionStore";
 import type { CardGameData } from "@/types/data";
 import * as engine from "@/utils/soundEngine";
@@ -94,18 +95,22 @@ function pair(view: View, isMatch: boolean): [GameCard, GameCard] {
 }
 
 describe("useCardGameSounds", () => {
-	test("안내가 시작되면 countdown 을 한 번 틀고, 카드가 모두 뒤집힐 때 멈추며 pop 이 한 번 난다", () => {
+	test("안내가 시작되면 countdown 을 틀고, 4초마다 처음부터 다시 틀며, 카드가 뒤집힐 때 멈추고 pop 이 한 번 난다", () => {
 		renderGame();
 		expect(started).toEqual(["countdown"]);
 
-		advance(PREVIEW_MS - 1000);
-		expect(played).toEqual([]);
+		advance(COUNTDOWN_LOOP_MS - 1);
 		expect(stopped).toEqual([]);
-
-		advance(1000);
-		expect(played).toEqual(["pop"]);
-		expect(started).toEqual(["countdown"]);
+		advance(1);
+		expect(started).toEqual(["countdown", "countdown"]);
 		expect(stopped).toEqual(["countdown"]);
+
+		advance(PREVIEW_MS - COUNTDOWN_LOOP_MS - 1);
+		expect(played).toEqual([]);
+		advance(1);
+		expect(played).toEqual(["pop"]);
+		expect(started).toEqual(["countdown", "countdown"]);
+		expect(stopped).toEqual(["countdown", "countdown"]);
 	});
 
 	test("안내 중에 화면을 떠나면 countdown 을 멈춘다", () => {
