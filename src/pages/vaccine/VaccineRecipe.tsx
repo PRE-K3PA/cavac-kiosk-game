@@ -4,15 +4,14 @@ import { useTranslation } from "react-i18next";
 import GameBackground from "@/components/common/GameBackground";
 import RecipeCard from "@/components/vaccine/RecipeCard";
 import RecipeTimeBar from "@/components/vaccine/RecipeTimeBar";
+import { useRecipeCountdownSound } from "@/features/vaccine-game/hooks/useRecipeCountdownSound";
 import type { AntigenColors } from "@/features/vaccine-game/utils/antigenColors";
 import { getRecipeSeconds } from "@/features/vaccine-game/utils/round";
-import { useSoundWhile } from "@/hooks/useSound";
 import { useOrientation } from "@/layout/OrientationContext";
 import ScreenLayout from "@/layout/ScreenLayout";
 import { toAntigenLabel } from "@/pages/vaccine/antigenLabel";
 import type { Language, Vaccine } from "@/types/data";
 import { cn } from "@/utils/cn";
-import { SOUND_NAMES } from "@/utils/soundEngine";
 
 const RECIPE_TONES = ["01", "02", "03", "04", "05"] as const;
 
@@ -75,8 +74,8 @@ export default function VaccineRecipe({
 	const layout = LAYOUT[useOrientation()];
 	const { areaRef, contentRef, scale } = useFitScale();
 	const shouldReduceMotion = useReducedMotion();
-	// 카운트다운 소리(약 12초)가 레시피 시간(3~7초)보다 길어서, 03 으로 넘어가 화면이 사라질 때 끊습니다
-	useSoundWhile(SOUND_NAMES.countdown, true);
+	// 03 으로 넘어가 화면이 사라질 때 소리도 끊깁니다
+	useRecipeCountdownSound();
 
 	useEffect(() => {
 		const frameId = requestAnimationFrame(() => setBarProgress(0));
