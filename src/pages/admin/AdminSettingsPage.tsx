@@ -49,7 +49,8 @@ type Overlay =
 	| "leaveConfirm"
 	| "exitConfirm"
 	| "discardConfirm"
-	| "quitting";
+	| "quitting"
+	| "quitFailed";
 
 type LeaveTarget = "home" | "quit";
 
@@ -111,9 +112,13 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 			return;
 		}
 		// 진행 중인 저장을 기다려 종료하는 동안 화면을 덮어 다른 입력을 막습니다.
-		// 종료되면 화면이 사라지므로 덮개는 실패했을 때만 걷어 다시 누를 수 있게 합니다
+		// 종료되면 화면이 사라지므로 덮개는 실패했을 때만 안내로 바꿉니다
 		setOverlay("quitting");
-		if (!(await requestQuit())) setOverlay(null);
+		if (!(await requestQuit())) setOverlay("quitFailed");
+	}
+
+	function handleQuitRetryClick() {
+		void leaveTo("quit");
 	}
 
 	async function handleSaveAndLeaveClick() {
@@ -214,6 +219,13 @@ export default function AdminSettingsPage({ contents, onExit }: AdminSettingsPag
 						<SaveFailedModal
 							onCloseClick={handleOverlayClose}
 							onRetryClick={handleSaveAndLeaveClick}
+						/>
+					)}
+					{overlay === "quitFailed" && (
+						<SaveFailedModal
+							type="quit"
+							onCloseClick={handleOverlayClose}
+							onRetryClick={handleQuitRetryClick}
 						/>
 					)}
 					{overlay === "leaveConfirm" && (
