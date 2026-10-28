@@ -124,14 +124,14 @@ describe.each(HOMES)("$name", ({ Home, file, createStartable, koTitle, enTitle }
 		expect(screen.getByRole("button", { name: "시작하기" })).toBeTruthy();
 	});
 
-	test("홈으로 돌아오면 언어는 그대로이고 음소거만 풀린다", () => {
+	test("홈으로 돌아와도 언어와 음소거가 그대로다", () => {
 		useSessionStore.getState().setLanguage("en");
 		useSessionStore.getState().toggleMute();
 
 		renderHome(Home);
 
 		expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(enTitle);
-		expect(useSessionStore.getState().isMuted).toBe(false);
+		expect(useSessionStore.getState().isMuted).toBe(true);
 	});
 
 	test("언어 버튼을 누르면 영어 제목과 Start 버튼으로 바뀐다", () => {
