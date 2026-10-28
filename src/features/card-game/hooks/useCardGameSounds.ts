@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { WARNING_RATIO } from "@/components/common/PlayTimer";
 import type { CardGameView } from "@/features/card-game/hooks/useCardGame";
 import { type GameCard, hasWrongCards } from "@/features/card-game/utils/cardRules";
-import { useSound, useSoundWhile } from "@/hooks/useSound";
+import { useCountdownSoundWhile, useSound } from "@/hooks/useSound";
 import { SOUND_NAMES, type SoundName } from "@/utils/soundEngine";
 
 function statusById(cards: GameCard[]): Map<string, GameCard["status"]> {
@@ -46,8 +46,8 @@ export function getCardGameSounds(before: CardGameView, after: CardGameView): So
 export function useCardGameSounds(game: CardGameView) {
 	const play = useSound();
 	const previous = useRef(game);
-	// 안내 카운트 소리는 한 곡이 3초보다 길어서, 카드가 뒤집히는 순간 끊습니다
-	useSoundWhile(SOUND_NAMES.countdown, game.phase === "preview");
+	// 안내가 4초보다 길 수 있어(8쌍 5초, 10쌍 7초) 앞 4초를 되풀이하다가 카드가 뒤집히는 순간 끊습니다
+	useCountdownSoundWhile(game.phase === "preview");
 
 	useEffect(() => {
 		const before = previous.current;
