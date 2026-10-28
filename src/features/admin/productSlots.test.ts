@@ -60,18 +60,18 @@ function hiddenFromResultSlots(data: CardGameData): number[] {
 }
 
 describe("쌍 수 변경", () => {
-	test("8쌍에서 4쌍으로 바꾸면 1~4번 제품만 사용 제품이 된다", () => {
-		const changed = changePairCount(filledCardGame(), 4);
+	test("8쌍에서 6쌍으로 바꾸면 1~6번 제품만 사용 제품이 된다", () => {
+		const changed = changePairCount(filledCardGame(), 6);
 
-		expect(changed.settings.pairCount).toBe(4);
-		expect(selectedSlots(changed)).toEqual([1, 2, 3, 4]);
+		expect(changed.settings.pairCount).toBe(6);
+		expect(selectedSlots(changed)).toEqual([1, 2, 3, 4, 5, 6]);
 	});
 
 	test("사진이 없는 등록 칸은 건너뛰고 다음 칸을 켠다", () => {
 		const data = filledCardGame();
 		data.products[1].image = null;
 
-		expect(selectedSlots(changePairCount(data, 4))).toEqual([1, 3, 4, 5]);
+		expect(selectedSlots(changePairCount(data, 6))).toEqual([1, 3, 4, 5, 6, 7]);
 	});
 
 	test("직접 고른 사용 제품이 있어도 모두 끄고 1번부터 다시 켠다", () => {
@@ -79,20 +79,20 @@ describe("쌍 수 변경", () => {
 		data.products[0].isEnabled = false;
 		data.products[8].isEnabled = true;
 
-		expect(selectedSlots(changePairCount(data, 4))).toEqual([1, 2, 3, 4]);
+		expect(selectedSlots(changePairCount(data, 6))).toEqual([1, 2, 3, 4, 5, 6]);
 	});
 
 	test("제품 목록이 칸 번호 순서가 아니어도 1번 칸부터 켠다", () => {
 		const data = filledCardGame();
 		data.products.reverse();
 
-		expect(selectedSlots(changePairCount(data, 4))).toEqual([1, 2, 3, 4]);
+		expect(selectedSlots(changePairCount(data, 6))).toEqual([1, 2, 3, 4, 5, 6]);
 	});
 
 	test("사진이 있는 칸이 쌍 수보다 적으면 있는 만큼만 켠다", () => {
-		expect(selectedSlots(changePairCount(filledCardGame(), 12))).toEqual([
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-		]);
+		const data = deleteProduct(filledCardGame(), 10);
+
+		expect(selectedSlots(changePairCount(data, 10))).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 	});
 
 	test("지금과 같은 쌍 수를 고르면 직접 고른 사용 제품이 그대로다", () => {
@@ -104,7 +104,7 @@ describe("쌍 수 변경", () => {
 	});
 
 	test("결과 화면 표시 값은 바꾸지 않는다", () => {
-		const changed = changePairCount(filledCardGame(), 4);
+		const changed = changePairCount(filledCardGame(), 6);
 
 		expect(hiddenFromResultSlots(changed)).toEqual([6, 7]);
 	});
@@ -343,7 +343,7 @@ describe("받은 값", () => {
 		const data = deepFreeze(filledCardGame());
 
 		expect(() => {
-			changePairCount(data, 4);
+			changePairCount(data, 6);
 			enableProduct(disableProduct(data, 8), 9);
 			registerProduct(data, NEW_IMAGE);
 			replaceProductImage(data, 1, NEW_IMAGE);
@@ -356,7 +356,7 @@ describe("받은 값", () => {
 });
 
 describe("저장 규칙과 함께", () => {
-	test.each([4, 8, 12] as const)(
+	test.each([6, 8, 10] as const)(
 		"첫 실행에서 %i쌍으로 고르고 그만큼 등록하면 저장할 수 있다",
 		(pairCount: PairCount) => {
 			let data = changePairCount(emptyCardGame(), pairCount);
@@ -368,8 +368,8 @@ describe("저장 규칙과 함께", () => {
 		},
 	);
 
-	test("목데이터를 4쌍으로 줄였다가 8쌍으로 되돌려도 저장할 수 있다", () => {
-		const reduced = changePairCount(filledCardGame(), 4);
+	test("목데이터를 6쌍으로 줄였다가 8쌍으로 되돌려도 저장할 수 있다", () => {
+		const reduced = changePairCount(filledCardGame(), 6);
 		const restored = changePairCount(reduced, 8);
 
 		expect(validateForSave("card-game", reduced)).toMatchObject({ isValid: true });
@@ -385,12 +385,12 @@ describe("저장 규칙과 함께", () => {
 		});
 	});
 
-	test("사진이 10장뿐인 목데이터를 12쌍으로 바꾸면 사용 제품 수가 모자라 저장할 수 없다", () => {
-		const changed = changePairCount(filledCardGame(), 12);
+	test("목데이터에서 제품 하나를 지워 사진이 9장일 때 10쌍으로 바꾸면 저장할 수 없다", () => {
+		const changed = changePairCount(deleteProduct(filledCardGame(), 10), 10);
 
 		expect(validateForSave("card-game", changed)).toEqual({
 			isValid: false,
-			issues: [expect.stringContaining("현재 10개")],
+			issues: [expect.stringContaining("현재 9개")],
 		});
 	});
 });

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createMockData } from "@/data/mock/mock-platform";
 import { getLimitNotice, getUsageNotice } from "@/features/admin/cardSettings";
-import { changePairCount, disableProduct } from "@/features/admin/productSlots";
+import { changePairCount, deleteProduct, disableProduct } from "@/features/admin/productSlots";
 import type { CardGameData } from "@/types/data";
 
 function filledCardGame(): CardGameData {
@@ -44,12 +44,12 @@ describe("getUsageNotice", () => {
 	});
 
 	test("등록한 제품이 쌍 수보다 적으면 켜기가 아니라 등록을 알린다", () => {
-		// 목데이터는 10개 등록·8개 켬이라 12쌍이면 등록이 2개 모자랍니다
-		const data = changePairCount(filledCardGame(), 12);
+		// 목데이터는 10개 등록이라 하나를 지우고 10쌍으로 바꾸면 등록이 1개 모자랍니다
+		const data = changePairCount(deleteProduct(filledCardGame(), 10), 10);
 
 		expect(getUsageNotice(data)).toEqual({
 			tone: "error",
-			message: "제품 2개를 더 등록해 주세요.",
+			message: "제품 1개를 더 등록해 주세요.",
 		});
 	});
 
