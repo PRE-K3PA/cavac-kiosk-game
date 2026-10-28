@@ -48,10 +48,10 @@ function advance(ms: number) {
 }
 
 describe("ResultCarousel 자동 넘김", () => {
-	test("3초가 지나면 소리 없이 다음 슬라이드로 넘긴다", () => {
+	test("2초가 지나면 소리 없이 다음 슬라이드로 넘긴다", () => {
 		const { onIndexChange } = renderCarousel();
 
-		advance(2999);
+		advance(1999);
 		expect(onIndexChange).not.toHaveBeenCalled();
 		advance(1);
 		expect(onIndexChange).toHaveBeenCalledWith(1);
@@ -61,14 +61,14 @@ describe("ResultCarousel 자동 넘김", () => {
 	test("마지막 슬라이드 다음은 처음으로 돌아간다", () => {
 		const { onIndexChange } = renderCarousel({ index: 2 });
 
-		advance(3000);
+		advance(2000);
 		expect(onIndexChange).toHaveBeenCalledWith(0);
 	});
 
-	test("직접 넘기면 그때부터 다시 3초를 센다", () => {
+	test("직접 넘기면 그때부터 다시 2초를 센다", () => {
 		const { onIndexChange, getByRole, rerender } = renderCarousel();
 
-		advance(2000);
+		advance(1000);
 		fireEvent.click(getByRole("button", { name: "다음" }));
 		expect(onIndexChange).toHaveBeenLastCalledWith(1);
 		rerender(
@@ -82,7 +82,7 @@ describe("ResultCarousel 자동 넘김", () => {
 			/>,
 		);
 
-		advance(2000);
+		advance(1000);
 		expect(onIndexChange).toHaveBeenCalledTimes(1);
 		advance(1000);
 		expect(onIndexChange).toHaveBeenLastCalledWith(2);
