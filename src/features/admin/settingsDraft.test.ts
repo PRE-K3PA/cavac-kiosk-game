@@ -25,6 +25,7 @@ mock.module("@/data/storage", () => ({
 	getImageUrl: mock((path: string) => path),
 	verifyPin: mock(),
 	updatePin: mock(),
+	quitApp: mock(async () => {}),
 }));
 
 const {
