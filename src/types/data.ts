@@ -134,7 +134,7 @@ export type VaccineGameData = {
 
 // ------------------------------------------------------------- card-game.json
 
-export const PAIR_COUNTS = [4, 8, 12] as const;
+export const PAIR_COUNTS = [6, 8, 10] as const;
 export type PairCount = (typeof PAIR_COUNTS)[number];
 
 export type ProductSlot = {

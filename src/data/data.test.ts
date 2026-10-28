@@ -96,6 +96,40 @@ describe("소리 크기", () => {
 	});
 });
 
+describe("카드 쌍 수", () => {
+	test("6·8·10쌍만 통과한다", () => {
+		const data = createMockData("filled")["card-game"];
+		for (const [pairCount, isValid] of [
+			[6, true],
+			[8, true],
+			[10, true],
+			[7, false],
+			[14, false],
+		] as const) {
+			const parsed = dataSchemas["card-game"].safeParse({
+				...data,
+				settings: { ...data.settings, pairCount },
+			});
+			expect(parsed.success).toBe(isValid);
+		}
+	});
+
+	test.each([
+		[4, 6],
+		[12, 10],
+	] as const)("예전에 저장한 %i쌍은 %i쌍으로 바꿔 읽고 제품 목록은 그대로 둔다", (saved, read) => {
+		const data = createMockData("filled")["card-game"];
+		const parsed = dataSchemas["card-game"].safeParse({
+			...data,
+			settings: { ...data.settings, pairCount: saved },
+		});
+		expect(parsed.success).toBe(true);
+		if (!parsed.success) return;
+		expect(parsed.data.settings.pairCount).toBe(read);
+		expect(parsed.data.products).toEqual(data.products);
+	});
+});
+
 describe("저장 규칙", () => {
 	test("앞뒤 공백을 지우고 공백만 있는 세부 타입은 null 로 저장한다", () => {
 		const data = createMockData("filled")["vaccine-game"];
@@ -139,7 +173,7 @@ describe("저장 규칙", () => {
 
 	test("켜진 제품 수가 쌍 수와 다르면 막는다", () => {
 		const data = createMockData("filled")["card-game"];
-		data.settings.pairCount = 4;
+		data.settings.pairCount = 6;
 		expect(validateForSave("card-game", data).isValid).toBe(false);
 	});
 
