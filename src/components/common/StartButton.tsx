@@ -15,6 +15,7 @@ const startButton = cva(
 				default: [
 					"cursor-pointer border-brand-primary-strong bg-brand-accent text-text-on-brand shadow-lg",
 					"active:bg-brand-primary-strong active:shadow-sm",
+					"shine-sweep animate-breathe active:animate-none active:scale-95",
 				],
 				pressed: "border-brand-primary-strong bg-brand-primary-strong text-text-on-brand shadow-sm",
 				disabled: "border-border-muted bg-background-muted text-text-secondary",

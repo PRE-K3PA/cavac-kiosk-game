@@ -20,9 +20,10 @@ export default function HomeButton({ label, className, onClick, ...props }: Home
 			type="button"
 			className={cn(
 				"typo-label-button flex h-37 w-150 cursor-pointer items-center justify-center",
-				"overflow-clip whitespace-nowrap rounded-full border-3 border-border-default",
-				"bg-background-surface text-text-primary shadow-md",
+				"overflow-clip whitespace-nowrap rounded-full border-3 border-border-strong",
+				"bg-accent-sky-subtle text-brand-secondary-strong shadow-md",
 				"active:bg-background-canvas active:shadow-sm",
+				"shine-sweep animate-breathe active:animate-none active:scale-95 disabled:animate-none",
 				className,
 			)}
 			onClick={handleClick}
