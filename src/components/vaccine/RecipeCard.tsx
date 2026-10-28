@@ -61,10 +61,18 @@ function splitIntoRows(antigens: AntigenLabel[]) {
 type RecipeCardProps = VariantProps<typeof nameBarVariants> & {
 	name: string;
 	antigens: AntigenLabel[];
+	/** 켜면 구슬이 한 줄이어도 구슬 영역을 두 줄 높이로 둔다. 한 화면의 카드 높이를 맞출 때 쓴다 */
+	isTwoRowHeight?: boolean;
 	className?: string;
 };
 
-export default function RecipeCard({ name, antigens, tone, className }: RecipeCardProps) {
+export default function RecipeCard({
+	name,
+	antigens,
+	tone,
+	isTwoRowHeight,
+	className,
+}: RecipeCardProps) {
 	const nameTextRef = useRef<HTMLSpanElement>(null);
 	const nameFontSize = useMeasuredValue<number>(name, NAME_FONT_SIZES[0], () =>
 		nameTextRef.current ? fitNameFontSize(nameTextRef.current) : undefined,
@@ -82,7 +90,11 @@ export default function RecipeCard({ name, antigens, tone, className }: RecipeCa
 					{name}
 				</span>
 			</p>
-			<div className="flex flex-col items-center justify-center gap-4 px-6 py-8">
+			<div
+				className={cn(
+					"flex flex-col items-center justify-center gap-4 px-6 py-8",
+					isTwoRowHeight && "h-102",
+				)}>
 				{splitIntoRows(antigens).map((row) => (
 					<div
 						key={row.map(antigenKey).join("|")}
