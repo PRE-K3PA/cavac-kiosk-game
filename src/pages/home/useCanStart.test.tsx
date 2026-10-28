@@ -34,7 +34,7 @@ const IMAGE = { ko: "images/product/ko.png", en: "images/product/en.png" };
 function cardGameWithEnabled(enabledCount: number): CardGameData {
 	const data = createDefaultData("card-game");
 	return {
-		settings: { ...data.settings, pairCount: 4 },
+		settings: { ...data.settings, pairCount: 8 },
 		products: data.products.map((product, index) => ({
 			...product,
 			image: IMAGE,
@@ -77,20 +77,20 @@ afterEach(cleanup);
 
 describe("useCanStart", () => {
 	test("확인하기 전에는 시작할 수 없다", () => {
-		stored["card-game"] = cardGameWithEnabled(4);
+		stored["card-game"] = cardGameWithEnabled(8);
 		render(<StartProbe file="card-game" />);
 
 		expect(screen.getByTestId("probe").textContent).toBe("blocked");
 	});
 
 	test("카드 쌍 수와 켜진 제품 수가 같으면 시작할 수 있다", async () => {
-		stored["card-game"] = cardGameWithEnabled(4);
+		stored["card-game"] = cardGameWithEnabled(8);
 		render(<StartProbe file="card-game" />);
 
 		await expectProbe("start");
 	});
 
-	test.each([3, 5])("카드 4쌍인데 제품이 %i개 켜져 있으면 시작할 수 없다", async (count) => {
+	test.each([7, 9])("카드 8쌍인데 제품이 %i개 켜져 있으면 시작할 수 없다", async (count) => {
 		stored["card-game"] = cardGameWithEnabled(count);
 		render(<StartProbe file="card-game" />);
 

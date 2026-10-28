@@ -11,8 +11,8 @@ const TIME_PENALTY: Penalty = {
 
 function gameData(penalty: Penalty = TIME_PENALTY): CardGameData {
 	return {
-		settings: { pairCount: 4, penalty },
-		products: Array.from({ length: 4 }, (_, index) => ({
+		settings: { pairCount: 8, penalty },
+		products: Array.from({ length: 8 }, (_, index) => ({
 			slot: index + 1,
 			image: { ko: `images/product/${index + 1}.png`, en: `images/product/${index + 1}.png` },
 			isEnabled: true,
@@ -84,7 +84,7 @@ describe("useCardGame", () => {
 
 		expect(view.result.current.phase).toBe("preview");
 		expect(view.result.current.countdown).toBe(3);
-		expect(cardsOf(view)).toHaveLength(8);
+		expect(cardsOf(view)).toHaveLength(16);
 		expect(cardsOf(view).every((card) => card.status === "revealed")).toBe(true);
 
 		advance(1000);
@@ -266,15 +266,15 @@ describe("useCardGame", () => {
 	test("모든 쌍을 맞추면 시간이 남아도 판이 끝난다", () => {
 		const view = renderGame(60);
 		startPlaying(view);
-		for (let pair = 0; pair < 4; pair += 1) matchPair(view);
+		for (let pair = 0; pair < 8; pair += 1) matchPair(view);
 
 		expect(view.result.current.phase).toBe("finished");
-		expect(view.result.current.matchedPairs).toBe(4);
+		expect(view.result.current.matchedPairs).toBe(8);
 		const { score, remainingSeconds } = view.result.current;
 		expect(remainingSeconds).toBeGreaterThan(0);
-		// 4쌍 x 100점 + 남은 시간 올림 초 x 100점
-		expect(score).toBe(400 + Math.ceil(remainingSeconds) * 100);
-		expect(score).toBeGreaterThan(400);
+		// 8쌍 x 100점 + 남은 시간 올림 초 x 100점
+		expect(score).toBe(800 + Math.ceil(remainingSeconds) * 100);
+		expect(score).toBeGreaterThan(800);
 	});
 
 	test("판이 끝난 뒤 입력과 시간 흐름은 무시한다", () => {
@@ -295,11 +295,9 @@ describe("useCardGame", () => {
 	test("결과 제품은 켜져 있고 결과 표시가 켜진 사진 제품만 슬롯 순서로 담는다", () => {
 		const view = renderGame();
 
-		expect(view.result.current.resultProducts.map((image) => image.ko)).toEqual([
-			"images/product/1.png",
-			"images/product/2.png",
-			"images/product/3.png",
-		]);
+		expect(view.result.current.resultProducts.map((image) => image.ko)).toEqual(
+			[1, 2, 3, 5, 6, 7, 8].map((slot) => `images/product/${slot}.png`),
+		);
 	});
 
 	test("판정 대기 중 시간이 0 이 되면 끝나고 그 판정은 적용되지 않는다", () => {

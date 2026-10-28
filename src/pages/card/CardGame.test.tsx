@@ -238,21 +238,22 @@ describe("자동 복귀", () => {
 
 describe("카드판 배치", () => {
 	test.each([
-		["landscape", 4, 8, "grid-cols-4", "w-79.5"],
-		["landscape", 8, 16, "grid-cols-4", "w-71.25"],
-		["landscape", 12, 24, "grid-cols-6", "w-53.75"],
-		["portrait", 4, 8, "grid-cols-2", "w-59"],
-		["portrait", 8, 16, "grid-cols-4", "w-59"],
-		["portrait", 12, 24, "grid-cols-4", "w-41.25"],
+		["landscape", 6, 12, "grid-cols-3", "grid-rows-4"],
+		["landscape", 8, 16, "grid-cols-4", "grid-rows-4"],
+		["landscape", 10, 20, "grid-cols-4", "grid-rows-5"],
+		["portrait", 6, 12, "grid-cols-4", "grid-rows-3"],
+		["portrait", 8, 16, "grid-cols-4", "grid-rows-4"],
+		["portrait", 10, 20, "grid-cols-5", "grid-rows-4"],
 	] as const)(
 		"%s %i쌍은 카드 %i장, %s, %s",
-		async (orientation, pairCount, total, columns, width) => {
+		async (orientation, pairCount, total, columns, rows) => {
 			stored = cardGameData(pairCount, products(12));
 			const { container } = await renderGame(orientation);
 
 			expect(cards()).toHaveLength(total);
 			expect(board(container).className).toContain(columns);
-			expect(cards()[0].className).toContain(width);
+			expect(board(container).className).toContain(rows);
+			expect(cards()[0].className).toContain("size-full");
 		},
 	);
 
@@ -346,9 +347,9 @@ describe("제품이 부족하거나 없을 때", () => {
 	});
 
 	test("켜진 제품이 모자라도 정해진 장수로 렌더된다", async () => {
-		stored = cardGameData(12, products(2));
+		stored = cardGameData(8, products(2));
 		await renderGame("portrait");
-		expect(cards()).toHaveLength(24);
+		expect(cards()).toHaveLength(16);
 	});
 
 	test("자리표시 카드 앞면은 언어에 맞는 공용 로고다", async () => {
@@ -356,9 +357,9 @@ describe("제품이 부족하거나 없을 때", () => {
 			cards()
 				.map((card) => card.querySelector("img:not(.opacity-50)")?.getAttribute("src") ?? "")
 				.filter((src) => !src.startsWith("file://"));
-		stored = cardGameData(4, products(2));
+		stored = cardGameData(8, products(2));
 		await renderGame();
-		expect(faceSrcs()).toHaveLength(4);
+		expect(faceSrcs()).toHaveLength(12);
 		expect(faceSrcs().every((src) => src.includes("imgLogoKo"))).toBe(true);
 
 		act(() => useSessionStore.getState().setLanguage("en"));
