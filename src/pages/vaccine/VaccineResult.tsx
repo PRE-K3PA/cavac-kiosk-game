@@ -98,7 +98,7 @@ export default function VaccineResult({
 				initial={shouldReduceMotion ? false : { scale: 0.3, opacity: 0 }}
 				animate={{ scale: 1, opacity: 1 }}
 				transition={{ type: "spring", stiffness: 260, damping: 12, delay: 0.15 }}
-				className="typo-display-l relative whitespace-nowrap font-display">
+				className="typo-display-xl relative whitespace-nowrap font-display">
 				<span aria-hidden="true" className={RESULT_SCORE_BACKDROP}>
 					{scoreText}
 					{t("unit")}
