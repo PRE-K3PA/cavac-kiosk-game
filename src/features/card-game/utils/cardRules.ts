@@ -3,7 +3,11 @@ import type { ImagePath, Localized, PairCount, Penalty, ProductSlot } from "@/ty
 export const MATCH_SCORE = 100;
 export const TIME_BONUS_PER_SECOND = 100;
 export const WRONG_REVEAL_MS = 500;
-export const PREVIEW_COUNTDOWN_SECONDS = 3;
+// 카드가 많을수록 외울 시간을 더 줍니다
+export const PREVIEW_COUNTDOWN_SECONDS = { 6: 3, 8: 5, 10: 7 } as const satisfies Record<
+	PairCount,
+	number
+>;
 // MemoryCard 의 뒤집힘 애니메이션(duration-400)과 같아야 합니다
 export const CARD_FLIP_MS = 400;
 

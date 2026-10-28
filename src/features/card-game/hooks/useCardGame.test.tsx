@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, jest, test } from "bun:test";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { useCardGame } from "@/features/card-game/hooks/useCardGame";
-import { CARD_FLIP_MS, type GameCard } from "@/features/card-game/utils/cardRules";
+import {
+	CARD_FLIP_MS,
+	type GameCard,
+	PREVIEW_COUNTDOWN_SECONDS,
+} from "@/features/card-game/utils/cardRules";
 import type { CardGameData, Penalty } from "@/types/data";
+
+const PREVIEW_MS = PREVIEW_COUNTDOWN_SECONDS[8] * 1000;
 
 const TIME_PENALTY: Penalty = {
 	time: { isEnabled: true, seconds: 3 },
@@ -43,7 +49,7 @@ function advance(ms: number) {
 }
 
 function startPlaying(view: GameView) {
-	advance(3000);
+	advance(PREVIEW_MS);
 	expect(view.result.current.phase).toBe("flipping");
 	advance(CARD_FLIP_MS);
 	expect(view.result.current.phase).toBe("playing");
@@ -79,18 +85,33 @@ function matchPair(view: GameView) {
 }
 
 describe("useCardGame", () => {
-	test("시작 전에는 모든 카드를 앞면으로 보여 주며 3, 2, 1 을 센다", () => {
+	test("시작 전에는 모든 카드를 앞면으로 보여 주며 5, 4, 3, 2, 1 을 센다", () => {
 		const view = renderGame();
 
 		expect(view.result.current.phase).toBe("preview");
-		expect(view.result.current.countdown).toBe(3);
+		expect(view.result.current.countdown).toBe(5);
 		expect(cardsOf(view)).toHaveLength(16);
 		expect(cardsOf(view).every((card) => card.status === "revealed")).toBe(true);
 
-		advance(1000);
-		expect(view.result.current.countdown).toBe(2);
-		advance(1000);
-		expect(view.result.current.countdown).toBe(1);
+		for (const countdown of [4, 3, 2, 1]) {
+			advance(1000);
+			expect(view.result.current.countdown).toBe(countdown);
+		}
+	});
+
+	test.each([
+		[6, 3],
+		[8, 5],
+		[10, 7],
+	] as const)("%i쌍이면 %i초 동안 보여 준 뒤 뒤집는다", (pairCount, seconds) => {
+		const data = gameData();
+		const view = renderGame(10, { ...data, settings: { ...data.settings, pairCount } });
+
+		expect(view.result.current.countdown).toBe(seconds);
+		advance(seconds * 1000 - 1);
+		expect(view.result.current.phase).toBe("preview");
+		advance(1);
+		expect(view.result.current.phase).toBe("flipping");
 	});
 
 	test("카운트다운이 끝나면 카드가 모두 뒤집히고 플레이가 시작된다", () => {
@@ -104,7 +125,7 @@ describe("useCardGame", () => {
 
 	test("카운트다운이 끝나면 먼저 뒤집힘 단계가 되어 타이머가 멈추고 입력을 무시한다", () => {
 		const view = renderGame();
-		advance(3000);
+		advance(PREVIEW_MS);
 
 		expect(view.result.current.phase).toBe("flipping");
 		expect(view.result.current.countdown).toBe(0);
@@ -339,7 +360,7 @@ describe("useCardGame", () => {
 
 	test("뒤집힘 단계나 판정 대기 중 언마운트해도 타이머가 남지 않는다", () => {
 		const flipping = renderGame();
-		advance(3000);
+		advance(PREVIEW_MS);
 		flipping.unmount();
 		expect(jest.getTimerCount()).toBe(0);
 
