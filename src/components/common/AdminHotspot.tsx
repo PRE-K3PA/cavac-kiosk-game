@@ -14,7 +14,7 @@ type AdminHotspotProps = Omit<
 };
 
 export default function AdminHotspot({
-	holdMs = 1500,
+	holdMs = 1000,
 	onActivate,
 	className,
 	...props

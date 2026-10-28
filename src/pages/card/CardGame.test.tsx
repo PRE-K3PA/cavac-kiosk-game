@@ -310,14 +310,14 @@ describe("언어와 제품 이미지", () => {
 		expect(screen.getByText(/pairs/).parentElement?.textContent).toStartWith("0 pairs");
 	});
 
-	test("결과 제품 캐러셀은 3초마다 다음 제품으로 넘어간다", async () => {
+	test("결과 제품 캐러셀은 2초마다 다음 제품으로 넘어간다", async () => {
 		const { container } = await renderGame();
 		finishGame();
 		const centerImage = () =>
 			container.querySelector("[aria-hidden='false'] img[src^='file://']")?.getAttribute("src");
 		const first = centerImage();
 
-		advance(3000);
+		advance(2000);
 
 		expect(centerImage()).toBeTruthy();
 		expect(centerImage()).not.toBe(first);

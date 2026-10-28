@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, spyOn, test } from "bun:test";
 import { DEFAULT_VOLUME } from "@/data/schema";
 import {
 	BGM_NAMES,
+	getSfxLevel,
 	playBgm,
 	playSound,
 	SOUND_NAMES,
@@ -30,6 +31,22 @@ beforeEach(() => {
 afterEach(() => {
 	playSpy.mockRestore();
 	setVolume(DEFAULT_VOLUME);
+});
+
+describe("getSfxLevel", () => {
+	test("촉박한 틱은 효과음 크기의 1.2배다", () => {
+		expect(getSfxLevel(SOUND_NAMES.tickUrgent, 100)).toBeCloseTo(1.2);
+		expect(getSfxLevel(SOUND_NAMES.tickUrgent, 50)).toBeCloseTo(0.6);
+	});
+
+	test("배율이 없는 효과음은 효과음 크기 그대로다", () => {
+		expect(getSfxLevel(SOUND_NAMES.tick, 100)).toBe(1);
+		expect(getSfxLevel(SOUND_NAMES.tick, 50)).toBe(0.5);
+	});
+
+	test("효과음 크기가 0 이면 촉박한 틱도 0 이다", () => {
+		expect(getSfxLevel(SOUND_NAMES.tickUrgent, 0)).toBe(0);
+	});
 });
 
 describe("playSound", () => {
@@ -151,6 +168,33 @@ describe("setVolume", () => {
 		playSound(SOUND_NAMES.pop);
 
 		expect(playedVolumes[0]).toBeCloseTo(0.3);
+	});
+
+	test("촉박한 틱은 1.2배로 재생하고, 1 을 넘으면 audio 요소는 최대 크기로 둔다", () => {
+		setVolume({ bgmPercent: 50, sfxPercent: 50 });
+		playSound(SOUND_NAMES.tickUrgent);
+		setVolume({ bgmPercent: 50, sfxPercent: 100 });
+		playSound(SOUND_NAMES.tickUrgent);
+
+		expect(playedVolumes[0]).toBeCloseTo(0.6);
+		expect(playedVolumes[1]).toBe(1);
+	});
+
+	test("Web Audio 로 키우다 실패해도 소리는 재생한다", () => {
+		const original = globalThis.AudioContext;
+		Object.assign(globalThis, {
+			AudioContext: class {
+				constructor() {
+					throw new Error("no audio");
+				}
+			},
+		});
+		try {
+			playSound(SOUND_NAMES.tickUrgent);
+			expect(played).toHaveLength(1);
+		} finally {
+			Object.assign(globalThis, { AudioContext: original });
+		}
 	});
 
 	test("배경음은 곡마다 정한 크기에 저장한 배경음 크기를 곱한다", () => {

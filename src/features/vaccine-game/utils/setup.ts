@@ -30,7 +30,7 @@ function toSetup(
 		settings,
 		playDurationSeconds,
 		autoReset,
-		colors: assignAntigenColors(round, Math.random),
+		colors: assignAntigenColors(round, vaccines, Math.random),
 	};
 }
 
