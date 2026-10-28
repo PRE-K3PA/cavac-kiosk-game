@@ -8,7 +8,7 @@ import { cn } from "@/utils/cn";
 const nameBarVariants = cva(
 	[
 		"flex w-full items-center justify-center px-6 py-5.5 text-center break-keep",
-		"font-display typo-display-xs text-text-primary",
+		"font-display typo-display-m text-text-primary",
 	],
 	{
 		variants: {
