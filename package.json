@@ -9,10 +9,10 @@
 		"dev": "vite",
 		"build": "bun run typecheck && vite build",
 		"preview": "vite preview",
-		"dist": "bun run build && electron-builder",
+		"dist": "bun run typecheck && vite build --mode release && electron-builder",
 		"check": "biome check .",
 		"check:fix": "biome check --write .",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsc -b",
 		"test": "bun test",
 		"clean": "bun run clean:build && rm -rf node_modules",
 		"clean:build": "rm -rf dist dist-electron release"
@@ -20,10 +20,11 @@
 	"dependencies": {
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
-		"gsap": "^3.15.0",
+		"i18next": "^26.5.3",
 		"motion": "^13.4.0",
 		"react": "^19.3.0",
 		"react-dom": "^19.3.0",
+		"react-i18next": "^17.1.0",
 		"tailwind-merge": "^3.7.0",
 		"zod": "^4.6.5",
 		"zustand": "^5.0.15"
@@ -34,6 +35,7 @@
 		"@tailwindcss/vite": "^4.3.3",
 		"@testing-library/dom": "^10.4.2",
 		"@testing-library/react": "^16.3.3",
+		"@types/bun": "^1.4.2",
 		"@types/react": "^19.3.0",
 		"@types/react-dom": "^19.3.0",
 		"@vitejs/plugin-react": "^6.1.1",

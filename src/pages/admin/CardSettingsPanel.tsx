@@ -1,0 +1,193 @@
+import { useState } from "react";
+import InlineNotice from "@/components/admin/InlineNotice";
+import OptionButton from "@/components/admin/OptionButton";
+import ProductRow from "@/components/admin/ProductRow";
+import SectionHeader from "@/components/admin/SectionHeader";
+import { LIMITS } from "@/data/schema";
+import { getImageUrl } from "@/data/storage";
+import { getLimitNotice, getUsageNotice } from "@/features/admin/cardSettings";
+import {
+	changePairCount,
+	countEnabledProducts,
+	disableProduct,
+	enableProduct,
+	findRegisterSlot,
+	setShownInResult,
+} from "@/features/admin/productSlots";
+import { useSettingsDraft } from "@/features/admin/settingsDraft";
+import { useLimitNotice } from "@/features/admin/useLimitNotice";
+import { useOrientation } from "@/layout/OrientationContext";
+import PenaltySection from "@/pages/admin/PenaltySection";
+import ProductDeleteOverlay from "@/pages/admin/ProductDeleteOverlay";
+import ProductFormOverlay from "@/pages/admin/ProductFormOverlay";
+import { type CardGameData, PAIR_COUNTS, type PairCount, type Penalty } from "@/types/data";
+import { cn } from "@/utils/cn";
+
+const LAYOUT = {
+	landscape: {
+		panel: "flex-row",
+		sideColumn: "w-140 shrink-0 gap-4",
+		pairOption: "w-41",
+	},
+	portrait: {
+		panel: "flex-col",
+		sideColumn: "gap-6",
+		pairOption: "flex-1",
+	},
+} as const;
+
+const SECTION_CARD_CLASS =
+	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
+
+type ProductOverlay = { type: "add" } | { type: "edit" | "delete"; slot: number };
+
+export default function CardSettingsPanel() {
+	const [productOverlay, setProductOverlay] = useState<ProductOverlay | null>(null);
+	const layout = LAYOUT[useOrientation()];
+	const { isLimitNoticeShown, showLimitNotice, hideLimitNotice } = useLimitNotice();
+
+	const card = useSettingsDraft((state) => state.draft["card-game"]);
+	const originalPenalty = useSettingsDraft((state) => state.original["card-game"].settings.penalty);
+	const setDraft = useSettingsDraft((state) => state.setDraft);
+	const { pairCount, penalty } = card.settings;
+
+	const notice = getUsageNotice(card) ?? (isLimitNoticeShown ? getLimitNotice(pairCount) : null);
+	const registerSlot = findRegisterSlot(card.products);
+	const editingProduct =
+		productOverlay?.type === "edit"
+			? card.products.find((product) => product.slot === productOverlay.slot)
+			: undefined;
+
+	function updateCard(next: CardGameData) {
+		setDraft("card-game", next);
+	}
+
+	function updatePenalty(next: Penalty) {
+		updateCard({ ...card, settings: { ...card.settings, penalty: next } });
+	}
+
+	function handlePairCountClick(count: PairCount) {
+		hideLimitNotice();
+		updateCard(changePairCount(card, count));
+	}
+
+	function handleProductEnabledChange(slot: number, isEnabled: boolean) {
+		if (!isEnabled) {
+			hideLimitNotice();
+			updateCard(disableProduct(card, slot));
+			return;
+		}
+
+		const result = enableProduct(card, slot);
+		if (result.isSuccess) {
+			updateCard(result.data);
+			return;
+		}
+		if (result.reason === "limit") showLimitNotice();
+	}
+
+	function handleProductShownInResultChange(slot: number, isShownInResult: boolean) {
+		updateCard(setShownInResult(card, slot, isShownInResult));
+	}
+
+	function handleProductAddOpen() {
+		setProductOverlay({ type: "add" });
+	}
+
+	function handleProductEditOpen(slot: number) {
+		setProductOverlay({ type: "edit", slot });
+	}
+
+	function handleProductDeleteOpen(slot: number) {
+		setProductOverlay({ type: "delete", slot });
+	}
+
+	function handleProductOverlayClose() {
+		setProductOverlay(null);
+	}
+
+	return (
+		<div className={cn("flex h-full gap-6", layout.panel)}>
+			<div className={cn("flex flex-col", layout.sideColumn)}>
+				<section className={cn(SECTION_CARD_CLASS, "flex-col gap-3")}>
+					<SectionHeader
+						tone="card"
+						title="카드 쌍 수"
+						description="게임에 쓸 카드 쌍 수를 고르세요."
+					/>
+					<div className="flex gap-2">
+						{PAIR_COUNTS.map((count) => (
+							<OptionButton
+								key={count}
+								label={`${count}쌍`}
+								sublabel={`카드 ${count * 2}장`}
+								isSelected={count === pairCount}
+								onClick={() => handlePairCountClick(count)}
+								className={cn("h-24", layout.pairOption)}
+							/>
+						))}
+					</div>
+				</section>
+
+				<PenaltySection
+					tone="card"
+					penalty={penalty}
+					originalPenalty={originalPenalty}
+					onChange={updatePenalty}
+				/>
+			</div>
+
+			<section className={cn(SECTION_CARD_CLASS, "min-h-0 min-w-0 flex-1 flex-col gap-3")}>
+				<SectionHeader
+					tone="card"
+					title="제품 등록"
+					description={`칸은 ${LIMITS.productSlots}개입니다. 카드 쌍 수만큼 제품을 켜 주세요.`}
+				/>
+				{/* 안내 줄이 나타나고 사라질 때 목록이 움직이지 않게 줄 높이를 안내 줄(44)에 맞춰 둡니다 */}
+				<div className="flex h-11 shrink-0 items-center gap-4">
+					<p className="typo-admin-label whitespace-nowrap text-text-primary">
+						사용 {countEnabledProducts(card.products)} / {pairCount}
+					</p>
+					{notice && <InlineNotice tone={notice.tone} message={notice.message} />}
+				</div>
+				<div
+					className={cn(
+						"flex min-h-0 flex-1 flex-col gap-2",
+						"overflow-y-auto overscroll-contain [scrollbar-width:none]",
+					)}>
+					{card.products.map((product) => (
+						<ProductRow
+							key={product.slot}
+							slot={product.slot}
+							isEnabled={product.isEnabled}
+							isShownInResult={product.isShownInResult}
+							imageSrc={product.image ? getImageUrl(product.image.ko) : undefined}
+							onEnabledChange={(isEnabled) => handleProductEnabledChange(product.slot, isEnabled)}
+							onShownInResultChange={(isShown) =>
+								handleProductShownInResultChange(product.slot, isShown)
+							}
+							onRegisterClick={product.slot === registerSlot ? handleProductAddOpen : undefined}
+							onEditClick={() => handleProductEditOpen(product.slot)}
+							onDeleteClick={() => handleProductDeleteOpen(product.slot)}
+							className="shrink-0"
+						/>
+					))}
+				</div>
+			</section>
+			{(productOverlay?.type === "add" || editingProduct) && (
+				<ProductFormOverlay
+					product={editingProduct}
+					onCancel={handleProductOverlayClose}
+					onDone={handleProductOverlayClose}
+				/>
+			)}
+			{productOverlay?.type === "delete" && (
+				<ProductDeleteOverlay
+					slot={productOverlay.slot}
+					onCancel={handleProductOverlayClose}
+					onDeleted={handleProductOverlayClose}
+				/>
+			)}
+		</div>
+	);
+}

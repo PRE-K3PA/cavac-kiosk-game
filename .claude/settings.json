@@ -1,0 +1,55 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(bun run check)",
+			"Bash(bun run check:fix)",
+			"Bash(bun run typecheck)",
+			"Bash(bun run build)",
+			"Bash(bun test)",
+			"Bash(bun test:*)",
+			"Bash(git status:*)",
+			"Bash(git diff:*)",
+			"Bash(git log:*)",
+			"Bash(git branch:*)",
+			"Bash(git fetch:*)",
+			"Bash(gh --version)",
+			"Bash(gh auth status)",
+			"Bash(gh issue view:*)",
+			"Bash(gh issue list:*)",
+			"Bash(gh pr view:*)"
+		],
+		"deny": [
+			"Bash(npm:*)",
+			"Bash(npx:*)",
+			"Bash(yarn:*)",
+			"Bash(pnpm:*)",
+			"Bash(git push --force:*)",
+			"Bash(git push -f:*)"
+		]
+	},
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash|PowerShell",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-command.ts\"",
+						"timeout": 10
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-check.ts\"",
+						"timeout": 180
+					}
+				]
+			}
+		]
+	}
+}

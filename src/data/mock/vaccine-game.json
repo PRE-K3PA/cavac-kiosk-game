@@ -1,0 +1,265 @@
+{
+	"settings": {
+		"fallSpeedPercent": 100,
+		"maxAntigensOnScreen": 7,
+		"hint": {
+			"isEnabled": true,
+			"delaySeconds": 5
+		},
+		"penalty": {
+			"time": {
+				"isEnabled": true,
+				"seconds": 3
+			},
+			"score": {
+				"isEnabled": false,
+				"points": 50
+			}
+		}
+	},
+	"vaccines": [
+		{
+			"id": "a6a20891-5835-4e57-b560-740683f5fb20",
+			"brandName": {
+				"ko": "포울샷",
+				"en": "PoulShot"
+			},
+			"productName": {
+				"ko": "5280 ABBNE",
+				"en": "5280 ABBNE"
+			},
+			"bottleImage": {
+				"ko": "images/vaccine-bottle/153efa46-5e19-4e44-918b-d0e089d7c9f7.png",
+				"en": "images/vaccine-bottle/dc72398b-aea6-44e1-b858-721248325c5e.png"
+			},
+			"logoImage": {
+				"ko": "images/vaccine-logo/c63b901c-8ab8-42f1-9184-6cdd2ccd8f46.png",
+				"en": "images/vaccine-logo/cf844342-6093-4ac4-817b-4657049d83e3.png"
+			},
+			"isEnabled": true,
+			"antigens": [
+				{
+					"id": "6a7bbadb-d023-4d92-898c-393418020f1e",
+					"abbr": "AI",
+					"subtype": "Y280",
+					"pathogenType": "virus",
+					"isPinned": true
+				},
+				{
+					"id": "9dadf9d7-68cc-4618-9927-5b6f1f31add4",
+					"abbr": "ND",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "827d7b0f-6db7-4402-a3f5-8c6e03c2b54c",
+					"abbr": "IB",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": true
+				},
+				{
+					"id": "dfa582d9-dab9-4bbc-8081-bfddac8c4e6b",
+					"abbr": "EDS",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "f16a0510-0793-468e-b30b-cc0fd0f120a7",
+					"abbr": "IBD",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				}
+			]
+		},
+		{
+			"id": "a2be2f90-1e6d-4488-95d8-b44dfca8427b",
+			"brandName": {
+				"ko": "캐니샷",
+				"en": "CaniShot"
+			},
+			"productName": {
+				"ko": "RV-K",
+				"en": "RV-K"
+			},
+			"bottleImage": {
+				"ko": "images/vaccine-bottle/65fe0d20-93dc-4c4f-8f82-114823e08892.png",
+				"en": "images/vaccine-bottle/09df7332-5f0c-4152-b3ba-6f9b3c68e6a4.png"
+			},
+			"logoImage": {
+				"ko": "images/vaccine-logo/e829e037-61e9-494e-87a4-a3f21344a932.png",
+				"en": "images/vaccine-logo/4cc1e421-4d3e-4ed4-bb46-fc45f7c5e446.png"
+			},
+			"isEnabled": true,
+			"antigens": [
+				{
+					"id": "1a4f499b-adb7-4de6-87b7-d67455457baf",
+					"abbr": "RV",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "f2e5fa3a-4bc0-4541-a59a-892533626ae9",
+					"abbr": "CDV",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "85806508-9ec4-4a00-834e-36f2fcb43439",
+					"abbr": "CPV",
+					"subtype": "2b",
+					"pathogenType": "virus",
+					"isPinned": false
+				}
+			]
+		},
+		{
+			"id": "5c3f765a-bbc5-4b2d-8bc9-5ad22267f329",
+			"brandName": {
+				"ko": "포울샷",
+				"en": "PoulShot"
+			},
+			"productName": {
+				"ko": "가금 복합백신",
+				"en": "Poultry Combo"
+			},
+			"bottleImage": {
+				"ko": "images/vaccine-bottle/d022e088-2cb0-4a45-bc6d-aa22931909b3.png",
+				"en": "images/vaccine-bottle/ad567e0c-5311-4fbc-ba3b-aea7dc067517.png"
+			},
+			"logoImage": {
+				"ko": "images/vaccine-logo/0fc7bc0d-fa65-4d3c-b200-2c868213ccfe.png",
+				"en": "images/vaccine-logo/a5c4b8d2-f377-42ea-b22b-6d3226eb7bca.png"
+			},
+			"isEnabled": true,
+			"antigens": [
+				{
+					"id": "5b328dbf-df5e-4a54-bb26-fbe43bae6ecb",
+					"abbr": "ND",
+					"subtype": "VII",
+					"pathogenType": "virus",
+					"isPinned": true
+				},
+				{
+					"id": "6395d63d-5138-44d9-baf9-113e348ae0e8",
+					"abbr": "IB",
+					"subtype": "QX",
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "398601d1-8e7c-4419-8963-5047ab625989",
+					"abbr": "AI",
+					"subtype": "H9",
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "1f97ba37-b2f9-4621-a7b0-22777caf565f",
+					"abbr": "EDS",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				}
+			]
+		},
+		{
+			"id": "71a84346-e9b0-4cef-8ed1-2da6940103a4",
+			"brandName": {
+				"ko": "돈샷",
+				"en": "PorciShot"
+			},
+			"productName": {
+				"ko": "Vaccine D",
+				"en": "Vaccine D"
+			},
+			"bottleImage": {
+				"ko": "images/vaccine-bottle/86a931e9-9c86-4c3c-818f-984f303f1bac.png",
+				"en": "images/vaccine-bottle/1ed80df8-85fd-40c1-bbdb-0a0e4285490c.png"
+			},
+			"logoImage": {
+				"ko": "images/vaccine-logo/990de979-8332-409a-9ae4-93d7006f608a.png",
+				"en": "images/vaccine-logo/ab123f4b-4d8d-4bc7-a555-c0f01c2523b1.png"
+			},
+			"isEnabled": false,
+			"antigens": [
+				{
+					"id": "c8699084-94d2-4649-95ca-8650e0ae4b69",
+					"abbr": "PED",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "7176586e-9c9e-4461-9dd4-bde226fd7678",
+					"abbr": "TGE",
+					"subtype": "Purdue",
+					"pathogenType": "virus",
+					"isPinned": false
+				}
+			]
+		},
+		{
+			"id": "cd89ccc0-ab0e-4377-ba87-0a6f1ab15389",
+			"brandName": {
+				"ko": "아주긴브랜드이름테스트용",
+				"en": "VeryLongBrandNameForTest"
+			},
+			"productName": {
+				"ko": "Vaccine E 긴 제품명 줄바꿈 확인",
+				"en": "Vaccine E Long Product Name"
+			},
+			"bottleImage": {
+				"ko": "images/vaccine-bottle/7bc617dc-f8a0-44c3-93a1-add7fb8e28c4.png",
+				"en": "images/vaccine-bottle/c6714950-9d5b-4736-a34d-a073eb0435a7.png"
+			},
+			"logoImage": {
+				"ko": "images/vaccine-logo/d9dd7307-7000-40ba-93d9-d7a38f5045b0.png",
+				"en": "images/vaccine-logo/56d4c109-31a0-4aec-89f7-3fe0a4f1e511.png"
+			},
+			"isEnabled": false,
+			"antigens": [
+				{
+					"id": "7a0184fb-3dc6-425a-b16c-5c1a2089dc9e",
+					"abbr": "PRRSV",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": true
+				},
+				{
+					"id": "9ceca848-71fd-44bf-b82c-67b661b4d56e",
+					"abbr": "PCV",
+					"subtype": "2d",
+					"pathogenType": "virus",
+					"isPinned": false
+				},
+				{
+					"id": "0f40f802-65d3-4513-8642-327c7cf9916b",
+					"abbr": "MHP",
+					"subtype": null,
+					"pathogenType": "bacteria",
+					"isPinned": false
+				},
+				{
+					"id": "bd29fa51-b458-490a-b5fa-2f78e43aa6c0",
+					"abbr": "APP",
+					"subtype": null,
+					"pathogenType": "bacteria",
+					"isPinned": false
+				},
+				{
+					"id": "08985893-8aba-444d-bc20-7a1174352dab",
+					"abbr": "AD",
+					"subtype": null,
+					"pathogenType": "virus",
+					"isPinned": false
+				}
+			]
+		}
+	]
+}
