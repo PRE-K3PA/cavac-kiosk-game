@@ -3,6 +3,7 @@ import OptionButton from "@/components/admin/OptionButton";
 import SectionHeader from "@/components/admin/SectionHeader";
 import Select from "@/components/admin/Select";
 import Slider from "@/components/admin/Slider";
+import { SECTION_CARD_CLASS } from "@/components/admin/sectionCard";
 import { LIMITS } from "@/data/schema";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
 import { getHintDelayOptions, getHintWarning } from "@/features/admin/vaccineSettings";
@@ -22,9 +23,6 @@ const LAYOUT = {
 		sideColumn: "gap-6",
 	},
 } as const;
-
-const SECTION_CARD_CLASS =
-	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
 
 const HINT_OPTIONS = [
 	{ isEnabled: true, label: "ON", tone: "success" },

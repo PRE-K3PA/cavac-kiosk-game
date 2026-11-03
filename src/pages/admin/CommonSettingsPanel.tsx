@@ -3,6 +3,7 @@ import OptionButton from "@/components/admin/OptionButton";
 import SectionHeader from "@/components/admin/SectionHeader";
 import Select from "@/components/admin/Select";
 import Slider from "@/components/admin/Slider";
+import { SECTION_CARD_CLASS } from "@/components/admin/sectionCard";
 import { LIMITS } from "@/data/schema";
 import { getIdleSecondsOptions } from "@/features/admin/commonSettings";
 import { useSettingsDraft } from "@/features/admin/settingsDraft";
@@ -20,9 +21,6 @@ const LAYOUT = {
 		gameOption: "flex-1",
 	},
 } as const;
-
-const SECTION_CARD_CLASS =
-	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
 
 const VOLUME_ROWS = [
 	{ key: "bgmPercent", label: "배경음" },

@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import FieldMessage from "@/components/admin/FieldMessage";
 import PenaltyRow from "@/components/admin/PenaltyRow";
 import SectionHeader from "@/components/admin/SectionHeader";
+import { SECTION_CARD_CLASS } from "@/components/admin/sectionCard";
 import {
 	getPenaltyErrorMessage,
 	getPenaltyInputValue,
@@ -13,9 +14,6 @@ import {
 } from "@/features/admin/penaltySettings";
 import type { GameType, Penalty } from "@/types/data";
 import { cn } from "@/utils/cn";
-
-const SECTION_CARD_CLASS =
-	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
 
 type PenaltySectionProps = {
 	tone: GameType;
