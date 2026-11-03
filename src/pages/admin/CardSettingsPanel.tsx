@@ -3,6 +3,7 @@ import InlineNotice from "@/components/admin/InlineNotice";
 import OptionButton from "@/components/admin/OptionButton";
 import ProductRow from "@/components/admin/ProductRow";
 import SectionHeader from "@/components/admin/SectionHeader";
+import { SECTION_CARD_CLASS } from "@/components/admin/sectionCard";
 import { LIMITS } from "@/data/schema";
 import { getImageUrl } from "@/data/storage";
 import { getLimitNotice, getUsageNotice } from "@/features/admin/cardSettings";
@@ -35,9 +36,6 @@ const LAYOUT = {
 		pairOption: "flex-1",
 	},
 } as const;
-
-const SECTION_CARD_CLASS =
-	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
 
 type ProductOverlay = { type: "add" } | { type: "edit" | "delete"; slot: number };
 

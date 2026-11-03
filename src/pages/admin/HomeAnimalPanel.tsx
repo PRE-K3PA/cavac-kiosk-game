@@ -3,6 +3,7 @@ import AnimalPicker from "@/components/admin/AnimalPicker";
 import Button from "@/components/admin/Button";
 import HomeAnimalSlot from "@/components/admin/HomeAnimalSlot";
 import SectionHeader from "@/components/admin/SectionHeader";
+import { SECTION_CARD_CLASS } from "@/components/admin/sectionCard";
 import {
 	clearHomeAnimal,
 	findHomeAnimal,
@@ -84,12 +85,7 @@ export default function HomeAnimalPanel() {
 	}
 
 	return (
-		<section
-			className={cn(
-				"flex min-h-0 flex-col gap-3 rounded-2xl border-2 border-border-default",
-				"bg-background-surface p-5",
-				layout.panel,
-			)}>
+		<section className={cn(SECTION_CARD_CLASS, "min-h-0 flex-col gap-3", layout.panel)}>
 			<div className="flex shrink-0 items-center gap-3">
 				<SectionHeader title="축종 설정" className="flex-1" />
 				<Button

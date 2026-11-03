@@ -4,6 +4,7 @@ import AntigenRow from "@/components/admin/AntigenRow";
 import EmptyState from "@/components/admin/EmptyState";
 import InlineNotice from "@/components/admin/InlineNotice";
 import SectionHeader from "@/components/admin/SectionHeader";
+import { SECTION_CARD_CLASS } from "@/components/admin/sectionCard";
 import TextInput from "@/components/admin/TextInput";
 import VaccineRow from "@/components/admin/VaccineRow";
 import { LIMITS } from "@/data/schema";
@@ -38,9 +39,6 @@ import VaccineDeleteOverlay from "@/pages/admin/VaccineDeleteOverlay";
 import VaccineFormOverlay from "@/pages/admin/VaccineFormOverlay";
 import type { Antigen } from "@/types/data";
 import { cn } from "@/utils/cn";
-
-const SECTION_CARD_CLASS =
-	"flex rounded-2xl border-2 border-border-default bg-background-surface p-5";
 
 const SHOWN_QUERY_MAX_LENGTH = 20;
 
