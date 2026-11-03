@@ -25,7 +25,6 @@ const { default: VaccineSettingsPanel } = await import("@/pages/admin/VaccineSet
 
 const ORIENTATIONS = ["landscape", "portrait"] as const satisfies readonly Orientation[];
 
-// 관리자 설정 화면의 섹션은 모두 같은 카드 모양(흰 바탕, 테두리, 둥근 모서리, 안쪽 여백)입니다
 const SECTION_CARD_CLASSES = [
 	"flex",
 	"rounded-2xl",
@@ -35,7 +34,6 @@ const SECTION_CARD_CLASSES = [
 	"p-5",
 ];
 
-// 축종 설정은 섹션 하나가 패널 전체라서 카드 모양에 세로 쌓기와 화면 방향별 패널 크기가 붙습니다
 const HOME_ANIMAL_SECTION_CLASSES: Record<Orientation, string[]> = {
 	landscape: [...SECTION_CARD_CLASSES, "min-h-0", "flex-col", "gap-3", "max-h-full", "w-192"],
 	portrait: [...SECTION_CARD_CLASSES, "min-h-0", "flex-col", "gap-3", "w-full"],
@@ -92,8 +90,8 @@ for (const { name, panel, sectionTitles } of PANELS) {
 		for (const orientation of ORIENTATIONS) {
 			test(`${ORIENTATION_LABEL[orientation]} 화면에서 섹션이 모두 섹션 카드 모양이다`, () => {
 				renderPanel(panel, orientation);
-				// 카드 모양이 아닌 섹션은 제목이 빠져서 실패 메시지에 드러납니다
-				expect(sectionTitles.filter(hasSectionCardLook)).toEqual(sectionTitles);
+				const cardSectionTitles = sectionTitles.filter(hasSectionCardLook);
+				expect(cardSectionTitles).toEqual(sectionTitles);
 			});
 		}
 	});
