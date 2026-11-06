@@ -118,32 +118,21 @@ describe("정답 항원 힌트", () => {
 		expect(getSettings().hint.delaySeconds).toBe(10);
 	});
 
-	test("힌트 시간이 공통 설정의 제한 시간보다 길면 경고 문구를 보여 준다", () => {
-		// setVaccineSettings 는 common 을 포함한 초안 전체를 초기값으로 되돌리므로, 제한 시간은 그 뒤에 바꿉니다
-		setVaccineSettings({ hint: { isEnabled: true, delaySeconds: 30 } });
+	test("고른 힌트 시간이 공통 설정 초안의 제한 시간보다 길면 경고 문구를 보여 준다", () => {
 		setPlayDurationSeconds(20);
 		render(<VaccineSettingsPanel />);
+		expect(screen.queryByRole("status")).toBeNull();
+
+		fireEvent.click(screen.getByRole("button", { name: "힌트 시간" }));
+		fireEvent.click(screen.getByRole("button", { name: "30초" }));
 
 		expect(screen.getByRole("status").textContent).toBe(
 			"제한 시간(20초) 안에 힌트가 나오지 않습니다.",
 		);
 	});
-
-	test("힌트 시간이 제한 시간보다 짧으면 경고가 없다", () => {
-		setVaccineSettings({ hint: { isEnabled: true, delaySeconds: 5 } });
-		setPlayDurationSeconds(60);
-		render(<VaccineSettingsPanel />);
-
-		expect(screen.queryByRole("status")).toBeNull();
-	});
 });
 
 describe("오답 패널티", () => {
-	beforeEach(() => {
-		// 패널티 범위 오류가 힌트 경고와 겹치지 않게 공통 제한 시간을 넉넉히 둡니다
-		setPlayDurationSeconds(60);
-	});
-
 	test("체크를 바꾸면 초안에 반영된다", () => {
 		render(<VaccineSettingsPanel />);
 		const scoreCheckbox = screen.getByRole<HTMLInputElement>("checkbox", { name: "점수 차감" });
@@ -167,9 +156,27 @@ describe("오답 패널티", () => {
 		render(<VaccineSettingsPanel />);
 		const timeInput = screen.getByRole("textbox", { name: "시간 차감" });
 
-		fireEvent.change(timeInput, { target: { value: "0" } });
+		fireEvent.change(timeInput, { target: { value: "31" } });
 
+		expect(getSettings().penalty.time.seconds).toBe(31);
+		expect(screen.getByRole("status").textContent).toBe("1~30초 사이로 입력해 주세요.");
+	});
+
+	test("값을 비운 채 체크를 끄면 설정 파일(원본)의 값으로 되돌린다", () => {
+		setVaccineSettings({
+			penalty: {
+				time: { isEnabled: true, seconds: 7 },
+				score: { isEnabled: false, points: 50 },
+			},
+		});
+		render(<VaccineSettingsPanel />);
+
+		fireEvent.change(screen.getByRole("textbox", { name: "시간 차감" }), {
+			target: { value: "" },
+		});
 		expect(getSettings().penalty.time.seconds).toBe(0);
-		expect(screen.getByRole("status").textContent).toBe("패널티 값을 입력해 주세요.");
+		fireEvent.click(screen.getByRole("checkbox", { name: "시간 차감" }));
+
+		expect(getSettings().penalty.time).toEqual({ isEnabled: false, seconds: 7 });
 	});
 });
