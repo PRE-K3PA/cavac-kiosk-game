@@ -142,6 +142,18 @@ describe("백신 목록", () => {
 		expect(screen.getByText("검색 결과가 없습니다")).toBeTruthy();
 		expect(screen.getByText("'없는 백신'에 맞는 백신이 없습니다.")).toBeTruthy();
 	});
+
+	test("검색어는 20자까지 그대로, 넘으면 앞 20자에 '…' 를 붙여 안내한다", () => {
+		renderSection();
+		const search = screen.getByRole("textbox", { name: "백신 검색" });
+		const twentyChars = "abcdefghijklmnopqrst";
+
+		fireEvent.change(search, { target: { value: twentyChars } });
+		expect(screen.getByText(`'${twentyChars}'에 맞는 백신이 없습니다.`)).toBeTruthy();
+
+		fireEvent.change(search, { target: { value: `${twentyChars}uvwxyz` } });
+		expect(screen.getByText(`'${twentyChars}…'에 맞는 백신이 없습니다.`)).toBeTruthy();
+	});
 });
 
 describe("백신 사용 체크", () => {
