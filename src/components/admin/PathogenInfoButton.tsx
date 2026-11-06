@@ -24,12 +24,13 @@ export default function PathogenInfoButton({ antigenName }: PathogenInfoButtonPr
 	function subscribeTooltipDismiss() {
 		if (!isTooltipOpen) return;
 
-		function handleDocumentPointerDown(event: PointerEvent) {
-			if (!infoRef.current?.contains(event.target as Node)) setIsTooltipOpen(false);
+		function handleDocumentPointerDown({ target }: PointerEvent) {
+			if (target instanceof Node && infoRef.current?.contains(target)) return;
+			setIsTooltipOpen(false);
 		}
 
-		function handleDocumentClick(event: MouseEvent) {
-			if (tooltipRef.current?.contains(event.target as Node)) setIsTooltipOpen(false);
+		function handleDocumentClick({ target }: MouseEvent) {
+			if (target instanceof Node && tooltipRef.current?.contains(target)) setIsTooltipOpen(false);
 		}
 
 		function unsubscribe() {
@@ -45,7 +46,7 @@ export default function PathogenInfoButton({ antigenName }: PathogenInfoButtonPr
 	useEffect(subscribeTooltipDismiss, [isTooltipOpen]);
 
 	function handleInfoClick() {
-		setIsTooltipOpen(!isTooltipOpen);
+		setIsTooltipOpen((isOpen) => !isOpen);
 	}
 
 	return (
