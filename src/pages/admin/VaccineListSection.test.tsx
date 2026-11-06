@@ -189,16 +189,35 @@ describe("항원 편집", () => {
 		expect(getVaccine("circo").antigens).toHaveLength(3);
 	});
 
-	test("약어를 입력하고 완료하면 앞뒤 공백을 뺀 값이 초안에 남고 수정이 끝난다", () => {
+	test("약어·세부 타입·세균을 고치고 완료하면 앞뒤 공백을 뺀 값이 초안에 남고 수정이 끝난다", () => {
 		renderSection();
 		addAntigenToCirco();
 
 		typeAbbr("새 항원", " APP ");
-		fireEvent.click(getAntigenRow("APP").getByRole("button", { name: "완료" }));
+		const subtype = getAntigenRow("APP").getByRole("textbox", { name: "세부 타입" });
+		fireEvent.change(subtype, { target: { value: " 2 " } });
+		fireEvent.click(screen.getByRole("checkbox", { name: "APP 2 세균" }));
+		fireEvent.click(getAntigenRow("APP 2").getByRole("button", { name: "완료" }));
 
-		expect(getVaccine("circo").antigens.at(-1)).toMatchObject({ abbr: "APP", subtype: null });
+		expect(getVaccine("circo").antigens.at(-1)).toMatchObject({
+			abbr: "APP",
+			subtype: "2",
+			pathogenType: "bacteria",
+		});
 		expect(screen.queryByRole("textbox", { name: "약어" })).toBeNull();
 		expect(useSettingsDraft.getState().antigenEditing).toBeNull();
+	});
+
+	test("세부 타입을 모두 지우면 빈 글자가 아니라 null 로 남는다", () => {
+		renderSection();
+		addAntigenToCirco();
+		typeAbbr("새 항원", "APP");
+		const subtype = getAntigenRow("APP").getByRole("textbox", { name: "세부 타입" });
+
+		fireEvent.change(subtype, { target: { value: "2" } });
+		fireEvent.change(subtype, { target: { value: "" } });
+
+		expect(getVaccine("circo").antigens.at(-1)?.subtype).toBeNull();
 	});
 
 	test("있던 항원의 약어를 지우면 오류 문구를 보여 주고 완료를 막는다", () => {
@@ -236,11 +255,17 @@ describe("항원 편집", () => {
 		for (const name of ["M.hyo 고정", "수정", "삭제"]) {
 			expect(otherRow.getByRole<HTMLButtonElement>("button", { name }).disabled).toBe(true);
 		}
+		expect(otherRow.getByRole<HTMLInputElement>("checkbox", { name: "M.hyo 세균" }).disabled).toBe(
+			true,
+		);
 
 		const editingRow = getAntigenRow("PCV2");
 		for (const name of ["PCV2 고정", "완료", "삭제"]) {
 			expect(editingRow.getByRole<HTMLButtonElement>("button", { name }).disabled).toBe(false);
 		}
+		expect(editingRow.getByRole<HTMLInputElement>("checkbox", { name: "PCV2 세균" }).disabled).toBe(
+			false,
+		);
 	});
 });
 
