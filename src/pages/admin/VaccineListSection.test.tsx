@@ -45,10 +45,15 @@ const FLU = createVaccine("flu", "플루백", {
 	antigens: [createAntigen("h9n2", "H9N2")],
 });
 
+function resetSettingsDraft() {
+	useSettingsDraft.setState(useSettingsDraft.getInitialState(), true);
+}
+
 function setVaccines(vaccines: Vaccine[]) {
-	const { draft } = useSettingsDraft.getState();
+	const initialState = useSettingsDraft.getInitialState();
+	const { draft } = initialState;
 	const data = { ...draft, "vaccine-game": { ...draft["vaccine-game"], vaccines } };
-	useSettingsDraft.setState({ original: data, draft: data, antigenEditing: null });
+	useSettingsDraft.setState({ ...initialState, original: data, draft: data }, true);
 }
 
 function getVaccines() {
@@ -108,7 +113,10 @@ beforeEach(() => {
 	setVaccines([CIRCO, FLU]);
 });
 
-afterEach(cleanup);
+afterEach(() => {
+	cleanup();
+	resetSettingsDraft();
+});
 
 describe("백신 목록", () => {
 	test("등록된 백신이 없으면 빈 목록 안내를 보여 준다", () => {
@@ -176,6 +184,15 @@ describe("항원 편집", () => {
 		fireEvent.click(toggle);
 		expect(toggle.getAttribute("aria-expanded")).toBe("false");
 		expect(screen.queryByRole("button", { name: "PCV2 고정" })).toBeNull();
+	});
+
+	test("수정 중이 아닌 항원 행은 세균 체크를 보여 주기만 하고 바꿀 수 없다", () => {
+		renderSection();
+		expandCirco();
+
+		const checkbox = screen.getByRole<HTMLInputElement>("checkbox", { name: "M.hyo 세균" });
+		expect(checkbox.checked).toBe(true);
+		expect(checkbox.disabled).toBe(true);
 	});
 
 	test("'+ 항원 추가'를 누르면 새 행이 수정 중으로 열리고, 오류 문구 없이 완료만 막힌다", () => {
@@ -255,9 +272,6 @@ describe("항원 편집", () => {
 		for (const name of ["M.hyo 고정", "수정", "삭제"]) {
 			expect(otherRow.getByRole<HTMLButtonElement>("button", { name }).disabled).toBe(true);
 		}
-		expect(otherRow.getByRole<HTMLInputElement>("checkbox", { name: "M.hyo 세균" }).disabled).toBe(
-			true,
-		);
 
 		const editingRow = getAntigenRow("PCV2");
 		for (const name of ["PCV2 고정", "완료", "삭제"]) {
@@ -270,14 +284,18 @@ describe("항원 편집", () => {
 });
 
 describe("항원 고정", () => {
-	test("고정을 누르면 초안의 고정이 바뀐다", () => {
+	test("고정을 누르면 초안의 고정이 풀리고, 다시 누르면 고정된다", () => {
 		renderSection();
 		expandCirco();
+		expect(getButton("PCV2 고정").getAttribute("aria-pressed")).toBe("true");
 
 		fireEvent.click(getButton("PCV2 고정"));
-
 		expect(getVaccine("circo").antigens[0].isPinned).toBe(false);
 		expect(getButton("PCV2 고정").getAttribute("aria-pressed")).toBe("false");
+
+		fireEvent.click(getButton("PCV2 고정"));
+		expect(getVaccine("circo").antigens[0].isPinned).toBe(true);
+		expect(getButton("PCV2 고정").getAttribute("aria-pressed")).toBe("true");
 	});
 
 	test("모든 항원이 고정되는 고정은 거절하고 안내를 보여 준다", () => {
