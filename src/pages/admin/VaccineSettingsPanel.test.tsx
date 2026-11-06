@@ -53,10 +53,6 @@ function getSettings() {
 	return useSettingsDraft.getState().draft["vaccine-game"].settings;
 }
 
-function getSlider(name: string) {
-	return screen.getByRole("slider", { name });
-}
-
 beforeEach(() => {
 	setVaccineSettings({});
 });
@@ -69,7 +65,7 @@ afterEach(() => {
 describe("항원 낙하 속도", () => {
 	test("슬라이더를 바꾸면 초안에 반영된다", () => {
 		render(<VaccineSettingsPanel />);
-		const slider = getSlider("항원 낙하 속도");
+		const slider = screen.getByRole("slider", { name: "항원 낙하 속도" });
 		expect(slider.getAttribute("aria-valuenow")).toBe("100");
 
 		fireEvent.keyDown(slider, { key: "ArrowRight" });
@@ -84,7 +80,7 @@ describe("항원 낙하 속도", () => {
 describe("동시 등장 항원 수", () => {
 	test("슬라이더를 바꾸면 초안에 반영되고 다른 설정은 그대로 둔다", () => {
 		render(<VaccineSettingsPanel />);
-		const slider = getSlider("동시 등장 항원 수");
+		const slider = screen.getByRole("slider", { name: "동시 등장 항원 수" });
 		expect(slider.getAttribute("aria-valuenow")).toBe("7");
 
 		fireEvent.keyDown(slider, { key: "ArrowRight" });

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import * as storage from "@/data/storage";
-import type { ImageKind, ImageResult, Localized, Vaccine } from "@/types/data";
+import type { ImageKind, ImageResult, Vaccine } from "@/types/data";
 
 const postImage = mock<(kind: ImageKind) => Promise<ImageResult>>();
 
@@ -62,11 +62,6 @@ function getVaccine(vaccineId: string) {
 	return vaccine;
 }
 
-function toWithin(element: Element | null | undefined, name: string) {
-	if (!(element instanceof HTMLElement)) throw new Error(`${name} 을(를) 찾을 수 없습니다`);
-	return within(element);
-}
-
 function getButton(name: string) {
 	return screen.getByRole<HTMLButtonElement>("button", { name });
 }
@@ -78,7 +73,9 @@ function getImageSelectButtons() {
 
 /** "파일 선택" 버튼이 든 사진 칸. 왼쪽에 고른 사진, 버튼 아래에 오류 문구가 있습니다 */
 function getImageField(selectButton: HTMLElement) {
-	return toWithin(selectButton.parentElement?.parentElement, "사진 칸");
+	const field = selectButton.parentElement?.parentElement;
+	if (!field) throw new Error("사진 칸을 찾을 수 없습니다");
+	return within(field);
 }
 
 /** 고르는 동안 누른 다른 칸은 무시되므로, 한 칸이 미리보기까지 끝난 뒤 다음 칸을 누릅니다 */
@@ -100,18 +97,15 @@ async function clickAndSettle(button: HTMLElement) {
 	});
 }
 
-function fillName(name: Localized<string>, field: "브랜드명" | "제품명") {
-	fireEvent.change(screen.getByRole("textbox", { name: `KR ${field}` }), {
-		target: { value: name.ko },
-	});
-	fireEvent.change(screen.getByRole("textbox", { name: `EN ${field}` }), {
-		target: { value: name.en },
-	});
+function typeText(name: string, value: string) {
+	fireEvent.change(screen.getByRole("textbox", { name }), { target: { value } });
 }
 
 function fillValidName() {
-	fillName({ ko: "포울샷", en: "Fowlshot" }, "브랜드명");
-	fillName({ ko: "5280 ABBNE", en: "5280 ABBNE" }, "제품명");
+	typeText("KR 브랜드명", "포울샷");
+	typeText("EN 브랜드명", "Fowlshot");
+	typeText("KR 제품명", "5280 ABBNE");
+	typeText("EN 제품명", "5280 ABBNE");
 }
 
 const onCancel = mock<() => void>();
@@ -151,9 +145,7 @@ describe("백신 추가", () => {
 		await selectImages(PICKED_PATHS);
 		expect(getButton("확인").disabled).toBe(false);
 
-		fireEvent.change(screen.getByRole("textbox", { name: "KR 브랜드명" }), {
-			target: { value: "" },
-		});
+		typeText("KR 브랜드명", "");
 		expect(getButton("확인").disabled).toBe(true);
 	});
 
@@ -252,9 +244,7 @@ describe("백신 수정", () => {
 		setVaccines([EXISTING, OTHER]);
 		renderEdit(EXISTING);
 
-		fireEvent.change(screen.getByRole("textbox", { name: "KR 브랜드명" }), {
-			target: { value: "새이름" },
-		});
+		typeText("KR 브랜드명", "새이름");
 		fireEvent.click(getButton("확인"));
 
 		expect(getVaccine(EXISTING.id)).toEqual({
