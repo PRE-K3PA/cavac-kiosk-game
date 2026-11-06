@@ -1,17 +1,18 @@
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import * as storage from "@/data/storage";
-import { IMAGE_ERROR_MESSAGES } from "@/features/admin/imageUpload";
-import type { ImageKind, ImageResult, Vaccine } from "@/types/data";
+import type { ImageKind, ImageResult, Localized, Vaccine } from "@/types/data";
+
+const postImage = mock<(kind: ImageKind) => Promise<ImageResult>>();
 
 // Bun 의 mock.module 은 같이 실행되는 다른 테스트 파일에도 적용되므로 나머지 export 를 보존합니다
-const postImage = mock<(kind: ImageKind) => Promise<ImageResult>>();
 mock.module("@/data/storage", () => ({
 	...storage,
 	getImageUrl: (path: string) => `file://${path}`,
 	postImage,
 }));
 
+const { IMAGE_ERROR_MESSAGES } = await import("@/features/admin/imageUpload");
 const { useSettingsDraft } = await import("@/features/admin/settingsDraft");
 const { default: VaccineFormOverlay } = await import("@/pages/admin/VaccineFormOverlay");
 
@@ -28,11 +29,17 @@ function createVaccine(id: string, overrides: Partial<Vaccine> = {}): Vaccine {
 	};
 }
 
+// 수정이 이름·사진만 바꾸고 사용 여부·항원은 그대로 두는지 보려고 기본값과 다르게 채웁니다
 const EXISTING = createVaccine("circo", {
 	brandName: { ko: "써코컴", en: "CircoComb" },
 	productName: { ko: "써코백", en: "Circovac" },
+	isEnabled: false,
+	antigens: [{ id: "pcv2", abbr: "PCV2", subtype: null, pathogenType: "virus", isPinned: true }],
 });
 const OTHER = createVaccine("flu", { productName: { ko: "플루백", en: "Fluvac" } });
+
+/** 백신 이미지 KR·EN, 백신 로고 KR·EN 칸에 차례로 고를 경로 */
+const PICKED_PATHS = ["bottle-ko.png", "bottle-en.png", "logo-ko.png", "logo-en.png"];
 
 function resetSettingsDraft() {
 	useSettingsDraft.setState(useSettingsDraft.getInitialState(), true);
@@ -55,16 +62,45 @@ function getVaccine(vaccineId: string) {
 	return vaccine;
 }
 
+function toWithin(element: Element | null | undefined, name: string) {
+	if (!(element instanceof HTMLElement)) throw new Error(`${name} 을(를) 찾을 수 없습니다`);
+	return within(element);
+}
+
 function getButton(name: string) {
 	return screen.getByRole<HTMLButtonElement>("button", { name });
 }
 
-/** 백신 이미지(KR·EN), 백신 로고(KR·EN) 순서로 그려지는 "파일 선택" 버튼 */
+/** 백신 이미지 KR·EN, 백신 로고 KR·EN 순서로 그려지는 "파일 선택" 버튼 */
 function getImageSelectButtons() {
 	return screen.getAllByRole("button", { name: "파일 선택" });
 }
 
-function fillName(name: { ko: string; en: string }, field: "브랜드명" | "제품명") {
+/** "파일 선택" 버튼이 든 사진 칸. 왼쪽에 고른 사진, 버튼 아래에 오류 문구가 있습니다 */
+function getImageField(selectButton: HTMLElement) {
+	return toWithin(selectButton.parentElement?.parentElement, "사진 칸");
+}
+
+/** 고르는 동안 누른 다른 칸은 무시되므로, 한 칸이 미리보기까지 끝난 뒤 다음 칸을 누릅니다 */
+async function selectImages(paths: string[]) {
+	const buttons = getImageSelectButtons();
+	for (const [index, path] of paths.entries()) {
+		postImage.mockResolvedValueOnce({ status: "ok", path });
+		fireEvent.click(buttons[index]);
+		await waitFor(() =>
+			expect(screen.getAllByRole("button", { name: "미리보기" })).toHaveLength(index + 1),
+		);
+	}
+}
+
+/** 취소처럼 끝나도 화면이 바뀌지 않는 고르기는 act 로 비동기 처리가 끝날 때까지 기다립니다 */
+async function clickAndSettle(button: HTMLElement) {
+	await act(async () => {
+		fireEvent.click(button);
+	});
+}
+
+function fillName(name: Localized<string>, field: "브랜드명" | "제품명") {
 	fireEvent.change(screen.getByRole("textbox", { name: `KR ${field}` }), {
 		target: { value: name.ko },
 	});
@@ -112,66 +148,51 @@ describe("백신 추가", () => {
 		fillValidName();
 		expect(getButton("확인").disabled).toBe(true);
 
-		postImage.mockResolvedValue({ status: "ok", path: "picked.png" });
-		for (const button of getImageSelectButtons()) {
-			fireEvent.click(button);
-			await waitFor(() => expect(getButton("확인").disabled).not.toBeUndefined());
+		await selectImages(PICKED_PATHS);
+		expect(getButton("확인").disabled).toBe(false);
+
+		fireEvent.change(screen.getByRole("textbox", { name: "KR 브랜드명" }), {
+			target: { value: "" },
+		});
+		expect(getButton("확인").disabled).toBe(true);
+	});
+
+	test("사진 고르기를 취소하면 그 칸은 비어 있고, 다시 눌러 고를 수 있다", async () => {
+		renderAdd();
+		const [bottleKo] = getImageSelectButtons();
+
+		postImage.mockResolvedValueOnce({ status: "cancel" });
+		await clickAndSettle(bottleKo);
+		expect(screen.queryByRole("button", { name: "미리보기" })).toBeNull();
+
+		postImage.mockResolvedValueOnce({ status: "ok", path: "bottle-ko.png" });
+		fireEvent.click(bottleKo);
+		expect(await getImageField(bottleKo).findByRole("button", { name: "미리보기" })).toBeTruthy();
+	});
+
+	test("사진 고르기가 실패하면 누른 칸에만 오류 문구를 보여 주고, 다시 눌러 고를 수 있다", async () => {
+		renderAdd();
+		const [bottleKo, ...otherButtons] = getImageSelectButtons();
+
+		postImage.mockResolvedValueOnce({ status: "error", reason: "size" });
+		fireEvent.click(bottleKo);
+
+		expect(await getImageField(bottleKo).findByText(IMAGE_ERROR_MESSAGES.size)).toBeTruthy();
+		for (const button of otherButtons) {
+			expect(getImageField(button).queryByText(IMAGE_ERROR_MESSAGES.size)).toBeNull();
 		}
 
-		await waitFor(() => expect(getButton("확인").disabled).toBe(false));
-	});
-
-	test("사진 고르기를 취소하면 그 칸은 비어 있고 확인은 막힌 채로 남는다", async () => {
-		renderAdd();
-		fillValidName();
-		postImage.mockResolvedValue({ status: "cancel" });
-
-		fireEvent.click(getImageSelectButtons()[0]);
-
-		await waitFor(() => expect(postImage).toHaveBeenCalledTimes(1));
-		expect(screen.queryByRole("button", { name: "미리보기" })).toBeNull();
-		expect(getButton("확인").disabled).toBe(true);
-	});
-
-	test("사진 고르기가 실패하면 그 칸에만 오류 문구를 보여 준다", async () => {
-		renderAdd();
-		fillValidName();
-		postImage.mockResolvedValue({ status: "error", reason: "size" });
-
-		fireEvent.click(getImageSelectButtons()[0]);
-
-		await screen.findByText(IMAGE_ERROR_MESSAGES.size);
-		expect(getButton("확인").disabled).toBe(true);
+		postImage.mockResolvedValueOnce({ status: "ok", path: "bottle-ko.png" });
+		fireEvent.click(bottleKo);
+		expect(await getImageField(bottleKo).findByRole("button", { name: "미리보기" })).toBeTruthy();
+		expect(screen.queryByText(IMAGE_ERROR_MESSAGES.size)).toBeNull();
 	});
 
 	test("확인을 누르면 초안 끝에 새 백신이 들어가고 onAdded 가 새 id 를 받는다", async () => {
 		setVaccines([OTHER]);
 		renderAdd();
 		fillValidName();
-
-		postImage
-			.mockResolvedValueOnce({ status: "ok", path: "bottle-ko.png" })
-			.mockResolvedValueOnce({ status: "ok", path: "bottle-en.png" })
-			.mockResolvedValueOnce({ status: "ok", path: "logo-ko.png" })
-			.mockResolvedValueOnce({ status: "ok", path: "logo-en.png" });
-
-		const [bottleKo, bottleEn, logoKo, logoEn] = getImageSelectButtons();
-		fireEvent.click(bottleKo);
-		await waitFor(() =>
-			expect(screen.getAllByRole("button", { name: "미리보기" })).toHaveLength(1),
-		);
-		fireEvent.click(bottleEn);
-		await waitFor(() =>
-			expect(screen.getAllByRole("button", { name: "미리보기" })).toHaveLength(2),
-		);
-		fireEvent.click(logoKo);
-		await waitFor(() =>
-			expect(screen.getAllByRole("button", { name: "미리보기" })).toHaveLength(3),
-		);
-		fireEvent.click(logoEn);
-		await waitFor(() =>
-			expect(screen.getAllByRole("button", { name: "미리보기" })).toHaveLength(4),
-		);
+		await selectImages(PICKED_PATHS);
 
 		fireEvent.click(getButton("확인"));
 
@@ -196,6 +217,8 @@ describe("백신 추가", () => {
 
 		expect(getVaccines()).toEqual([OTHER]);
 		expect(onCancel).toHaveBeenCalledTimes(1);
+		expect(onDone).not.toHaveBeenCalled();
+		expect(onAdded).not.toHaveBeenCalled();
 	});
 
 	test("add 모드에는 삭제 버튼이 없다", () => {
@@ -225,7 +248,7 @@ describe("백신 수정", () => {
 		expect(getButton("삭제")).toBeTruthy();
 	});
 
-	test("이름을 고치고 확인하면 그 백신만 갱신되고 onDone 이 불린다", () => {
+	test("이름을 고치고 확인하면 그 백신의 이름만 바뀌고 onDone 이 불린다", () => {
 		setVaccines([EXISTING, OTHER]);
 		renderEdit(EXISTING);
 
@@ -234,10 +257,49 @@ describe("백신 수정", () => {
 		});
 		fireEvent.click(getButton("확인"));
 
-		expect(getVaccine(EXISTING.id).brandName.ko).toBe("새이름");
+		expect(getVaccine(EXISTING.id)).toEqual({
+			...EXISTING,
+			brandName: { ...EXISTING.brandName, ko: "새이름" },
+		});
 		expect(getVaccine(OTHER.id)).toEqual(OTHER);
 		expect(onDone).toHaveBeenCalledTimes(1);
 		expect(onAdded).not.toHaveBeenCalled();
+	});
+
+	test("사진 한 칸만 새로 고르고 확인하면 그 칸만 바뀐다", async () => {
+		setVaccines([EXISTING]);
+		renderEdit(EXISTING);
+		const [bottleKo] = getImageSelectButtons();
+
+		postImage.mockResolvedValueOnce({ status: "ok", path: "new-bottle-ko.png" });
+		fireEvent.click(bottleKo);
+		await waitFor(() =>
+			expect(getImageField(bottleKo).getByRole("presentation").getAttribute("src")).toBe(
+				"file://new-bottle-ko.png",
+			),
+		);
+		fireEvent.click(getButton("확인"));
+
+		expect(getVaccine(EXISTING.id)).toEqual({
+			...EXISTING,
+			bottleImage: { ko: "new-bottle-ko.png", en: EXISTING.bottleImage.en },
+		});
+		expect(onDone).toHaveBeenCalledTimes(1);
+	});
+
+	test("이름에 공백만 넣으면 그 칸에 오류 문구를 이어 붙이고 확인을 막는다", () => {
+		setVaccines([EXISTING]);
+		renderEdit(EXISTING);
+		const input = screen.getByRole("textbox", { name: "KR 브랜드명" });
+
+		fireEvent.change(input, { target: { value: "  " } });
+
+		const messageId = input.getAttribute("aria-describedby") ?? "";
+		expect(input.getAttribute("aria-invalid")).toBe("true");
+		expect(document.getElementById(messageId)?.textContent).toBe(
+			"KR 브랜드명: 공백만 입력할 수 없습니다.",
+		);
+		expect(getButton("확인").disabled).toBe(true);
 	});
 
 	test("삭제를 누르면 삭제 확인 창이 열리고, 취소하면 폼으로 돌아간다", () => {

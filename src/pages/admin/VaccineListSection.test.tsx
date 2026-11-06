@@ -383,15 +383,7 @@ describe("백신 추가·수정 창", () => {
 		expect(screen.getAllByRole("button", { name: "미리보기" })).toHaveLength(4);
 	});
 
-	test("이름이 비어 있거나 사진이 없으면 확인이 막힌다", () => {
-		renderSection();
-
-		fireEvent.click(getButton("+ 새 백신 추가"));
-
-		expect(getButton("확인").disabled).toBe(true);
-	});
-
-	test("추가를 확정하면 초안 끝에 백신이 들어가고, 검색이 풀리고, 그 백신이 펼쳐져 '+ 항원 추가' 가 바로 보인다", async () => {
+	test("추가를 확정하면 초안 끝에 백신이 들어가고, 검색이 풀리고, 그 백신이 펼쳐진다", async () => {
 		renderSection();
 		fireEvent.change(screen.getByRole("textbox", { name: "백신 검색" }), {
 			target: { value: "플루" },
@@ -410,7 +402,7 @@ describe("백신 추가·수정 창", () => {
 		fireEvent.change(screen.getByRole("textbox", { name: "EN 제품명" }), {
 			target: { value: "Newvac" },
 		});
-		// 한 번에 다 누르면 "고르는 중" 잠금이 서로 겹치므로, 하나씩 끝난 뒤 다음을 누릅니다
+		// 고르는 동안 누른 다른 칸은 무시되므로, 한 칸이 끝난 뒤 다음을 누릅니다
 		postImage.mockResolvedValue({ status: "ok", path: "picked.png" });
 		const imageButtons = screen.getAllByRole("button", { name: "파일 선택" });
 		for (const [index, button] of imageButtons.entries()) {
@@ -424,9 +416,13 @@ describe("백신 추가·수정 창", () => {
 
 		expect(screen.queryByRole("heading", { name: "백신 추가" })).toBeNull();
 		expect(screen.getByRole<HTMLInputElement>("textbox", { name: "백신 검색" }).value).toBe("");
-		expect(getVaccines()).toHaveLength(3);
-		expect(screen.getByRole("checkbox", { name: "뉴백 사용" })).toBeTruthy();
-		expect(screen.getByRole("button", { name: "+ 항원 추가" })).toBeTruthy();
+		expect(getVaccines().map(({ productName }) => productName.ko)).toEqual([
+			"써코백",
+			"플루백",
+			"뉴백",
+		]);
+		const toggle = getVaccineHeader("뉴백").getByRole("button", { name: "항원 0개" });
+		expect(toggle.getAttribute("aria-expanded")).toBe("true");
 	});
 
 	test("수정을 확정하면 그 백신만 갱신되고 창이 닫힌다", () => {
@@ -439,7 +435,10 @@ describe("백신 추가·수정 창", () => {
 		fireEvent.click(getButton("확인"));
 
 		expect(screen.queryByRole("heading", { name: "백신 수정" })).toBeNull();
-		expect(getVaccine("circo").brandName.ko).toBe("새브랜드");
+		expect(getVaccine("circo")).toEqual({
+			...CIRCO,
+			brandName: { ...CIRCO.brandName, ko: "새브랜드" },
+		});
 		expect(getVaccine("flu")).toEqual(FLU);
 	});
 
@@ -456,15 +455,17 @@ describe("백신 추가·수정 창", () => {
 		expect(getVaccine("circo")).toEqual(CIRCO);
 	});
 
-	test("수정 창의 삭제는 삭제 확인 창으로 이어진다", () => {
+	test("수정 창에서 삭제를 확정하면 창이 모두 닫히고 그 백신이 목록과 초안에서 빠진다", () => {
 		renderSection();
 		fireEvent.click(getVaccineHeader("써코백").getByRole("button", { name: "수정" }));
 
 		const formDialog = screen.getAllByRole("dialog")[0];
 		fireEvent.click(within(formDialog).getByRole("button", { name: "삭제" }));
+		const confirmDialog = screen.getAllByRole("dialog")[1];
+		fireEvent.click(within(confirmDialog).getByRole("button", { name: "삭제" }));
 
-		const dialogs = screen.getAllByRole("dialog");
-		expect(dialogs).toHaveLength(2);
-		expect(within(dialogs[1]).getByText(CIRCO.productName.ko)).toBeTruthy();
+		expect(screen.queryAllByRole("dialog")).toHaveLength(0);
+		expect(screen.queryByRole("checkbox", { name: "써코백 사용" })).toBeNull();
+		expect(getVaccines().map(({ id }) => id)).toEqual(["flu"]);
 	});
 });
