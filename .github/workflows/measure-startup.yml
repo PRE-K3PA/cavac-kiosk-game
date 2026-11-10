@@ -1,6 +1,7 @@
 name: measure-startup
 
-# 이슈 #205: Portable exe 를 설정 조합별로 빌드해서, 프로그램 창이 뜰 때까지 걸리는 시간을 Windows 러너에서 잽니다
+# 이슈 #205: 바꾸기 전(develop)과 이 브랜치 설정으로 Portable exe 를 빌드해서, 프로그램 창이 뜰 때까지
+# 걸리는 시간을 Windows 러너에서 비교합니다
 on:
   push:
     branches: ["#205-fix-exe-startup-time"]
@@ -31,15 +32,24 @@ jobs:
           if ($line -notmatch "^MASTER_PIN_HASH=scrypt:") { throw "해시를 만들지 못했습니다" }
           Add-Content -Path $env:GITHUB_ENV -Value $line
 
-      - name: 설정 조합별 Portable exe 빌드
+      - name: 바꾸기 전·후 Portable exe 빌드
         shell: pwsh
         run: ./.github/scripts/build-portable-variants.ps1 -OutRoot release-variants
+
+      # 실제 Windows PC 에서 시작 시간을 재 볼 수 있게 올립니다. 측정용 PIN 해시로 빌드해서
+      # 마스터 PIN 은 동작하지 않으므로 배포에 쓰지 않습니다
+      - name: 실제 Windows 테스트용 Portable exe 올리기
+        uses: actions/upload-artifact@v4
+        with:
+          name: portable-exe-before-after
+          path: release-variants/*/*Portable*.exe
+          retention-days: 7
 
       - name: 시작 시간 측정
         shell: pwsh
         run: >-
           ./.github/scripts/measure-startup.ps1 -BuildsRoot release-variants
-          -Builds "current","languages","zip","languages-zip" -OutDir startup-results
+          -Builds "before","after" -OutDir startup-results
 
       - name: 측정 결과 올리기
         if: always()

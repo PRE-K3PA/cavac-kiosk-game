@@ -1,37 +1,25 @@
-# 이슈 #205: electron-builder.yml 에 설정을 더한 조합마다 Portable exe 를 따로 빌드합니다.
-# 원본 electron-builder.yml 은 고치지 않고, 러너 안에서만 조합별 설정 파일을 만들어 씁니다.
+# 이슈 #205: 바꾸기 전(develop) 설정과 이 브랜치 설정으로 Portable exe 를 하나씩 빌드해서 비교합니다.
+# 1·2차 측정에서 설정 조합(언어 파일·zip)을 만든 방법은 커밋 3fc83c1 의 이 파일에 있습니다.
 param(
-	[Parameter(Mandatory)] [string] $OutRoot
+	[Parameter(Mandatory)] [string] $OutRoot,
+	[string] $BaseRef = "develop"
 )
 
 $ErrorActionPreference = "Stop"
 
-$LanguagesBlock = "electronLanguages:`n  - ko`n  - en-US`n"
-$PortablePattern = "(?m)^portable:\n"
+git fetch --depth 1 origin $BaseRef
+if ($LASTEXITCODE -ne 0) { throw "$BaseRef 를 가져오지 못했습니다" }
+$before = git show "FETCH_HEAD:electron-builder.yml"
+if ($LASTEXITCODE -ne 0) { throw "$BaseRef 의 electron-builder.yml 을 읽지 못했습니다" }
 
-function Add-Languages {
-	param([string] $Config)
-	if ($Config -match "(?m)^electronLanguages:") { throw "electronLanguages 가 이미 있습니다" }
-	return $Config + $LanguagesBlock
+$configs = [ordered]@{
+	"before" = ($before -join "`n") + "`n"
+	"after" = (Get-Content -Path "electron-builder.yml" -Raw) -replace "`r`n", "`n"
 }
 
-function Add-UseZip {
-	param([string] $Config)
-	if ($Config -notmatch $PortablePattern) { throw "portable 설정을 찾지 못했습니다" }
-	return $Config -replace $PortablePattern, "portable:`n  useZip: true`n"
-}
-
-$base = (Get-Content -Path "electron-builder.yml" -Raw) -replace "`r`n", "`n"
-$variants = [ordered]@{
-	"current" = $base
-	"languages" = Add-Languages $base
-	"zip" = Add-UseZip $base
-	"languages-zip" = Add-Languages (Add-UseZip $base)
-}
-
-foreach ($name in $variants.Keys) {
+foreach ($name in $configs.Keys) {
 	$configPath = "electron-builder.$name.yml"
-	Set-Content -Path $configPath -Value $variants[$name] -NoNewline -Encoding utf8
+	Set-Content -Path $configPath -Value $configs[$name] -NoNewline -Encoding utf8
 	Write-Host "===== $name ====="
 	Get-Content -Path $configPath | ForEach-Object { Write-Host $_ }
 	bun run dist --win portable --publish never --config $configPath "-c.directories.output=$OutRoot/$name"
