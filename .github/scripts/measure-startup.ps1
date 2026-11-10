@@ -1,7 +1,9 @@
-# 이슈 #205: exe 를 실행한 뒤 앱 프로세스가 생길 때까지, 프로그램 창이 뜰 때까지의 시간을 잽니다.
-# Portable 은 압축을 다 푼 뒤에야 앱 프로세스가 생기므로, 앱 프로세스까지의 시간이 곧 풀기 시간입니다.
+# 이슈 #205: 빌드 조합마다 Portable exe 를 실행해서, 앱 프로세스가 생길 때까지와 프로그램 창이 뜰 때까지의
+# 시간을 잽니다. Portable 은 압축을 다 푼 뒤에야 앱 프로세스가 생기므로, 앱 프로세스까지의 시간이 곧 풀기 시간입니다.
+# 1차 측정(Portable·압축 안 한 앱 폴더·설치형, Defender 켬·끔)은 커밋 dbf838e 의 이 파일로 쟀습니다.
 param(
-	[Parameter(Mandatory)] [string] $ReleaseDir,
+	[Parameter(Mandatory)] [string] $BuildsRoot,
+	[Parameter(Mandatory)] [string[]] $Builds,
 	[Parameter(Mandatory)] [string] $OutDir,
 	[int] $Runs = 5,
 	[int] $TimeoutSeconds = 60
@@ -16,28 +18,15 @@ $PollMs = 50
 $SettleMs = 3000
 $MaxWindowFailures = 3
 
-$MethodLabels = @{ portable = "Portable"; unpacked = "압축 안 한 앱 폴더"; installed = "설치형" }
-$ScenarioLabels = @{ first = "첫 실행 (데이터 없음)"; repeat = "다시 실행 (데이터 있음)" }
-
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 $OutDir = (Resolve-Path $OutDir).Path
-$ReleaseDir = (Resolve-Path $ReleaseDir).Path
+$BuildsRoot = (Resolve-Path $BuildsRoot).Path
 $TempRoot = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { [IO.Path]::GetTempPath() }
 $WorkDir = Join-Path $TempRoot "startup-measure"
 New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
 
-$PortableExe = Get-ChildItem -Path $ReleaseDir -Filter "*Portable*.exe" | Select-Object -First 1
-$SetupExe = Get-ChildItem -Path $ReleaseDir -Filter "*Setup*.exe" | Select-Object -First 1
-$UnpackedDir = Join-Path $ReleaseDir "win-unpacked"
-if (-not $PortableExe -or -not $SetupExe -or -not (Test-Path $UnpackedDir)) {
-	throw "빌드 결과물을 찾지 못했습니다: $ReleaseDir"
-}
-
-# Electron 은 앱 이름으로 userData 폴더를 만듭니다. 이름이 productName 인지 name 인지에 따라 달라서 둘 다 지웁니다
-$UserDataCandidates = @(
-	(Join-Path $env:APPDATA "cavac-kiosk-game"),
-	(Join-Path $env:APPDATA $AppProcessName)
-)
+# Electron 은 앱 이름으로 userData 폴더를 만듭니다. 1차 측정에서 cavac-kiosk-game 으로 확인했습니다
+$UserDataDir = Join-Path $env:APPDATA "cavac-kiosk-game"
 
 $Results = [Collections.Generic.List[object]]::new()
 $Notes = [Collections.Generic.List[string]]::new()
@@ -106,17 +95,16 @@ function Measure-Launch {
 }
 
 function Add-Result {
-	param([string] $Pass, [string] $Method, [string] $Scenario, [int] $Run, $Measured)
+	param([string] $Build, [string] $Scenario, [int] $Run, $Measured)
 	$Results.Add([pscustomobject]@{
 		Order = $Results.Count + 1
-		Pass = $Pass
-		Method = $Method
+		Build = $Build
 		Scenario = $Scenario
 		Run = $Run
 		ProcessMs = $Measured.ProcessMs
 		WindowMs = $Measured.WindowMs
 	})
-	Write-Host ("[{0}] {1} {2} #{3}: 앱 프로세스 {4}ms, 창 {5}ms" -f $Pass, $Method, $Scenario, $Run,
+	Write-Host ("{0} {1} #{2}: 앱 프로세스 {3}ms, 창 {4}ms" -f $Build, $Scenario, $Run,
 		$Measured.ProcessMs, $Measured.WindowMs)
 	if ($null -eq $Measured.WindowMs) {
 		$script:WindowFailures++
@@ -128,37 +116,6 @@ function Add-Result {
 	}
 }
 
-function Invoke-Scenario {
-	param([string] $Pass, [string] $Method, [string] $ExePath, [string[]] $DataPaths)
-	for ($run = 1; $run -le $Runs; $run++) {
-		Clear-AppData $DataPaths
-		Add-Result $Pass $Method "first" $run (Measure-Launch $ExePath)
-	}
-	$found = @($DataPaths | Where-Object { Test-Path $_ })
-	Write-Note ("{0} {1}: 첫 실행 뒤 생긴 저장 폴더 = {2}" -f $Pass, $Method, ($found -join ", "))
-	for ($run = 1; $run -le $Runs; $run++) {
-		Add-Result $Pass $Method "repeat" $run (Measure-Launch $ExePath)
-	}
-}
-
-function Install-App {
-	$installDir = Join-Path $WorkDir "installed"
-	$watch = [Diagnostics.Stopwatch]::StartNew()
-	$arguments = @("/S", "/D=$installDir")
-	Start-Process -FilePath $SetupExe.FullName -ArgumentList $arguments -Wait | Out-Null
-	Write-Note ("설치형 조용히 설치: {0:N1}초" -f $watch.Elapsed.TotalSeconds)
-	Stop-App
-	$exe = @($installDir, (Join-Path $env:LOCALAPPDATA "Programs")) |
-		Where-Object { Test-Path $_ } |
-		ForEach-Object {
-			Get-ChildItem -Path $_ -Filter "$AppProcessName.exe" -Recurse -ErrorAction SilentlyContinue
-		} |
-		Select-Object -First 1
-	if (-not $exe) { throw "설치된 exe 를 찾지 못했습니다" }
-	Write-Note "설치 위치: $($exe.DirectoryName)"
-	return $exe.FullName
-}
-
 function Get-DefenderRealTime {
 	try {
 		return [bool](Get-MpComputerStatus).RealTimeProtectionEnabled
@@ -167,38 +124,38 @@ function Get-DefenderRealTime {
 	}
 }
 
-function Set-DefenderRealTime {
-	param([bool] $Enabled)
+function Enable-Defender {
 	try {
-		Set-MpPreference -DisableRealtimeMonitoring (-not $Enabled)
-		if ($Enabled) {
-			$exclusions = @((Get-MpPreference).ExclusionPath | Where-Object { $_ })
-			if ($exclusions.Count -gt 0) {
-				Remove-MpPreference -ExclusionPath $exclusions
-				Write-Note "Defender 제외 경로를 지움: $($exclusions -join ', ')"
-			}
+		Set-MpPreference -DisableRealtimeMonitoring $false
+		$exclusions = @((Get-MpPreference).ExclusionPath | Where-Object { $_ })
+		if ($exclusions.Count -gt 0) {
+			Remove-MpPreference -ExclusionPath $exclusions
+			Write-Note "Defender 제외 경로를 지움: $($exclusions -join ', ')"
 		}
 		Start-Sleep -Seconds 3
 	} catch {
-		Write-Note "Defender 실시간 검사를 바꾸지 못함 ($Enabled): $($_.Exception.Message)"
+		Write-Note "Defender 실시간 검사를 켜지 못함: $($_.Exception.Message)"
 	}
 }
 
-function Invoke-Pass {
-	param([string] $Pass, [string] $InstalledExe)
-	$passDir = Join-Path $WorkDir $Pass
-	$portableDir = Join-Path $passDir "portable"
-	$unpackedCopy = Join-Path $passDir "unpacked"
-	New-Item -ItemType Directory -Force -Path $portableDir | Out-Null
+function New-Target {
+	param([string] $Name)
+	$buildDir = Join-Path $BuildsRoot $Name
+	$exe = Get-ChildItem -Path $buildDir -Filter "*Portable*.exe" | Select-Object -First 1
+	$unpackedDir = Join-Path $buildDir "win-unpacked"
+	if (-not $exe -or -not (Test-Path $unpackedDir)) { throw "$Name 빌드 결과물을 찾지 못했습니다" }
 	# 이슈의 재현 단계처럼 exe 를 다른 폴더로 옮겨서 실행합니다
-	Copy-Item -Path $PortableExe.FullName -Destination $portableDir
-	Copy-Item -Path $UnpackedDir -Destination $unpackedCopy -Recurse
-	$portableCopy = Join-Path $portableDir $PortableExe.Name
-	$portableData = @((Join-Path $portableDir "cavac-data")) + $UserDataCandidates
-	Invoke-Scenario $Pass "portable" $portableCopy $portableData
-	$unpackedExe = Join-Path $unpackedCopy "$AppProcessName.exe"
-	Invoke-Scenario $Pass "unpacked" $unpackedExe $UserDataCandidates
-	Invoke-Scenario $Pass "installed" $InstalledExe $UserDataCandidates
+	$runDir = Join-Path $WorkDir $Name
+	New-Item -ItemType Directory -Force -Path $runDir | Out-Null
+	Copy-Item -Path $exe.FullName -Destination $runDir
+	return [pscustomobject]@{
+		Name = $Name
+		Exe = Join-Path $runDir $exe.Name
+		DataPaths = @((Join-Path $runDir "cavac-data"), $UserDataDir)
+		ExeMb = Get-SizeMb $exe.FullName
+		UnpackedMb = Get-SizeMb $unpackedDir
+		UnpackedFiles = @(Get-ChildItem -Path $unpackedDir -Recurse -File).Count
+	}
 }
 
 function Format-Seconds {
@@ -207,41 +164,40 @@ function Format-Seconds {
 	return "{0:N2}" -f ($Milliseconds / 1000)
 }
 
+function Get-Average {
+	param($Rows, [string] $Property)
+	$values = @($Rows | Where-Object { $null -ne $_.$Property })
+	if ($values.Count -eq 0) { return $null }
+	return ($values | Measure-Object -Property $Property -Average).Average
+}
+
 function Write-Summary {
+	param($Targets)
 	$os = Get-CimInstance Win32_OperatingSystem
 	$cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
 	$lines = [Collections.Generic.List[string]]::new()
-	$lines.Add("## exe 시작 시간 측정 (#205)")
+	$lines.Add("## Portable 설정 조합별 시작 시간 (#205)")
 	$lines.Add("")
 	$lines.Add("- 러너: $($os.Caption) $($os.Version)")
 	$lines.Add("- CPU: $($cpu.Name.Trim()), 논리 코어 $($cpu.NumberOfLogicalProcessors)")
 	$lines.Add(("- 메모리: {0:N1} GB" -f ($os.TotalVisibleMemorySize / 1MB)))
-	$lines.Add("- Portable exe: $(Get-SizeMb $PortableExe.FullName) MB")
-	$lines.Add("- 설치형 exe: $(Get-SizeMb $SetupExe.FullName) MB")
-	$fileCount = @(Get-ChildItem -Path $UnpackedDir -Recurse -File).Count
-	$lines.Add("- 압축 안 한 앱 폴더: $(Get-SizeMb $UnpackedDir) MB, 파일 $fileCount 개")
-	$lines.Add("- 회차마다 $Runs 번, 시간은 초 단위, 실패는 제한 시간($TimeoutSeconds 초) 안에 창을 못 찾은 횟수")
+	$lines.Add("- 조합마다 $Runs 번, 조합을 한 바퀴씩 번갈아 잼. 시간은 초 단위")
+	$lines.Add("- 풀기 = 앱 프로세스가 생길 때까지, 켜짐 = 프로그램 창이 뜰 때까지")
 	$lines.Add("")
-	$lines.Add("| 묶음 | 방식 | 상황 | 창 평균 | 창 최소 | 창 최대 | 앱 프로세스 평균 | 실패 |")
-	$lines.Add("| --- | --- | --- | --- | --- | --- | --- | --- |")
-	foreach ($group in ($Results | Group-Object -Property Pass, Method, Scenario)) {
-		$first = $group.Group[0]
-		$windows = @($group.Group | Where-Object { $null -ne $_.WindowMs })
-		$processes = @($group.Group | Where-Object { $null -ne $_.ProcessMs })
-		$window = if ($windows.Count) { $windows | Measure-Object WindowMs -Average -Minimum -Maximum }
-		$process = if ($processes.Count) { $processes | Measure-Object ProcessMs -Average }
-		$lines.Add(("| {0} | {1} | {2} | {3} | {4} | {5} | {6} | {7} |" -f $first.Pass,
-			$MethodLabels[$first.Method], $ScenarioLabels[$first.Scenario],
-			(Format-Seconds $window.Average), (Format-Seconds $window.Minimum),
-			(Format-Seconds $window.Maximum), (Format-Seconds $process.Average),
-			($group.Count - $windows.Count)))
-	}
-	if ($Results.Count -gt 0) {
-		$veryFirst = $Results[0]
-		$lines.Add("")
-		$lines.Add(("- 맨 처음 1회 ({0} {1}): 앱 프로세스 {2}초, 창 {3}초" -f $veryFirst.Pass,
-			$MethodLabels[$veryFirst.Method], (Format-Seconds $veryFirst.ProcessMs),
-			(Format-Seconds $veryFirst.WindowMs)))
+	$lines.Add("| 조합 | exe | 풀린 크기 | 파일 | 첫 실행 켜짐 | 다시 실행 켜짐 | 다시 실행 풀기 | 맨 처음 1회 | 실패 |")
+	$lines.Add("| --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+	foreach ($target in $Targets) {
+		$rows = @($Results | Where-Object { $_.Build -eq $target.Name })
+		$first = @($rows | Where-Object { $_.Scenario -eq "first" })
+		$repeat = @($rows | Where-Object { $_.Scenario -eq "repeat" })
+		$veryFirst = $first | Select-Object -First 1
+		$failures = @($rows | Where-Object { $null -eq $_.WindowMs }).Count
+		$lines.Add(("| {0} | {1} MB | {2} MB | {3} | {4} | {5} | {6} | {7} | {8} |" -f $target.Name,
+			$target.ExeMb, $target.UnpackedMb, $target.UnpackedFiles,
+			(Format-Seconds (Get-Average $first "WindowMs")),
+			(Format-Seconds (Get-Average $repeat "WindowMs")),
+			(Format-Seconds (Get-Average $repeat "ProcessMs")),
+			(Format-Seconds $veryFirst.WindowMs), $failures))
 	}
 	$lines.Add("")
 	$lines.Add("### 기록")
@@ -256,22 +212,22 @@ function Write-Summary {
 	$Results | Export-Csv -Path (Join-Path $OutDir "runs.csv") -NoTypeInformation -Encoding utf8
 }
 
+$targets = @($Builds | ForEach-Object { New-Target $_ })
 try {
 	Write-Note ("Defender 처음 상태: 실시간 검사 {0}" -f (Get-DefenderRealTime))
-	$installedExe = Install-App
-	$measuredPasses = @{}
-	# 부스 PC 처럼 실시간 검사가 켜진 상태를 먼저 재고, 꺼진 상태와 비교합니다
-	foreach ($enabled in @($true, $false)) {
-		Set-DefenderRealTime $enabled
-		$pass = if (Get-DefenderRealTime) { "defender-on" } else { "defender-off" }
-		if ($measuredPasses.ContainsKey($pass)) {
-			Write-Note "Defender 상태를 바꾸지 못해 $pass 는 한 번만 잽니다"
-			continue
+	# 부스 PC 처럼 실시간 검사를 켠 상태로 잽니다
+	Enable-Defender
+	Write-Note ("측정 중 Defender: 실시간 검사 {0}" -f (Get-DefenderRealTime))
+	# 조합을 한 바퀴씩 번갈아 재서, 순서 때문에 생기는 차이(캐시 등)가 한 조합에 몰리지 않게 합니다
+	foreach ($scenario in @("first", "repeat")) {
+		for ($run = 1; $run -le $Runs; $run++) {
+			foreach ($target in $targets) {
+				if ($scenario -eq "first") { Clear-AppData $target.DataPaths }
+				Add-Result $target.Name $scenario $run (Measure-Launch $target.Exe)
+			}
 		}
-		$measuredPasses[$pass] = $true
-		Invoke-Pass $pass $installedExe
 	}
 } finally {
 	Stop-App
-	Write-Summary
+	Write-Summary $targets
 }
