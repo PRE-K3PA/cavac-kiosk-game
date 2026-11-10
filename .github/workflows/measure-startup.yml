@@ -1,0 +1,47 @@
+name: measure-startup
+
+# 이슈 #205: exe 를 실행해서 프로그램 창이 뜰 때까지 걸리는 시간을 Windows 러너에서 잽니다
+on:
+  push:
+    branches: ["#205-fix-exe-startup-time"]
+  workflow_dispatch:
+
+jobs:
+  measure:
+    name: measure-startup
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: 의존성 설치
+        run: bun install --frozen-lockfile
+
+      # 배포 빌드는 마스터 PIN 해시가 없으면 실패합니다. 진짜 해시는 공개 저장소에 둘 수 없어서
+      # 측정용 exe 에만 쓸 해시를 아무 PIN 으로 만들어 넣습니다. 이 exe 는 러너 밖으로 내보내지 않습니다
+      - name: 측정용 마스터 PIN 해시 만들기
+        shell: pwsh
+        run: |
+          $pin = "{0:D4}" -f (Get-Random -Maximum 10000)
+          $line = $pin | bun electron/scripts/hash-pin.ts
+          if ($line -notmatch "^MASTER_PIN_HASH=scrypt:") { throw "해시를 만들지 못했습니다" }
+          Add-Content -Path $env:GITHUB_ENV -Value $line
+
+      - name: exe 빌드
+        run: bun run dist --publish never
+
+      - name: 시작 시간 측정
+        shell: pwsh
+        run: ./.github/scripts/measure-startup.ps1 -ReleaseDir release -OutDir startup-results
+
+      - name: 측정 결과 올리기
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: startup-results
+          path: startup-results
+          if-no-files-found: ignore
