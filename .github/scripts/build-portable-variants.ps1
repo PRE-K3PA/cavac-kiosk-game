@@ -30,19 +30,33 @@ $variants = @(
 	@{ Name = "reuse"; Config = $afterConfig; Package = $afterPackage; Patched = $true }
 )
 
+# bun install 은 패치를 적용해 두므로, 패치 안 한 템플릿이 필요한 조합은 같은 버전의 원본 템플릿으로 바꿔 끼웁니다
 $libDir = "node_modules/app-builder-lib"
-$patchFile = (Get-ChildItem -Path "patches" -Filter "app-builder-lib@*.patch" | Select-Object -First 1).FullName
-if (-not $patchFile) { throw "app-builder-lib 패치 파일을 찾지 못했습니다" }
+$templatePath = "$libDir/templates/nsis/portable.nsi"
+$templateDir = Join-Path ([IO.Path]::GetTempPath()) "portable-templates"
+New-Item -ItemType Directory -Force -Path $templateDir | Out-Null
+$patchedTemplate = Join-Path $templateDir "portable.patched.nsi"
+$originalTemplate = Join-Path $templateDir "portable.original.nsi"
 
-# bun install 은 패치를 적용해 두므로, 패치 안 한 템플릿이 필요한 조합은 되돌렸다가 다시 적용합니다
-$script:TemplatePatched = $true
+Copy-Item -Path $templatePath -Destination $patchedTemplate -Force
+if (-not (Select-String -Path $patchedTemplate -Pattern "CACHE_ROOT" -Quiet)) {
+	throw "bun install 이 Portable 템플릿 패치를 적용하지 않았습니다"
+}
+
+$libVersion = (Get-Content -Path "$libDir/package.json" -Raw | ConvertFrom-Json).version
+$tarball = Join-Path $templateDir "app-builder-lib.tgz"
+Invoke-WebRequest -Uri "https://registry.npmjs.org/app-builder-lib/-/app-builder-lib-$libVersion.tgz" -OutFile $tarball
+tar -xzf $tarball -C $templateDir package/templates/nsis/portable.nsi
+if ($LASTEXITCODE -ne 0) { throw "원본 Portable 템플릿을 풀지 못했습니다" }
+Move-Item -Path (Join-Path $templateDir "package/templates/nsis/portable.nsi") -Destination $originalTemplate -Force
+if (Select-String -Path $originalTemplate -Pattern "CACHE_ROOT" -Quiet) {
+	throw "원본 템플릿에 패치 내용이 들어 있습니다"
+}
+
 function Set-TemplatePatched {
 	param([bool] $Patched)
-	if ($script:TemplatePatched -eq $Patched) { return }
-	$reverse = if ($Patched) { @() } else { @("-R") }
-	git apply @reverse "--directory=$libDir" $patchFile
-	if ($LASTEXITCODE -ne 0) { throw "Portable 템플릿 패치를 바꾸지 못했습니다" }
-	$script:TemplatePatched = $Patched
+	$source = if ($Patched) { $patchedTemplate } else { $originalTemplate }
+	Copy-Item -Path $source -Destination $templatePath -Force
 }
 
 # 설치형과 Portable 을 함께 빌드하면 Portable 은 설치형의 압축 파일(작은 단위로 나눠 압축)을 같이 써서,
