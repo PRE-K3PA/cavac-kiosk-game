@@ -7,6 +7,7 @@ files:
   - dist/**
   - dist-electron/**
   - package.json
+afterPack: electron/scripts/after-pack.mjs
 extraResources:
   - from: resources/default-species
     to: default-species
