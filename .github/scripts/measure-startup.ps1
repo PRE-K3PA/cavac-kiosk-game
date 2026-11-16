@@ -27,6 +27,8 @@ New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
 
 # Electron 은 앱 이름으로 userData 폴더를 만듭니다. 1차 측정에서 cavac-kiosk-game 으로 확인했습니다
 $UserDataDir = Join-Path $env:APPDATA "cavac-kiosk-game"
+# 풀어 둔 앱을 재사용하는 Portable 이 남기는 폴더입니다. 첫 실행을 잴 때는 이것도 지워야 처음부터 풉니다
+$ReuseCacheDir = Join-Path $env:LOCALAPPDATA "CAVAC Kiosk Portable"
 
 $Results = [Collections.Generic.List[object]]::new()
 $Notes = [Collections.Generic.List[string]]::new()
@@ -151,7 +153,7 @@ function New-Target {
 	return [pscustomobject]@{
 		Name = $Name
 		Exe = Join-Path $runDir $exe.Name
-		DataPaths = @((Join-Path $runDir "cavac-data"), $UserDataDir)
+		DataPaths = @((Join-Path $runDir "cavac-data"), $UserDataDir, $ReuseCacheDir)
 		ExeMb = Get-SizeMb $exe.FullName
 		UnpackedMb = Get-SizeMb $unpackedDir
 		UnpackedFiles = @(Get-ChildItem -Path $unpackedDir -Recurse -File).Count
@@ -226,6 +228,10 @@ try {
 				Add-Result $target.Name $scenario $run (Measure-Launch $target.Exe)
 			}
 		}
+	}
+	# 재사용 방식은 마지막 첫 실행 뒤에 완료 표시(.ok)가 있는 폴더가 남아야 합니다
+	foreach ($dir in @(Get-ChildItem -Path $ReuseCacheDir -Directory -ErrorAction SilentlyContinue)) {
+		Write-Note ("재사용 폴더: {0} (.ok {1})" -f $dir.Name, (Test-Path (Join-Path $dir.FullName ".ok")))
 	}
 } finally {
 	Stop-App

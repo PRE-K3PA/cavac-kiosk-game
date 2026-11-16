@@ -43,5 +43,8 @@
 		"vite-plugin-electron": "^1.1.2",
 		"zod": "^4.6.5",
 		"zustand": "^5.0.15"
+	},
+	"patchedDependencies": {
+		"app-builder-lib@26.15.3": "patches/app-builder-lib@26.15.3.patch"
 	}
 }

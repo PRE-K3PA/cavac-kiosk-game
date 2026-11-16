@@ -26,6 +26,3 @@ nsis:
   createDesktopShortcut: true
 portable:
   artifactName: ${productName} Portable ${version}.${ext}
-  # Portable 은 켤 때마다 앱 전체를 임시 폴더에 다시 풉니다. 기본 7z 는 풀어 둔 것을 한 번 더 복사하지만
-  # zip 은 한 번에 풀어서 더 빨리 켜집니다 (#205)
-  useZip: true
