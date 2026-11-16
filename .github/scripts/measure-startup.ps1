@@ -27,8 +27,9 @@ New-Item -ItemType Directory -Force -Path $WorkDir | Out-Null
 
 # Electron 은 앱 이름으로 userData 폴더를 만듭니다. 1차 측정에서 cavac-kiosk-game 으로 확인했습니다
 $UserDataDir = Join-Path $env:APPDATA "cavac-kiosk-game"
-# 풀어 둔 앱을 재사용하는 Portable 이 남기는 폴더입니다. 첫 실행을 잴 때는 이것도 지워야 처음부터 풉니다
-$ReuseCacheDir = Join-Path $env:LOCALAPPDATA "CAVAC Kiosk Portable"
+# 풀어 둔 앱을 재사용하는 Portable 이 남기는 폴더입니다. 첫 실행을 잴 때는 이것도 지워야 처음부터 풉니다.
+# 폴더 이름은 패치한 템플릿의 ${APP_FILENAME} Portable 이고, Portable 에서는 package.json 의 name 이 됩니다
+$ReuseCacheDir = Join-Path $env:LOCALAPPDATA "cavac-kiosk-game Portable"
 
 $Results = [Collections.Generic.List[object]]::new()
 $Notes = [Collections.Generic.List[string]]::new()
