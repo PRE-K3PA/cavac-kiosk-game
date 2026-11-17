@@ -7,6 +7,10 @@ files:
   - dist/**
   - dist-electron/**
   - package.json
+  # 화면은 Vite 가 dist 로 묶고 main 은 electron 과 node 내장 모듈만 써서, 앱 안에 node_modules 가 필요 없습니다.
+  # electron-builder 는 dependencies 를 알아서 앱에 복사하므로(약 31MB, 파일 2,400개) 제외합니다.
+  # 번들할 수 없는 패키지(네이티브 모듈 등)를 쓰게 되면 그 패키지만 이 제외에서 빼야 합니다 (#205)
+  - "!node_modules/**/*"
 afterPack: electron/scripts/after-pack.mjs
 extraResources:
   - from: resources/default-species
