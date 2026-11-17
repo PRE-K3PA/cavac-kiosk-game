@@ -1,8 +1,11 @@
+diff --git a/node_modules/app-builder-lib/.bun-tag-da8a0c977f034a05 b/.bun-tag-da8a0c977f034a05
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/templates/nsis/portable.nsi b/templates/nsis/portable.nsi
-index e5436bb0f810058b52e15ce65b3d256f86dabc6f..ae466c1dd46eece9125efed395afca2bc87afdbd 100644
+index e5436bb0f810058b52e15ce65b3d256f86dabc6f..e20b65071d89fc233c148200d0fe35bd65262969 100644
 --- a/templates/nsis/portable.nsi
 +++ b/templates/nsis/portable.nsi
-@@ -30,12 +30,23 @@ Section
+@@ -30,12 +30,48 @@ Section
      HideWindow
    !endif
  
@@ -14,41 +17,78 @@ index e5436bb0f810058b52e15ce65b3d256f86dabc6f..ae466c1dd46eece9125efed395afca2b
 +  !define /date CACHE_BUILD_ID "%Y%m%d%H%M%S"
 +  !define CACHE_ROOT "$LOCALAPPDATA\${APP_FILENAME} Portable"
 +  StrCpy $INSTDIR "${CACHE_ROOT}\${CACHE_BUILD_ID}"
-+  IfFileExists "$INSTDIR\.ok" RunApp 0
++  # .ok 만 믿으면 백신이 파일 하나를 격리했을 때 영영 안 켜지므로, 실행에 꼭 필요한 파일도 확인합니다
++  IfFileExists "$INSTDIR\.ok" 0 NeedExtract
++  IfFileExists "$INSTDIR\${APP_EXECUTABLE_FILENAME}" 0 NeedExtract
++  IfFileExists "$INSTDIR\resources\app.asar" RunApp NeedExtract
 +
-+  # 처음 푸는 중에 같은 exe 를 또 켜면 풀던 폴더를 지우게 되므로, 먼저 푸는 쪽만 진행합니다
++  NeedExtract:
++  # 처음 푸는 중에 같은 exe 를 또 켜면 풀던 폴더를 지우게 되므로, 먼저 푸는 쪽만 진행합니다.
++  # 이름이 빌드와 상관없이 같아서 다른 빌드 둘을 동시에 처음 켜도 한쪽만 진행하고, 나머지는 말없이 끝납니다
 +  System::Call 'kernel32::CreateMutex(i 0, i 1, t "CavacKioskPortableExtract") i .r1 ?e'
 +  Pop $2
 +  ${if} $2 = 183
 +    Quit
 +  ${endIf}
++
++  # 옛 빌드와 풀다 만 폴더를 지웁니다. 실행 중인 앱의 폴더를 지우면 앱이 반쯤 망가지므로,
++  # 실행 파일을 쓰기로 열 수 없는(실행 중인) 폴더는 건드리지 않습니다. 지울 때는 .ok 를 먼저 지워
++  # 중간에 멈춰도 반쯤 지워진 폴더를 정상으로 보지 않게 합니다
++  FindFirst $4 $5 "${CACHE_ROOT}\*"
++  CleanLoop:
++    StrCmp $5 "" CleanDone
++    StrCmp $5 "." CleanSkip
++    StrCmp $5 ".." CleanSkip
++    IfFileExists "${CACHE_ROOT}\$5\${APP_EXECUTABLE_FILENAME}" 0 CleanDelete
++    ClearErrors
++    FileOpen $6 "${CACHE_ROOT}\$5\${APP_EXECUTABLE_FILENAME}" a
++    IfErrors CleanSkip
++    FileClose $6
++    CleanDelete:
++    Delete "${CACHE_ROOT}\$5\.ok"
++    RMDir /r "${CACHE_ROOT}\$5"
++    CleanSkip:
++    FindNext $4 $5
++    Goto CleanLoop
++  CleanDone:
++  FindClose $4
  
 -  RMDir /r $INSTDIR
-+  # 새 빌드를 처음 켤 때 옛 빌드가 남긴 폴더를 함께 지웁니다
-+  RMDir /r "${CACHE_ROOT}"
 +  # .tmp 에 다 푼 뒤 이름을 바꿔서, 풀다 전원이 꺼져도 덜 풀린 폴더를 실행하지 않습니다
 +  StrCpy $INSTDIR "${CACHE_ROOT}\${CACHE_BUILD_ID}.tmp"
    SetOutPath $INSTDIR
  
    !ifdef APP_DIR_64
-@@ -74,6 +85,16 @@ Section
+@@ -74,6 +110,28 @@ Section
      !endif
    !endif
  
 +  FileOpen $0 "$INSTDIR\.ok" w
 +  FileClose $0
 +  SetOutPath $LOCALAPPDATA
-+  ClearErrors
-+  Rename "${CACHE_ROOT}\${CACHE_BUILD_ID}.tmp" "${CACHE_ROOT}\${CACHE_BUILD_ID}"
-+  IfErrors RunApp 0
++  # 백신이나 탐색기가 방금 푼 파일을 잠깐 잡고 있으면 폴더 이름 바꾸기가 실패하므로 몇 번 다시 시도합니다.
++  # 끝내 못 바꾸면 푼 폴더(.tmp) 그대로 실행하고, 다음에 켤 때 다시 풉니다
++  StrCpy $3 0
++  RenameRetry:
++    ClearErrors
++    Rename "${CACHE_ROOT}\${CACHE_BUILD_ID}.tmp" "${CACHE_ROOT}\${CACHE_BUILD_ID}"
++    IfErrors 0 RenameOk
++    IntOp $3 $3 + 1
++    IntCmp $3 5 ExtractDone 0 ExtractDone
++    Sleep 300
++    Goto RenameRetry
++  RenameOk:
 +  StrCpy $INSTDIR "${CACHE_ROOT}\${CACHE_BUILD_ID}"
++  ExtractDone:
++  # 풀기가 끝났으니 뮤텍스를 놓습니다. 앱이 도는 동안 쥐고 있으면 새 빌드가 말없이 종료됩니다
++  System::Call 'kernel32::CloseHandle(i r1)'
 +
 +  RunApp:
 +  SetOutPath $INSTDIR
    System::Call 'Kernel32::SetEnvironmentVariable(t, t)i ("PORTABLE_EXECUTABLE_DIR", "$EXEDIR").r0'
    System::Call 'Kernel32::SetEnvironmentVariable(t, t)i ("PORTABLE_EXECUTABLE_FILE", "$EXEPATH").r0'
    System::Call 'Kernel32::SetEnvironmentVariable(t, t)i ("PORTABLE_EXECUTABLE_APP_FILENAME", "${APP_FILENAME}").r0'
-@@ -86,6 +107,4 @@ Section
+@@ -86,6 +144,4 @@ Section
  	ExecWait "$INSTDIR\${APP_EXECUTABLE_FILENAME} $R0" $0
    SetErrorLevel $0
  

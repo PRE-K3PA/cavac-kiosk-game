@@ -62,7 +62,7 @@ function Stop-App {
 		if ($process.MainWindowHandle -ne [IntPtr]::Zero) { [void]$process.CloseMainWindow() }
 	}
 	Wait-ProcessExit $AppProcessName 10
-	# Portable 실행기는 앱이 끝나면 풀어 둔 임시 폴더를 지우고 끝납니다
+	# Portable 실행기는 앱이 끝나면 따라서 끝납니다 (재사용 방식은 풀어 둔 폴더를 지우지 않습니다)
 	Wait-ProcessExit $PortableProcessPattern 30
 	Start-Sleep -Milliseconds 1000
 }

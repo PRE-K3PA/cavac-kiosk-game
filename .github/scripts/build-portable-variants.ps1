@@ -71,8 +71,13 @@ try {
 		Get-Content -Path $configPath | ForEach-Object { Write-Host $_ }
 		Set-Content -Path "package.json" -Value $variant.Package -NoNewline -Encoding utf8
 		Set-TemplatePatched $variant.Patched
-		bun run dist --publish never --config $configPath "-c.directories.output=$OutRoot/$name"
-		if ($LASTEXITCODE -ne 0) { throw "$name 빌드에 실패했습니다" }
+		# bun run dist 는 패치 적용 검사가 있어서 패치 안 한 조합이 실패하므로, 같은 단계를 직접 부릅니다
+		bun run typecheck
+		if ($LASTEXITCODE -ne 0) { throw "$name 타입 검사에 실패했습니다" }
+		bun x vite build --mode release
+		if ($LASTEXITCODE -ne 0) { throw "$name 화면 빌드에 실패했습니다" }
+		bun x electron-builder --publish never --config $configPath "-c.directories.output=$OutRoot/$name"
+		if ($LASTEXITCODE -ne 0) { throw "$name 패키징에 실패했습니다" }
 	}
 } finally {
 	Set-Content -Path "package.json" -Value $afterPackage -NoNewline -Encoding utf8
