@@ -1,0 +1,69 @@
+name: check-exit-window
+
+# 이슈 #209: Portable exe 를 끌 때 창이 잠깐 뜨는지 Windows 러너에서 확인합니다 (임시, PR 전에 지움)
+#   base: 지금 브랜치 그대로
+#   quit: 앱이 끝난 직후 NSIS 를 바로 종료하도록(Quit) 템플릿을 한 줄 고친 실험판
+on:
+  push:
+    branches: ["#209-fix-exit-nsis-window"]
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: check-exit-window
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: 의존성 설치
+        run: bun install --frozen-lockfile
+
+      # 배포 빌드는 마스터 PIN 해시가 없으면 실패합니다. 이 exe 는 러너 밖으로 내보내지 않으므로
+      # 아무 PIN 으로 만든 해시를 씁니다
+      - name: 확인용 마스터 PIN 해시 만들기
+        shell: pwsh
+        run: |
+          $pin = "{0:D4}" -f (Get-Random -Maximum 10000)
+          $line = $pin | bun electron/scripts/hash-pin.ts
+          if ($line -notmatch "^MASTER_PIN_HASH=scrypt:") { throw "해시를 만들지 못했습니다" }
+          Add-Content -Path $env:GITHUB_ENV -Value $line
+
+      - name: Portable 템플릿 패치 적용 확인
+        run: bun electron/scripts/verify-portable-patch.ts
+
+      - name: 화면 빌드
+        run: bun x vite build --mode release
+
+      - name: Portable 빌드 (base)
+        run: bun x electron-builder --win portable --x64 --config.directories.output=builds/base
+
+      - name: Portable 빌드 (quit)
+        shell: pwsh
+        run: |
+          $template = "node_modules/app-builder-lib/templates/nsis/portable.nsi"
+          $before = Get-Content -Path $template -Raw
+          $after = $before.Replace('SetErrorLevel $0', "SetErrorLevel `$0`n  Quit")
+          if ($after -eq $before) { throw "SetErrorLevel 줄을 찾지 못했습니다" }
+          Set-Content -Path $template -Value $after -NoNewline
+          bun x electron-builder --win portable --x64 --config.directories.output=builds/quit
+          if ($LASTEXITCODE -ne 0) { throw "quit 빌드 실패" }
+
+      - name: 종료 때 창 확인
+        shell: pwsh
+        run: >-
+          ./.github/scripts/check-exit-window.ps1 -BuildsRoot builds
+          -Builds "base","quit" -Runs 5 -OutDir exit-window-results
+
+      - name: 결과 올리기
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exit-window-results
+          path: exit-window-results
+          if-no-files-found: ignore
+          retention-days: 7
