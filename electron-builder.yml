@@ -29,7 +29,7 @@ win:
   target:
     - nsis
     - portable
-  icon: resources/icon.ico
+  icon: resources/icons/icon.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
@@ -37,4 +37,4 @@ nsis:
 portable:
   artifactName: ${productName} Portable ${version}.${ext}
   # 앱을 푸는 동안 화면 가운데에 뜨는 그림입니다. 24비트 BMP 만 되고 애니메이션·투명은 안 됩니다 (#207)
-  splashImage: resources/splash.bmp
+  splashImage: resources/images/splash.bmp
