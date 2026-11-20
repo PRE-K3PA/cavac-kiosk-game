@@ -3,15 +3,18 @@ import path from "node:path";
 
 // Portable 템플릿 패치(patches/)가 적용되지 않으면 exe 가 예전처럼 켤 때마다 앱 전체를 풀어서,
 // 시작 시간 개선이 아무 오류 없이 사라집니다. electron-builder 를 올리면서 패치가 빠지는 경우를 막습니다 (#205)
+// 앱 종료 직후 바로 끝내는 Quit 이 빠지면 종료 때 NSIS 창이 잠깐 뜹니다 (#209)
 const templatePath = path.join(
 	import.meta.dirname,
 	"../../node_modules/app-builder-lib/templates/nsis/portable.nsi",
 );
-const PATCH_MARKER = "CACHE_ROOT";
+const REUSE_MARKER = "CACHE_ROOT";
+const QUIT_AFTER_APP_EXIT = /SetErrorLevel \$0\s+(?:#[^\n]*\s+)*Quit\s/;
 
 function isPatched(): boolean {
 	try {
-		return readFileSync(templatePath, "utf8").includes(PATCH_MARKER);
+		const template = readFileSync(templatePath, "utf8");
+		return template.includes(REUSE_MARKER) && QUIT_AFTER_APP_EXIT.test(template);
 	} catch {
 		return false;
 	}

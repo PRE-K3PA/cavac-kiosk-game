@@ -1,5 +1,8 @@
+diff --git a/node_modules/app-builder-lib/.bun-tag-32c23415e98c7183 b/.bun-tag-32c23415e98c7183
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/templates/nsis/portable.nsi b/templates/nsis/portable.nsi
-index e5436bb0f810058b52e15ce65b3d256f86dabc6f..019d85ff084d9ddeb28fa93ec0db72f86f822be0 100644
+index e5436bb0f810058b52e15ce65b3d256f86dabc6f..ae5c70e1d24ef98387547bb5c217a149ba50171f 100644
 --- a/templates/nsis/portable.nsi
 +++ b/templates/nsis/portable.nsi
 @@ -30,12 +30,62 @@ Section
@@ -101,9 +104,13 @@ index e5436bb0f810058b52e15ce65b3d256f86dabc6f..019d85ff084d9ddeb28fa93ec0db72f8
    System::Call 'Kernel32::SetEnvironmentVariable(t, t)i ("PORTABLE_EXECUTABLE_DIR", "$EXEDIR").r0'
    System::Call 'Kernel32::SetEnvironmentVariable(t, t)i ("PORTABLE_EXECUTABLE_FILE", "$EXEPATH").r0'
    System::Call 'Kernel32::SetEnvironmentVariable(t, t)i ("PORTABLE_EXECUTABLE_APP_FILENAME", "${APP_FILENAME}").r0'
-@@ -86,6 +160,4 @@ Section
+@@ -85,7 +159,8 @@ Section
+ 
  	ExecWait "$INSTDIR\${APP_EXECUTABLE_FILENAME} $R0" $0
    SetErrorLevel $0
++  # 시작 그림(splashImage)을 쓰면 위에서 SetSilent silent 를 건너뛰어 NSIS 창이 켜져 있습니다.
++  # 앱이 끝난 뒤 구역이 끝나기를 기다리면 "Setup: Installing" 창이 잠깐 보이므로 바로 종료합니다 (#209)
++  Quit
  
 -  SetOutPath $EXEDIR
 -	RMDir /r $INSTDIR
