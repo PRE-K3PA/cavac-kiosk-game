@@ -281,8 +281,8 @@ src/
 
 포터블 exe 는 electron-builder 의 NSIS 템플릿(`portable.nsi`)으로 만들어집니다. 이 앱은 템플릿을 `patches/app-builder-lib@26.15.3.patch` 로 고쳐서 씁니다.
 
-- 한 번 푼 앱을 `%LOCALAPPDATA%` 에 남겨 다시 풀지 않게 합니다 (#205)
-- 앱이 끝나면 바로 종료해서 NSIS 창이 잠깐 뜨는 것을 막습니다 (#209)
+- 한 번 푼 앱을 `%LOCALAPPDATA%` 에 남겨 다시 풀지 않게 합니다
+- 앱이 끝나면 바로 종료해서 NSIS 창이 잠깐 뜨는 것을 막습니다
 - `bun install` 이 패치를 적용합니다. `bun run dist` 는 패치가 빠졌으면(템플릿에 `CACHE_ROOT` 나 앱 종료 직후의 `Quit` 이 없으면) 빌드를 멈춥니다(`electron/scripts/verify-portable-patch.ts`)
 - electron-builder 버전을 올리면 패치 파일 이름과 내용이 맞지 않으니, `bun patch app-builder-lib@<새 버전>` 으로 같은 변경을 새 템플릿에 다시 적용하고 `bun patch --commit 'node_modules/app-builder-lib'` 로 패치를 다시 만듭니다
 
