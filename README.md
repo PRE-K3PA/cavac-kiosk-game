@@ -87,7 +87,7 @@ bun run dist
 
 - `.env.local` 에 `MASTER_PIN_HASH` 가 없거나 모양이 틀리면 빌드가 멈춥니다. 배포 빌드에는 마스터 PIN 이 꼭 들어가야 하기 때문입니다
 - Windows PC 에서 빌드하는 것을 권장합니다. macOS, Linux 에서 Windows exe 를 만들려면 Wine 이 필요할 수 있습니다
-- 앱 아이콘(`resources/icon.ico`)이 없으면 Electron 기본 아이콘으로 빌드됩니다
+- 앱 아이콘(`resources/icons/icon.ico`)이 없으면 Electron 기본 아이콘으로 빌드됩니다
 
 ## 키오스크에서 exe 로 운영하기
 
@@ -243,7 +243,7 @@ electron/
   main/                앱 실행, 창 생성, 설정 저장, 이미지, PIN, IPC (Node.js 영역)
   preload/             React 에 노출하는 API 계약
   scripts/             마스터 PIN 해시 생성
-resources/             패키징용 리소스 (기본 축종 이미지, icon.ico)
+resources/             패키징용 리소스 (default-species, icons/icon.ico, images/splash.bmp)
 src/
   pages/               화면 단위 (home, vaccine, card, admin)
   components/          재사용 UI (common, vaccine, card, admin)
