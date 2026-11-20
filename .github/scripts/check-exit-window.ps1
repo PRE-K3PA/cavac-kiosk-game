@@ -219,6 +219,7 @@ function Invoke-Launch {
 	}
 }
 
+$ExePaths = @{}
 foreach ($build in $Builds) {
 	$buildDir = Join-Path $BuildsRoot $build
 	$exe = Get-ChildItem -Path $buildDir -Filter "*Portable*.exe" | Select-Object -First 1
@@ -227,9 +228,7 @@ foreach ($build in $Builds) {
 	$runDir = Join-Path $WorkDir $build
 	New-Item -ItemType Directory -Force -Path $runDir | Out-Null
 	Copy-Item -Path $exe.FullName -Destination $runDir -Force
-	$builtExe = Join-Path $runDir $exe.Name
-	$exes = @{ $build = $builtExe }
-	$script:Exes = if ($script:Exes) { $script:Exes + $exes } else { $exes }
+	$ExePaths[$build] = Join-Path $runDir $exe.Name
 }
 
 # 빌드가 번갈아 실행되게 같은 순서를 반복합니다
@@ -239,8 +238,8 @@ for ($run = 1; $run -le $Runs; $run++) {
 			if (Test-Path $path) { Remove-Item -Path $path -Recurse -Force }
 		}
 		Stop-All
-		Invoke-Launch -Build $build -Scenario "cold" -Run $run -ExePath $script:Exes[$build]
-		Invoke-Launch -Build $build -Scenario "warm" -Run $run -ExePath $script:Exes[$build]
+		Invoke-Launch -Build $build -Scenario "cold" -Run $run -ExePath $ExePaths[$build]
+		Invoke-Launch -Build $build -Scenario "warm" -Run $run -ExePath $ExePaths[$build]
 	}
 }
 
