@@ -1,5 +1,11 @@
 appId: com.cavac.kiosk
 productName: CAVAC Kiosk
+copyright: Copyright © 2026 CAVAC(중앙백신연구소)
+# electron-builder 는 package.json 의 author 를 읽을 때 괄호 안을 URL 로 보고 잘라내서, exe 속성의 회사 이름이 "CAVAC" 만 남습니다.
+# 정규화 뒤에 합쳐지는 extraMetadata 로 이름 전체를 지정합니다 (#207)
+extraMetadata:
+  author:
+    name: CAVAC(중앙백신연구소)
 directories:
   output: release
   buildResources: resources
@@ -30,3 +36,5 @@ nsis:
   createDesktopShortcut: true
 portable:
   artifactName: ${productName} Portable ${version}.${ext}
+  # 앱을 푸는 동안 화면 가운데에 뜨는 그림입니다. 24비트 BMP 만 되고 애니메이션·투명은 안 됩니다 (#207)
+  splashImage: resources/splash.bmp

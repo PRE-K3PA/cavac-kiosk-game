@@ -4,6 +4,9 @@
 	"type": "module",
 	"version": "0.1.0",
 	"description": "CAVAC 전시 부스 키오스크 게임",
+	"author": {
+		"name": "CAVAC(중앙백신연구소)"
+	},
 	"main": "dist-electron/main/main.js",
 	"scripts": {
 		"dev": "vite",
