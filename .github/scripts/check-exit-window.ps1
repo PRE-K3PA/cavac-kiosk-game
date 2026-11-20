@@ -169,7 +169,7 @@ function Invoke-Launch {
 	}
 	if ($null -eq $appWindowMs) {
 		Stop-All
-		throw "$tag: 앱 창을 $StartTimeoutSeconds 초 안에 찾지 못했습니다"
+		throw "${tag}: 앱 창을 $StartTimeoutSeconds 초 안에 찾지 못했습니다"
 	}
 	Start-Sleep -Milliseconds $SettleMs
 
