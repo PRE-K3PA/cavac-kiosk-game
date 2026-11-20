@@ -87,7 +87,17 @@ bun run dist
 
 - `.env.local` 에 `MASTER_PIN_HASH` 가 없거나 모양이 틀리면 빌드가 멈춥니다. 배포 빌드에는 마스터 PIN 이 꼭 들어가야 하기 때문입니다
 - Windows PC 에서 빌드하는 것을 권장합니다. macOS, Linux 에서 Windows exe 를 만들려면 Wine 이 필요할 수 있습니다
-- 앱 아이콘(`resources/icons/icon.ico`)이 없으면 Electron 기본 아이콘으로 빌드됩니다
+  - Apple Silicon Mac 에서는 `bun run dist --win --x64` 로 만듭니다. `--x64` 를 빼면 ARM 용 exe 가 나옵니다
+- `bun run dist` 는 빌드 전에 Portable 템플릿 패치가 적용됐는지 확인합니다. 자세한 내용은 [Portable 템플릿 패치](#portable-템플릿-패치)를 봅니다
+- `dxcompiler.dll`, `dxil.dll` 은 이 앱이 쓰지 않는 WebGPU 셰이더 컴파일러라서 패키징할 때 뺍니다(`electron/scripts/after-pack.mjs`). 화면이 안 뜨는 PC 가 있으면 이 두 파일부터 되돌려 봅니다
+
+### exe 아이콘, 시작 그림, 파일 정보
+
+| 항목 | 위치 | 설명 |
+| --- | --- | --- |
+| 아이콘 | `resources/icons/icon.ico` | 16~256px 멀티 사이즈. 없으면 Electron 기본 아이콘으로 빌드됩니다. 포터블의 바깥 exe, 풀린 앱 exe, 설치형 모두 이 아이콘을 씁니다 |
+| 시작 그림 | `resources/images/splash.bmp` | 포터블이 처음 켤 때 앱을 푸는 동안 뜨는 그림입니다. **24비트 BMP** 만 되고(현재 800×450), 애니메이션과 투명은 안 됩니다. 바꾸려면 같은 형식으로 교체하고 다시 빌드합니다 |
+| 파일 정보 | `electron-builder.yml` 의 `copyright`, `extraMetadata.author` | exe 속성에 보이는 회사(CAVAC(중앙백신연구소))와 저작권입니다 |
 
 ## 키오스크에서 exe 로 운영하기
 
@@ -108,14 +118,19 @@ CAVAC 키오스크/
 
 ### 2. 실행
 
-exe 를 더블클릭합니다. 실행할 때마다 임시 폴더에 풀고 뜨므로 첫 화면까지 몇 초 걸립니다.
+exe 를 더블클릭합니다.
 
+- **처음 켤 때**는 앱을 푸는 동안 흰 바탕에 로고 그림이 뜨고, 몇 초 뒤 앱이 열립니다
+- 푼 앱은 `%LOCALAPPDATA%\cavac-kiosk-game Portable\<빌드 시각>\` 에 남아서, 다음부터는 풀지 않고 바로 켜집니다
+  - 새 버전 exe 로 바꾸면 처음 한 번 다시 풀고, 옛 폴더는 지웁니다
+  - 이 폴더를 지워도 다음 실행 때 다시 풉니다. 설정과 사진은 여기에 없고 exe 옆 `cavac-data/` 에 있습니다
 - "Windows의 PC 보호" 창이 뜨면 **추가 정보 → 실행** 을 누릅니다 (코드 서명을 하지 않아 뜨는 경고입니다)
 - 배포본은 전체화면 키오스크 모드로 뜹니다
+- 시작 그림이 사라진 뒤 앱 창이 뜨기까지 처음 켤 때 2초 안팎 빈 화면이 보이고, 시작 때 "Installing" 이라는 작은 창이 그림 위에 잠깐 겹칠 수 있습니다. 정상적으로 켜지는 중이니 기다리면 됩니다
 
 ### 3. 관리자 화면
 
-화면 **왼쪽 위 모서리를 1.5초 누르고 있으면** PIN 입력 화면이 열립니다.
+화면 **왼쪽 위 로고 영역(1920×1080 기준 360×220)을 1초 누르고 있으면** PIN 입력 화면이 열립니다.
 
 | PIN 입력 | 관리자 설정 |
 | --- | --- |
@@ -242,7 +257,8 @@ docs/images/           README 화면 이미지
 electron/
   main/                앱 실행, 창 생성, 설정 저장, 이미지, PIN, IPC (Node.js 영역)
   preload/             React 에 노출하는 API 계약
-  scripts/             마스터 PIN 해시 생성
+  scripts/             마스터 PIN 해시 생성, 패키징 후처리(after-pack), Portable 패치 확인
+patches/               electron-builder 의 Portable 템플릿 패치
 resources/             패키징용 리소스 (default-species, icons/icon.ico, images/splash.bmp)
 src/
   pages/               화면 단위 (home, vaccine, card, admin)
@@ -260,6 +276,15 @@ src/
   utils/               공용 함수
   assets/              이미지, 사운드, 폰트
 ```
+
+### Portable 템플릿 패치
+
+포터블 exe 는 electron-builder 의 NSIS 템플릿(`portable.nsi`)으로 만들어집니다. 이 앱은 템플릿을 `patches/app-builder-lib@26.15.3.patch` 로 고쳐서 씁니다.
+
+- 한 번 푼 앱을 `%LOCALAPPDATA%` 에 남겨 다시 풀지 않게 합니다 (#205)
+- 앱이 끝나면 바로 종료해서 NSIS 창이 잠깐 뜨는 것을 막습니다 (#209)
+- `bun install` 이 패치를 적용합니다. `bun run dist` 는 패치가 빠졌으면(템플릿에 `CACHE_ROOT` 나 앱 종료 직후의 `Quit` 이 없으면) 빌드를 멈춥니다(`electron/scripts/verify-portable-patch.ts`)
+- electron-builder 버전을 올리면 패치 파일 이름과 내용이 맞지 않으니, `bun patch app-builder-lib@<새 버전>` 으로 같은 변경을 새 템플릿에 다시 적용하고 `bun patch --commit 'node_modules/app-builder-lib'` 로 패치를 다시 만듭니다
 
 ### 규칙
 
